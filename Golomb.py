@@ -7,7 +7,7 @@ class GolombCoding:
         self.m = m
         self.sign = sign
 
-    def Golomb_encode(self, n):
+    def Encode(self, n):
 
 
         q = math.floor(n/ self.m)
@@ -43,7 +43,7 @@ class GolombCoding:
 
 
 
-    def Golomb_decode(self, code):
+    def Decode(self, code):
 
         cc = math.log(self.m,2)
         c = math.ceil(cc)
@@ -82,11 +82,11 @@ class GolombCoding:
 
 Golomb_coder = GolombCoding(7, False)
 
-kodOrd = Golomb_coder.Golomb_encode(5)
+kodOrd = Golomb_coder.Encode(5)
 
 print("kod ord: ",kodOrd)
 
-value = Golomb_coder.Golomb_decode(kodOrd)
+value = Golomb_coder.Decode(kodOrd)
 
 print("Value: ", value)
         
