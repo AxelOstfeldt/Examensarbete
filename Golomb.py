@@ -1,7 +1,7 @@
 import math
 
-m = 3
-n = 3
+m = 4
+n = 4
 
 q = math.floor(n/m)
 r = n % m
@@ -29,7 +29,27 @@ for i in range(q):
 if (math.log(m,2)).is_integer() or r < pow(2,c) -m :
     encoded = encoded + bin(r)[2:]
 else:
-    encoded = encoded + "12345"
+    encoded = encoded + bin(r + pow(2,c) - m)[2:]
+    print("hej")
 
-print((math.log(m,2)).is_integer())
-print(encoded)
+
+
+Q = 0
+B = pow(2,c) - m
+
+if sign == True:
+    if encoded[0] == "1":
+        S = "1"
+    else:
+        S = "0"
+    encoded = encoded[1:]
+
+if (math.log(m,2)).is_integer() or R < pow(2,c) -m :
+    print("hej")
+
+
+else:
+    encoded = encoded + bin(r + pow(2,c) - m)[2:]
+    
+    
+
