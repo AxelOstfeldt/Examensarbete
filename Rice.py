@@ -50,7 +50,7 @@ class RiceCoding:
 
 #Test
     
-Rice_coder = RiceCoding(7, False)
+Rice_coder = RiceCoding(2, False)
 
 kodOrd = Rice_coder.Encode(5)
 
