@@ -1,3 +1,6 @@
+import numpy as np
+import math
+
 class RiceCoding:
 
     def __init__(self, k, sign):
@@ -12,13 +15,17 @@ class RiceCoding:
                 n = -n
             else:
                 s = "0"
-        n = bin(n)[2:]
-
-        r = n[len(n)-self.k:]
-        n = n[:len(n)-self.k]
-        n = int(n,2)
+        if math.log(n,2) < self.k:
+            r = np.binary_repr(n,self.k)
+            loop = 0
+        else:
+            n = bin(n)[2:]
+            r = n[len(n)-self.k:]
+            loop = int(n[:len(n)-self.k],2)
+           
         r = "0" + r
-        for i in range(n):
+
+        for i in range(loop):
             r = "1" + r
 
         if self.sign:
@@ -38,21 +45,26 @@ class RiceCoding:
             A += 1
             code = code[1:]
         
-        code = code[1:]
+        code = bin(A)[2:] + code[1:]
 
-        A = A + int(code, 2)
+        code = int(code, 2)
+
+        if self.sign == True and S == "1":
+            code = -code
 
         return code
     
 
-            
-        
 
 #Test
     
-Rice_coder = RiceCoding(2, False)
+sign = True
+n = 15
+k = 2
 
-kodOrd = Rice_coder.Encode(5)
+Rice_coder = RiceCoding(k, sign)
+
+kodOrd = Rice_coder.Encode(n)
 
 print("kod ord: ",kodOrd)
 
