@@ -36,9 +36,10 @@ class RiceCoding:
     def Decode(self, code):
         
         A = 0
+        S = False
         if self.sign:
             if code[0] == "1":
-                S = "1"
+                S = True
             code = code[1:]
         
         while code[0] == "1":
@@ -49,7 +50,7 @@ class RiceCoding:
 
         code = int(code, 2)
 
-        if self.sign == True and S == "1":
+        if self.sign and S:
             code = -code
 
         return code
@@ -59,7 +60,7 @@ class RiceCoding:
 #Test
     
 sign = True
-n = 15
+n = -7
 k = 2
 
 Rice_coder = RiceCoding(k, sign)

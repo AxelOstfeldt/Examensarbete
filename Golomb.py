@@ -9,21 +9,22 @@ class GolombCoding:
 
     def Encode(self, n):
 
-
-        q = math.floor(n/ self.m)
-        r = n % self.m
         cc = math.log(self.m,2)
         c = math.ceil(cc)
         b = pow(2,c) - self.m
-
         encoded = bin(0)[2:]
 
         if self.sign == True:
             if n < 0:
                 s = "1"
                 n = -n
+                
             else:
                 s = "0"
+
+        q = math.floor(n/ self.m)
+        r = n % self.m
+        
                 
 
         for i in range(q):
@@ -49,10 +50,11 @@ class GolombCoding:
         c = math.ceil(cc)
         b = pow(2,c) - self.m
         A = 0
+        S = "0"
 
         if self.sign == True:
             if code[0] == "1":
-                ss = "1"
+                S = "1"
             code = code[1:]
 
         while code[0] == "1":
@@ -74,15 +76,19 @@ class GolombCoding:
 
 
 
-        if self.sign == True and ss == "1":
+        if self.sign and S == "1":
             decoded = -decoded
 
         return decoded
 
 
-Golomb_coder = GolombCoding(7, False)
+sign = True
+n = -10
+m = 7
 
-kodOrd = Golomb_coder.Encode(5)
+Golomb_coder = GolombCoding(m, sign)
+
+kodOrd = Golomb_coder.Encode(n)
 
 print("kod ord: ",kodOrd)
 
