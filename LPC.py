@@ -1,17 +1,34 @@
 import numpy as np
 
+def autocorrelation(x, lag):
+
+    if lag >= len(x):
+        raise ValueError(f"Lag must be shorter than array length")
+    if not isinstance(lag, int) or lag < 0:
+        raise ValueError(f"Lag must be an positive int")
+
+    x_mean = np.mean(x)
+    n = 0
+    t = 0
+
+        
+    for i in range(len(x)):
+        n += pow(x[i] - x_mean, 2)
+        if i >= lag:
+            t += (x[i] - x_mean) * (x[i-lag] - x_mean)
+
+            
+
+    return t/n
+
 
 
 residuals = [1, 2, 20, 2, 5, 20, 100, 60, 70, 44, 20]
 
 R =[]
 
-for t in range (residuals):
-    R.append()
-
-
-R = [10,20,30,40,50]
-
+for t in range(len(residuals)):
+    R.append(autocorrelation(residuals,t))
 
 
 
@@ -46,12 +63,14 @@ for i in range(1, n):
         
     E[i] = (1 - pow(k[i],2) ) * E[i-1]
     
-    print("loop #i: ", i)
-    print("k = ", k)
-    print("E = ", E)
+    #print("loop #i: ", i)
+    #print("k = ", k)
+    #print("E = ", E)
     print("a = ", a)
     
 
+    for i in range 
+    predict = a[]
 
 
 
@@ -63,24 +82,3 @@ for i in range(1, n):
 
 
 
-
-def autocorrelation(x, lag):
-
-    if lag >= len(x):
-        raise ValueError(f"Lag must be shorter than array length")
-    if not isinstance(lag, int) or lag < 0:
-        raise ValueError(f"Lag must be an positive int")
-
-    x_mean = np.mean(x)
-    n = 0
-    t = 0
-
-        
-    for i in range(len(x)):
-        n += pow(x[i] - x_mean, 2)
-        if i >= lag:
-            t += (x[i] - x_mean) * (x[i-lag] - x_mean)
-
-            
-
-    return t/n
