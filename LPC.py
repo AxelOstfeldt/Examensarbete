@@ -23,7 +23,7 @@ def autocorrelation(x, lag):
 
 
 
-residuals = [1, 2, 20, 2, 5, 20, 100, 60, 70, 44, 20]
+residuals = [1, 2, 3, 4, 5, 4, 3, 2, 1, 0, -1, -2, -3, -4, -5]
 
 R =[]
 
@@ -69,11 +69,21 @@ for i in range(1, n):
     print("a = ", a)
     
 
-    for i in range 
-    predict = a[]
+
+prediction = [0] * (len(residuals)-4)
+
+for i in range(len(residuals)-4):
+    print(i)
+    
+    
+    #pred += 
+
+    prediction[i] = int(pred)
 
 
-
+print("Original values: ", residuals)
+print("Predicted values: ", prediction)
+        
 
 
 
