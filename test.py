@@ -1,5 +1,9 @@
 import numpy as np
 
+import cython
+
+
+
 x = np.random.randint(0,100,10)
 
 print(x)
