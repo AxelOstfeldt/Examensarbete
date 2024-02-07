@@ -79,6 +79,7 @@ class GolombCoding:
         if self.sign == True:
             encoded = s + encoded
 
+        #returns the encoded value
         return encoded
 
 
@@ -159,7 +160,7 @@ class GolombCoding:
             elif (R < b) and LengthCheck != A+c:
                 raise ValueError(f"Size error. Input code length, {LengthCheck}, should be equal to A+c = {A+c}")
 
-
+        #Returns the decoded int value
         return decoded
 
 

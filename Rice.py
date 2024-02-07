@@ -96,6 +96,7 @@ class RiceCoding:
         if self.sign and S:
             code = -code
 
+        #Returns the decoded value as an int
         return code
     
 
