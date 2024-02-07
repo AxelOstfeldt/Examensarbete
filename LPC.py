@@ -1,17 +1,57 @@
 import numpy as np
 
-E = [1,2,3,4,5,6,7,8]
 
-k_array = []
 
-a = []
+residuals = [1, 2, 20, 2, 5, 20, 100, 60, 70, 44, 20]
 
-n = len(E) - 2
+R =[]
 
-for i in range(n):
+for t in range (residuals):
+    R.append()
+
+
+R = [10,20,30,40,50]
+
+
+
+
+
+order = 5
+
+a = [0] * order
+
+k = [0] * order
+
+E = [0] * order
+
+n = order
+
+E[0] = R[0]
+
+for i in range(1, n):
+
+
+    a_old = a
 
     for j in range(i-1):
+        k[i] = a[j] * R[i-j] + k[i]
+
+    k[i] = ( R[i] - k[i] ) / E[i-1]
+
+    a[i] = k[i]
+
+    if i > 0:
+        for j in range (1, i-1):
+            a[j] = a_old[j] - k[i]*a_old[i-j]
         
+    E[i] = (1 - pow(k[i],2) ) * E[i-1]
+    
+    print("loop #i: ", i)
+    print("k = ", k)
+    print("E = ", E)
+    print("a = ", a)
+    
+
 
 
 
@@ -48,9 +88,9 @@ def autocorrelation(s, t, i):
     return Rs_i
 
 # Example usage:
-s = np.array([1, 2, 3, 4, 5])
-t = 0
-i = 2
+#s = np.array([1, 2, 3, 4, 5])
+#t = 0
+#i = 2
 
-result = autocorrelation(s, t, i)
-print(f"Autocorrelation at lag {i}: {result}")
+#result = autocorrelation(s, t, i)
+#print(f"Autocorrelation at lag {i}: {result}")
