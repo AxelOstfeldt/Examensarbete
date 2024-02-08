@@ -4,7 +4,7 @@
 #memory should be the length of order
 #if memory is the start of the data stream it should be an array of zeros
 
-def Shorten(input, order, memory):
+def Shorten(input, order: int = 3, memory: list = [0] * 3):
 
 
     #Order can only be between 0 and 3 for Shorten, and have to be an int
