@@ -41,9 +41,10 @@ def Shorten(input, order: int = 3, memory: list = [0] * 3):
 
             #current input is saved in first slot of memory
             memory[0] = input[i]
-        elif i > 0:
+        elif order == 1:
             #in case of order 1 the current prediction is the last input
-            prediction = input[i-1]
+            prediction = memory[0]
+            memory[0] = input[i]
         else:
             #in case of order zero the prediciton is allways zero.
             #in this case the full current value is sent as residual
@@ -59,13 +60,13 @@ def Shorten(input, order: int = 3, memory: list = [0] * 3):
     return residuals, memory, predictions
 
 
-order = 3
-input = [1,2,3,4,5,6,7,8,9,9,9,10,11,12,5,4,3,2,1,0]
-samples = [0] * 3
+#order = 3
+#input = [1,2,3,4,5,6,7,8,9,9,9,10,11,12,5,4,3,2,1,0]
+#samples = [0] * 3
 
-residuals, memory, predictions = Shorten(input, order, samples)
+#residuals, memory, predictions = Shorten(input, order, samples)
 
-print("Predictions: ",predictions)
+#print("Predictions: ",predictions)
     
-print("Residuals: ",residuals)
-print("Memory: ",memory)
+#print("Residuals: ",residuals)
+#print("Memory: ",memory)
