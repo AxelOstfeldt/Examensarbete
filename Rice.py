@@ -72,45 +72,61 @@ class RiceCoding:
     
     def Decode(self, code):
         
-        A = 0
-        #If S is true the output should be negative
-        S = False
-
-        #Checks if the data is signed
-        if self.sign:
-            #Checks if the MSB is "1", indicating that the value should be negative.
-            if code[0] == "1":
-                #Sets S to True if the output should be negative
-                S = True
-            #Removes the MSB, signed bit, from the code word.
-            #This way the rest of the code word can be handled as if it was unsigned
-            code = code[1:]
         
-        #Decodes the unary code.
-        #Unary code represents a interger value as a set of "1":s followed by a "0".
-        #By incrementing A by 1 if the MSB is a one then moving the codeword one step and checking again
-        #all "1" will increment A until a "0" is MSB indicating that the unary code have been decoded. 
-        while code[0] == "1":
-            A += 1
+        decoded_values = []
+
+        #Loops trough the code word to get all values in the code word
+        while len(code) > 0:
+            A = 0
+            #If S is true the output should be negative
+            S = False
+            value = ""
+            
+            #Checks if the data is signed
+            if self.sign:
+                #Checks if the MSB is "1", indicating that the value should be negative.
+                if code[0] == "1":
+                    #Sets S to True if the output should be negative
+                    S = True
+                #Removes the MSB, signed bit, from the code word.
+                #This way the rest of the code word can be handled as if it was unsigned
+                code = code[1:]
+
+            
+            #Decodes the unary code.
+            #Unary code represents a interger value as a set of "1":s followed by a "0".
+            #By incrementing A by 1 if the MSB is a one then moving the codeword one step and checking again
+            #all "1" will increment A until a "0" is MSB indicating that the unary code have been decoded. 
+            while code[0] == "1":
+                A += 1
+                code = code[1:]
+
+            
+            #After the unary code have been uncoded the remaining code will be
+            #a "0" as MSB followed by the last k-bits from the original binary value as LSB
+            #By looping thorugh the codeword and removing k bits to the current value being decoded
+            #The last bits in the code word for the current value can be decoded
+            for j in range(k):
+                code = code[1:]
+                value += code[0]
+            #Since there is a 0 separating the MSB with the LSB 1 more bit needs to be removed for the current value in the codeword
             code = code[1:]
-        
-        #After the unary code have been uncoded the remaining code will be
-        #a "0" as MSB followed by the last k-bits from the original binary value as LSB
-        #Removing the MSB only the k LSB remain.
-        #By converting the interger value A from the unary code to binary and 
-        #appending the k LSB to it the original binary value is arrived at.
-        code = bin(A)[2:] + code[1:]
 
-        #The original binary value is converted to an int
-        code = int(code, 2)
+            value = bin(A)[2:] + value
 
-        #In if the original value was negative sign and S will be true,
-        #code will then be converted to a negative value
-        if self.sign and S:
-            code = -code
+            #The original binary value is converted to an int
+            value = int(value, 2)
 
-        #Returns the decoded value as an int
-        return code
+            #In if the original value was negative sign and S will be true,
+            #code will then be converted to a negative value
+            if self.sign and S:
+                value = -value
+
+            #appends the decoded value in an array
+            decoded_values.append(value)
+
+        #Returns array with decoded int values
+        return decoded_values
     
 
 
@@ -146,6 +162,6 @@ if 1 > 0:
     print("kod ord: ", code_word)
 
 
-    #value = Rice_coder.Decode(kodOrd)
+    values = Rice_coder.Decode(code_word)
 
-    #print("Value: ", value)
+    print("Values: ", values)
