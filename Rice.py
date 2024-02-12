@@ -1,6 +1,8 @@
 import numpy as np
 import math
 
+print("Hello world")
+
 class RiceCoding:
 
     #k should be an interger based on expected values calculated from previous sampel residuals.
@@ -113,17 +115,37 @@ class RiceCoding:
 
 
 #Test
-if 1 < 0 :
+    
+
+
+if 1 > 0:
+    print("Rice code test is running")
     sign = True
-    n = -7
-    k = 2
+    n = [4, -4, 6, -6, 7]
+    code_words = []
+    code_word = ""
+
+    abs_res = np.absolute(n)
+    abs_res_avg = np.mean(abs_res)
+
+    if abs_res_avg > 0:
+        k = int(math.log(math.log(2,10) * abs_res_avg,2))
+    else:
+        k = 1
+
+    print("k = ",k)
 
     Rice_coder = RiceCoding(k, sign)
 
-    kodOrd = Rice_coder.Encode(n)
+    for i in range(n):
+        kodOrd = Rice_coder.Encode(n[i])
+        code_words.append(kodOrd)
+        code_word += kodOrd
 
-    print("kod ord: ",kodOrd)
+    print("kodord (array): ",code_words)
+    print("kod ord: ", code_word)
 
-    value = Rice_coder.Decode(kodOrd)
 
-    print("Value: ", value)
+    #value = Rice_coder.Decode(kodOrd)
+
+    #print("Value: ", value)
