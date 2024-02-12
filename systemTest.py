@@ -56,6 +56,12 @@ while len(code_words_order[0]) < 20:
     #data2[x,:]
     
 
+    if test == 10:
+        if np.all(data2[best_mic,:]) != np.all(input):
+            input = data2[best_mic,:]
+
+
+
     if test == 9:
         if np.all(data2[best_mic,:]) != np.all(input):
             input = data2[best_mic,:]

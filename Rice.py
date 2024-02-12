@@ -121,7 +121,7 @@ class RiceCoding:
 if 1 > 0:
     print("Rice code test is running")
     sign = True
-    n = [4, -4, 6, -6, 7]
+    n = [20, -20, 60, -60, 70]
     code_words = []
     code_word = ""
 
@@ -137,7 +137,7 @@ if 1 > 0:
 
     Rice_coder = RiceCoding(k, sign)
 
-    for i in range(n):
+    for i in range(len(n)):
         kodOrd = Rice_coder.Encode(n[i])
         code_words.append(kodOrd)
         code_word += kodOrd
