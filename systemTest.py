@@ -36,7 +36,6 @@ best_mic = 79
 
 residuals = []
 
-print("Hello")
 
 #Grabs one package from the sound file
 #Each packet contains 256 smples from all 256 microphones
