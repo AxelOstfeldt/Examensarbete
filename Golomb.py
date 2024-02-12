@@ -89,93 +89,119 @@ class GolombCoding:
         cc = math.log(self.m,2)
         c = math.ceil(cc)
         b = pow(2,c) - self.m
-        A = 0
-        S = "0"
-        
-        #Used later to check that the data is correctly decoded
-        LengthCheck = len(code)
-        
-        #Checks if the data is signed
-        if self.sign == True:
-            #if the sign bit is "1" the result should be negative,
-            #to ensure this S is set to "1"
-            if code[0] == "1":
-                S = "1"
-            #The sign bit is removed and the rest of the code word can be decoded as if it was unsigned
-            code = code[1:]
+        decoded_values = []
 
-        #Decodes the unary part of the codeword by staying in the while loop aslong as the MSB is "1"
-        while code[0] == "1":
-            #for every "1" in the code word A is incremented by one
-            A += 1
-            #Removes the MSB of the codeword
-            code = code[1:]
-        #After the unary code is decoded the MSB will be a "0".
-        #This zero exist to indicate that the unary code is done and can be removed
-        code = code[1:]
+        while len(code) > 0:
+            A = 0
+            S = "0"
+            R = ""
 
-        #The c-1 last bits are converted to integer and denoted R
-        R = int(code[:c-1],2)
-
-
-        #There are 3 cases when decoding, reflecting the 3 cases for encoding
-
-        #Case 1. m is a power of 2, then cc will be an interger.
-        if (cc).is_integer():
-            #In this case the remoning bits should be of lenght c, else and error will be raised
-            if len(code) != c:
-                raise ValueError(f"Size error, length of code remaining should match c. Current values are: code = {code}, c = {c}")
-            #The remaining bits are converted to int and added to the unary decoded A times m
-            decoded = self.m * A + int(code, 2)
-        else:
             
-            #Case 2. if R is less than c² - m 
-            if R < b:
-                #In these cases the remaning code should be length c-1. Else and error will be raised
-                if len(code) != c-1:
-                    raise ValueError(f"Size error. code = {code}, should have length: {c-1}")
+
+            
+            #Checks if the data is signed
+            if self.sign == True:
+                #if the sign bit is "1" the result should be negative,
+                #to ensure this S is set to "1"
+                if code[0] == "1":
+                    S = "1"
+                #The sign bit is removed and the rest of the code word can be decoded as if it was unsigned
+                code = code[1:]
+
+            #Decodes the unary part of the codeword by staying in the while loop aslong as the MSB is "1"
+            while code[0] == "1":
+                #for every "1" in the code word A is incremented by one
+                A += 1
+                #Removes the MSB of the codeword
+                code = code[1:]
+            #After the unary code is decoded the MSB will be a "0".
+            #This zero exist to indicate that the unary code is done and can be removed
+            code = code[1:]
+
+
+
+            #The c-1 last bits are converted to integer and denoted R
+            for i in range(c-1):
+                R += code[0]
+                code = code[1:]
+            
+
+            
+
+
+            #There are 3 cases when decoding, reflecting the 3 cases for encoding
+
+            #Case 1. m is a power of 2, then cc will be an interger.
+            if (cc).is_integer():
+                #In this case the remaning bits should be of lenght c
+                #One more bits is removed from code and added to R
+                R += code[0]
+                code = code[1:]
+
                 #The remaining bits are converted to int and added to the unary decoded A times m
-                decoded = self.m * A + int(code, 2)
-            #Case 3. if R is greater or equal to c² - m
+                value = self.m * A + int(R, 2)
             else:
-                #in this case the remaining code should be of length c. Else and error will be raised
-                if len(code) != c:
-                    raise ValueError(f"Size error. code = {code}, should have length: {c}")
-                #to decode in case the unary decoded A is multiplied with m and added to the interger valued code as the previous cases.
-                #But in this case b is subtracted (b = c² - m). This is the deconding of the encoding case where the largest remainder is encoded in "1" bits with length c.
-                decoded = self.m * A + int(code, 2) - b
+                
+                #Case 2. if R is less than c² - m 
+                if int(R, 2) < b:
+                    #In these cases the remaning code should be length c-1. Else and error will be raised
+                    #The remaining bits are converted to int and added to the unary decoded A times m
+                    value = self.m * A + int(R, 2)
+                #Case 3. if R is greater or equal to c² - m
+                else:
+                    #in this case the remaining code should be of length c.
+                    #One more bits is removed from code and added to R
+                    R += code[0]
+                    code = code[1:]
 
+                    #to decode in case the unary decoded A is multiplied with m and added to the interger valued code as the previous cases.
+                    #But in this case b is subtracted (b = c² - m). This is the deconding of the encoding case where the largest remainder is encoded in "1" bits with length c.
+                    value = self.m * A + int(R, 2) - b
+
+            
+
+            #Checks if the data is signed and if S ="1" the decoded value should be negative
+            if self.sign and S == "1":
+                value = -value
+
+            #Adds the decoded value to the array of the decoded values
+            decoded_values.append(value)
+
+        #Returns the decoded values in an array
+        return decoded_values
+
+
+
+#Test
+    
+if 1 > 0:
+
+    print("Golomb code test is running")
+    sign = True
+    
+
+
+    n = [0, -10, 20, -30, 40]
+    code_words = []
+    code_word = ""
+    m = math.log(2, 10) * np.mean(np.absolute(n))
+    print("m = ",m)
+    print("log2 m = ", math.log(m,2))
+    m = 5
+    Golomb_coder = GolombCoding(m, sign)
+
+    for i in range(len(n)):
+        kodOrd = Golomb_coder.Encode(n[i])
+        code_words.append(kodOrd)
+        code_word += kodOrd
         
-
-        #Checks if the data is signed and if S ="1" the decoded value should be negative
-        if self.sign and S == "1":
-            decoded = -decoded
-            if ((cc).is_integer() or R >= b) and LengthCheck != A+c+2:
-                raise ValueError(f"Size error. Input code length, {LengthCheck}, should be equal to A+c+2 = {A+c+2}")
-            elif (R < b) and LengthCheck != A+c+1:
-                raise ValueError(f"Size error. Input code length, {LengthCheck}, should be equal to A+c+1 = {A+c+1}")
-        else:
-            if ((cc).is_integer() or R >= b) and LengthCheck != A+c+1:
-                raise ValueError(f"Size error. Input code length, {LengthCheck}, should be equal to A+c+1 = {A+c+1}")
-            elif (R < b) and LengthCheck != A+c:
-                raise ValueError(f"Size error. Input code length, {LengthCheck}, should be equal to A+c = {A+c}")
-
-        #Returns the decoded int value
-        return decoded
+    print("kodord (array): ",code_words)
+    print("kod ord: ", code_word)
 
 
-sign = True
-n = -7
-m = 8
 
-Golomb_coder = GolombCoding(m, sign)
+    values = Golomb_coder.Decode(code_word)
 
-kodOrd = Golomb_coder.Encode(n)
-
-print("kod ord: ",kodOrd)
-
-value = Golomb_coder.Decode(kodOrd)
-
-print("Value: ", value)
-        
-        
+    print("Values: ", values)
+            
+            
