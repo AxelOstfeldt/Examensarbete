@@ -21,9 +21,20 @@ class RiceCoding:
             else:
                 s = "0"
 
+        
+        #If statments checks if n = 0, this should be handled the same way as if n < k (see below),
+        #but since math-log(0,2) does not work an extra if statement is needed
+        if n == 0:
+            #If n represent fewer than k bits it will be converted to a bianry value with padding.
+            #The padding are zeros as MSB so that there are k bits representing the value n
+            r = np.binary_repr(n,self.k)
+            #The loop constant will detemen how long the unary code will be.
+            #When n is fully represented in binary by r there is no need for unary code.
+            loop = 0
+        
         #If statement checks that n value is large enough to be longer than k bits when converted to binary.
         #This is done so when separating the k last bits it would create an error if there is not enoguh bits.
-        if math.log(n,2) < self.k:
+        elif math.log(n,2) < self.k:
             #If n represent fewer than k bits it will be converted to a bianry value with padding.
             #The padding are zeros as MSB so that there are k bits representing the value n
             r = np.binary_repr(n,self.k)
@@ -102,17 +113,17 @@ class RiceCoding:
 
 
 #Test
-    
-sign = True
-n = -7
-k = 2
+if 1 < 0 :
+    sign = True
+    n = -7
+    k = 2
 
-Rice_coder = RiceCoding(k, sign)
+    Rice_coder = RiceCoding(k, sign)
 
-kodOrd = Rice_coder.Encode(n)
+    kodOrd = Rice_coder.Encode(n)
 
-print("kod ord: ",kodOrd)
+    print("kod ord: ",kodOrd)
 
-value = Rice_coder.Decode(kodOrd)
+    value = Rice_coder.Decode(kodOrd)
 
-print("Value: ", value)
+    print("Value: ", value)
