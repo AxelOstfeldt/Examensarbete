@@ -184,10 +184,8 @@ if 1 > 0:
     n = [0, -10, 20, -30, 40]
     code_words = []
     code_word = ""
-    m = math.log(2, 10) * np.mean(np.absolute(n))
+    m = int(math.log(2, 10) * np.mean(np.absolute(n)))
     print("m = ",m)
-    print("log2 m = ", math.log(m,2))
-    m = 5
     Golomb_coder = GolombCoding(m, sign)
 
     for i in range(len(n)):
