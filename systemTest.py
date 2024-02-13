@@ -13,36 +13,68 @@ import matplotlib.pyplot as plt
 
 connect()
 
+
+
+#Some inital values for testing
 NORM_FACTOR = 16777216
+input = 0
+w_limit = 0#Is incremented in while loop until limit is reached
+recomnded_limit = 10#Is the limit to reach in the while loop, set different at different tests
+best_mic = 79#From looking at the plots in test 2
 
-#for Shorten
+#Some inital values for Shorten
 order = 3
-
 memorys = [[],[0],[0,0],[0,0,0]]
 memory = memorys[order]
 
-input = 0
-inputs = []
-k_array = []
 
-w_limit = 0
 
-plot_sig = []
+#Choose what test to do:
+test = 3
+#Test 2. This test plots microphone data
+#Test 10. This test tries different k-values in Rice codes for all orders of shorten over several data points.
 
-code_words = []
 
-uncoded_words = []
-
-code_words_len = []
-
-code_words_order = [[],[],[],[]]
+#inputs = []
+#k_array = []
 
 
 
+#plot_sig = []
 
-test = 10
+#code_words = []
 
+#residuals = []
+
+
+#code_words_len = []
+
+#code_words_order = [[],[],[],[]]
+
+if test == 2:
+    recomnded_limit = 1
+    plot_sig = []
+    data_points = 256#How many samples for each block is gonna be plotted, lower value gives a more zoomed in picture
+
+if test == 3:
+    recomnded_limit = 1
+    
+    data_points = 256#How many samples for each block is gonna be plotted, lower value gives a more zoomed in picture.
+    #Can only be changed if recomdended limit = 1
+    
+    plot_residuals = [[],[],[],[]]
+    plot_predict = [[],[],[],[]]
+    plot_sig = []
+    plot_zero = [[],[],[],[]]
+
+
+
+
+
+#Inital values for test 10
 if test == 10:
+    recomnded_limit = 10
+    uncoded_words = []
     k_ideal_array = [[],[],[],[]]
     k_array = [4,5,6,7,8,9,10,11,12,13,14,15,16]
     order_0_array = []
@@ -58,16 +90,14 @@ if test == 10:
 
 
 
-#From looking at the plots in test 2
-best_mic = 79
 
-residuals = []
+
 
 
 #Grabs one package from the sound file
 #Each packet contains 256 smples from all 256 microphones
 data = np.empty((config.N_MICROPHONES, config.N_SAMPLES), dtype=np.float32)
-while w_limit < 10:
+while w_limit < recomnded_limit:
     
     receive(data)
 
@@ -294,45 +324,46 @@ while w_limit < 10:
 
     if test == 3:
         if np.all(data2[best_mic,:]) != np.all(input):
+            w_limit +=1
             input = data2[best_mic,:]
-            plot_residual = []
-            plot_predict = []
-            plot_zero = []
+            
+            plot_sig_temp = []
+            if recomnded_limit == 1:
+                for j in range(data_points):
+                    plot_sig_temp.append(input[j])
+            else:
+                plot_sig_temp = input
+                    
+            for i in range(4):
+                residual, memorys[i], predict = Shorten(plot_sig_temp, i, memorys[i])
+                
+                for j in range(len(residual)):
+                    plot_residuals[i].append(residual[j])
+                    plot_predict[i].append(predict[j])
+                    plot_zero[i].append(plot_sig_temp[j] - ( predict[j] + residual[j]))
+                    if i == 0:
+                        plot_sig.append(plot_sig_temp[j])
 
-            for j in range(2):
-                plot_sig_temp = []
-
-                for i in range(55*j, 55*(j+1)):
-                    plot_sig_temp.append(input[i])
-
-                print(memory)
-                residual, memory, predict = Shorten(plot_sig_temp, order, memory)
-                plot_sig.append(plot_sig_temp)
-                plot_residual.append(residual)
-                plot_predict.append(predict)
-                plot_zero_temp = []
-
-                for i in range(len(plot_sig_temp)):
-                    temp_value = plot_sig_temp[i] - ( predict[i] + residual[i] )
-                    plot_zero_temp.append(temp_value)
-
-                plot_zero.append(plot_zero_temp)
 
 
     if test == 2:
-        if np.all(data2[0,:]) != np.all(input):
-            print("Test start")
-            input = data[0,:]
+        #This if statments make sure to wait until a new sample block is available
+        if np.all(data2[best_mic,:]) != np.all(input):
+            w_limit +=1
+            input = data[best_mic,:]
             
             for j in range(256):
-            
+                #Picks mic nr j as input
                 input_temp = data2[j,:]
                 plot_sig_temp = []
-                for i in range(256):
+                
+                #Save data_points of sampels for each block in an array for every mic
+                for i in range(data_points):
                     value = input_temp[i]
-                    #print(len(plot_sig))
                     plot_sig_temp.append(value)
+                #Appends the arrays of all mics into one array
                 plot_sig.append(plot_sig_temp)
+            
                     
     
     if test == 1:
@@ -606,28 +637,10 @@ if test == 10:
 
 
 
-#Test to find which order of shorten gives the best compression ratio
-if test == 9:
-    compression_ratios = [[],[],[]]
-    uncoded_words = code_words_order[0]
-    for i in range(1,4):
-        code_words = code_words_order[i]
-        for j in range(len(code_words)):
-            temp_comp_ratio = len(code_words[j]) / len(uncoded_words[j])
-            compression_ratios[i-1].append(temp_comp_ratio)
-
-        print("Shorten order ", i," gives an average compression ratio: cr = ", sum(compression_ratios[i-1]) / len(compression_ratios[i-1]))
 
 
 
-#Test the compression ratio of Shorten (Assuming original data values are encoded in 32 bits)
-if test == 8:
-    compression_ratio = []
-    for i in range(len(code_words)):
-        temp_comp_r = len(code_words[i]) / len(uncoded_words[i])
-        compression_ratio.append(temp_comp_r)
-    print("Compression ratio of Shorten are: ", compression_ratio)
-    print("Average compression ratio over several itterations is: ", sum(compression_ratio)/len(compression_ratio))
+
 
 
 
@@ -736,11 +749,14 @@ if test == 4:
 
 #Plot input signal, residual, predicted value to see how good the result of shorten is
 if test == 3:
-    for i in range(len(plot_sig)):
-        fig = plt.figure(i)
+    #One figure for each order, created by a for loop of range 4
+    for i in range(4):
+        figure_title = "Shorten order " + str(i)
+        fig = plt.figure(figure_title)
 
+        
         ax = fig.add_subplot(221)
-        plt.plot(plot_sig[i])
+        plt.plot(plot_sig)
         ax.title.set_text("Input signal")
 
         ax = fig.add_subplot(222)
@@ -748,32 +764,22 @@ if test == 3:
         ax.title.set_text("Predicted signal")
 
         ax = fig.add_subplot(223)
-        plt.plot(plot_residual[i])
+        plt.plot(plot_residuals[i])
         ax.title.set_text("Residual signal")
 
         ax = fig.add_subplot(224)
         plt.plot(plot_zero[i])
         ax.title.set_text("Input - (Predict + Residual) = 0")
 
-        abs_res = np.absolute(plot_residual[i])
-        abs_res_avg = np.mean(abs_res)
-        print("Variance of absolute residual[",i,"]: ", np.var(abs_res))
-        print("Mean value of absolute residual[",i,"]: ", abs_res_avg)
-        print("Largest residual[",i,"]: ", np.max(abs_res))
-
-
-    plt.show()
-
-
-
-
-
+        plt.show()
 
 
 
 #Plot all mics to find which ones have good recorded values
 if test == 2:
     plot_nr = 1
+    #loops thorugh the array with mic data, ploting each mic
+    #this is done in subplot so that each figure conatins 4 mic
     for i in range(256):
         fig = plt.figure(plot_nr)
         sub_nr =(i%4 + 1)
@@ -789,7 +795,7 @@ if test == 2:
         if i % 4 == 3:
          
             plot_nr +=1
-            plt.show()
+            plt.show()#Each figure is plotted one at a time, to plot all at the same time move this outsie for-loop
         
 
 
