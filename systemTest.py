@@ -5,9 +5,7 @@ import math
 from Shorten import Shorten
 from Rice import RiceCoding
 import matplotlib.pyplot as plt
-
-
-
+import time
 
 
 
@@ -23,18 +21,20 @@ recomnded_limit = 10#Is the limit to reach in the while loop, set different at d
 best_mic = 79#From looking at the plots in test 2
 
 #Some inital values for Shorten
-order = 3
 memorys = [[],[0],[0,0],[0,0,0]]
-memory = memorys[order]
+
 
 
 
 #Choose what test to do:
-test = 13
+test = 11
 
 #General tests
 #Test 1. This test plots microphone data
 #Test 2. This test checks average binary len and max length of input data if every data point was written with minimal amount of bits
+#Test 3. Suposed to test how long time it takes to grab a new sample. 
+#In theory it should be around 0.005 s, calculated from 256 samples at a sampling frequency of about 48 k Hz
+#However this does not seem to hold because of other processes runing on the computer makeing it slower
 
 #Shorten tests
 #Test 11. Test if Shorten using Rice code can correctly decode the input values
@@ -74,8 +74,21 @@ if test == 12:
     plot_sig = []
     plot_zero = [[],[],[],[]]
 
+
+#Initial values for test 11
+if test == 11:
+    recomnded_limit = 1
+    inputs = []
+    code_words = []
+    uncoded_words = []
+    order = 2
+    memory = memorys[order]
+
+
+#Initial values for test 3
 if test == 3:
-    timer = 0
+    loop_time = []
+    recomnded_limit = 10
 
 
 #Inital values for test 2
@@ -226,7 +239,7 @@ while w_limit < recomnded_limit:
             abs_res = np.absolute(residuals)
             abs_res_avg = np.mean(abs_res)
             if abs_res_avg > 0:
-                k = int(math.log(math.log(2,10) * abs_res_avg,2))
+                k = int(round(math.log(math.log(2,10) * abs_res_avg,2)))
             else:
                 k = 1
 
@@ -244,12 +257,29 @@ while w_limit < recomnded_limit:
             uncoded_words.append(uncoded_word)
 
 
+    #Test how long time it takes for a new data block sample to arrive
+    if test == 3:
+        #This if statments make sure to wait until a new sample block is available
+        if np.all(data2[best_mic,:]) != np.all(input):
+            input = data2[best_mic,:]
+            print(w_limit)
+            if w_limit == 0:
+                t0 = time.time()
+            else:
+                t1 = time.time()
+                loop_time.append(t1-t0)
+                t0 = t1
+            w_limit +=1
+
+
+
     #This test created arrays with minimum binary length for each input value
     if test == 2:
         #This if statments make sure to wait until a new sample block is available
         if np.all(data2[best_mic,:]) != np.all(input):
             input = data2[best_mic,:]
             w_limit +=1
+            
 
             code_word_len = []
 
@@ -566,6 +596,18 @@ if test == 11:
             else:
                 print("Input = ", input[j])
                 print("Decoded value = ", values[j])
+
+#Test how long time it takes to get a new sample
+if test == 3:
+    avg_time = sum(loop_time)/len(loop_time)
+    slowest_time = max(loop_time)
+    fastest_time = min(loop_time)
+    print("The average loop time is: ", avg_time," s")
+
+    print("The fastest loop time is: ", fastest_time," s")
+
+    print("The slowest loop time is: ", slowest_time," s")
+
 
 
 #Test average length of binary representation for input data and the largest bit representation of input data
