@@ -1,13 +1,27 @@
-a = 8.4
-b = 8.5
-c = 8.6
+        for i in range(len(residuals)):
+            prediction = 0
 
-print("8.4 som int är ", int(a))
-print("8.5 som int är ", int(b))
-print("8.6 som int är ", int(c))
 
-print("med round:")
+            if order == 0:
+                prediction = 0
 
-print("8.4 som int är ", int(round(a)))
-print("8.5 som int är ", (round(b)))
-print("8.6 som int är ", int(round(c)))
+            elif order > 1:
+                #this forloop is reversed so that memory values needed are not overwritten when values are shuffled one index back
+                for j in reversed(range(1, order)):
+                    
+                    prediction = prediction + coeficents[j] * memory[j]
+                    memory[j] = memory[j-1]
+
+                prediction = prediction + coeficents[0] * memory[0]
+
+            elif order == 1:
+                prediction = memory[0]
+                
+            current_input = residuals[i] + prediction
+
+            input.append(current_input)
+            predictions.append(prediction)
+            memory[0] = current_input
+
+
+        return input, memory, predictions
