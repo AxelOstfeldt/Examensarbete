@@ -15,7 +15,7 @@ connect()
 
 
 
-#Some inital values for testing
+#Some general inital values for testing
 NORM_FACTOR = 16777216
 input = 0
 w_limit = 0#Is incremented in while loop until limit is reached
@@ -30,49 +30,23 @@ memory = memorys[order]
 
 
 #Choose what test to do:
-test = 3
-#Test 2. This test plots microphone data
-#Test 10. This test tries different k-values in Rice codes for all orders of shorten over several data points.
+test = 1
 
+#General tests
+#Test 1. This test plots microphone data
+#Test 2. This test checks average binary len and max length of input data if every data point was written with minimal amount of bits
 
-#inputs = []
-#k_array = []
-
-
-
-#plot_sig = []
-
-#code_words = []
-
-#residuals = []
-
-
-#code_words_len = []
-
-#code_words_order = [[],[],[],[]]
-
-if test == 2:
-    recomnded_limit = 1
-    plot_sig = []
-    data_points = 256#How many samples for each block is gonna be plotted, lower value gives a more zoomed in picture
-
-if test == 3:
-    recomnded_limit = 1
-    
-    data_points = 256#How many samples for each block is gonna be plotted, lower value gives a more zoomed in picture.
-    #Can only be changed if recomdended limit = 1
-    
-    plot_residuals = [[],[],[],[]]
-    plot_predict = [[],[],[],[]]
-    plot_sig = []
-    plot_zero = [[],[],[],[]]
+#Shorten tests
+#Test 11. Test if Shorten using Rice code can correctly decode the input values
+#Test 12. Plots results for differente orders of Shorten
+#Test 13. This test tries different k-values in Rice codes for all orders of shorten over several data points.
 
 
 
 
 
-#Inital values for test 10
-if test == 10:
+#Inital values for test 13
+if test == 13:
     recomnded_limit = 10
     uncoded_words = []
     k_ideal_array = [[],[],[],[]]
@@ -86,6 +60,32 @@ if test == 10:
         order_1_array.append([])
         order_2_array.append([])
         order_3_array.append([])
+
+
+#Inital values for test 12
+if test == 12:
+    recomnded_limit = 1
+    
+    data_points = 256#How many samples for each block is gonna be plotted, lower value gives a more zoomed in picture.
+    #Can only be changed if recomdended limit = 1
+    
+    plot_residuals = [[],[],[],[]]
+    plot_predict = [[],[],[],[]]
+    plot_sig = []
+    plot_zero = [[],[],[],[]]
+
+
+#Inital values for test 2
+if test == 2:
+    code_words_len = []
+    recomnded_limit = 10
+
+
+#Inital values for test 1
+if test == 1:
+    recomnded_limit = 1
+    plot_sig = []
+    data_points = 256#How many samples for each block is gonna be plotted, lower value gives a more zoomed in picture
 
 
 
@@ -117,8 +117,7 @@ while w_limit < recomnded_limit:
     #1. What order and k-value gives best cr result.
     #2. What k-value for each order give best cr result.
     #3. How well does the ideal k-value in Rice theory match the practical ideal k-value
-
-    if test == 10:
+    if test == 13:
         #Only starts calculations when a new sample block is available
         if np.all(data2[best_mic,:]) != np.all(input):
             input = data2[best_mic,:]
@@ -180,193 +179,38 @@ while w_limit < recomnded_limit:
             w_limit += 1
 
 
-
-
-
-            
-            
-            
-
-
-
-
-
-    if test == 9:
-        if np.all(data2[best_mic,:]) != np.all(input):
-            input = data2[best_mic,:]
-            
-            uncoded_word = ""
-            for j in range(len(input)):
-                uncoded_word += np.binary_repr(input[j],32)
-            code_words_order[0].append(uncoded_word)
-
-
-
-            for i in range(1,4):
-                order = i
-                residual, memory, predict = Shorten(input, order, memorys[i])
-                memorys[i] = memory
-
-                abs_res = np.absolute(residual)
-                abs_res_avg = np.mean(abs_res)
-                if abs_res_avg > 0:
-                    k = int(math.log(math.log(2,10) * abs_res_avg,2))
-                else:
-                    k = 1
-
-
-                code_word =""
-                for j in range(len(input)):
-                    Rice_coder = RiceCoding(k, True)
-                    n = int(residual[j])
-                    kodOrd = Rice_coder.Encode(n)
-                    code_word += kodOrd
-                code_words_order[i].append(code_word)
-
-
-    if test == 8:
-        if np.all(data2[best_mic,:]) != np.all(input):
-            input = data2[best_mic,:]
-            code_word =""
-            uncoded_word = ""
-
-            residuals, memory, predictions = Shorten(input, order, memory)
-            abs_res = np.absolute(residuals)
-            abs_res_avg = np.mean(abs_res)
-            if abs_res_avg > 0:
-                k = int(math.log(math.log(2,10) * abs_res_avg,2))
-            else:
-                k = 1
-
-
-
-            for i in range(len(residuals)):
-                Rice_coder = RiceCoding(k, True)
-                n = int(residuals[i])
-                kodOrd = Rice_coder.Encode(n)
-                code_word += kodOrd
-
-                uncoded_word += np.binary_repr(input[i],32)
-
-            code_words.append(code_word)
-            uncoded_words.append(uncoded_word)
-
-
-    if test == 7:
-        if np.all(data2[best_mic,:]) != np.all(input):
-            input = data2[best_mic,:]
-            code_word_len = []
-
-            for i in range(len(input)):
-                n = input[i]
-                s = "0"
-                if n < 0:
-                    s = "1"
-                    n = -n
-                
-                n = int(n)
-                kodOrd = s + bin(n)[2:]
-                if len(kodOrd) > 16:
-                    print("Uncoded word have: ", kodOrd, " have length: ", len(kodOrd))
-                
-                code_word_len.append(len(kodOrd))
-            code_words_len.append(code_word_len)
-
-
-    if test == 6:
-        if np.all(data2[best_mic,:]) != np.all(input):
-            input = data2[best_mic,:]
-            code_word = []
-
-
-            residuals, memory, predictions = Shorten(input, order, memory)
-            abs_res = np.absolute(residuals)
-            abs_res_avg = np.mean(abs_res)
-            if abs_res_avg > 0:
-                k = int(math.log(math.log(2,10) * abs_res_avg,2))
-            else:
-                k = 1
-
-                print("Rice constant, k = ",k)
-
-            for i in range(len(residuals)):
-                Rice_coder = RiceCoding(k, True)
-                n = int(residuals[i])
-                kodOrd = Rice_coder.Encode(n)
-                code_word.append(kodOrd)
-
-            code_words_len.append(code_word)
-
-
-    if test == 5:
-        if np.all(data2[best_mic,:]) != np.all(input):
-            input = data2[best_mic,:]
-            temp_residuals = []
-            for i in range(1,4):
-                order = i
-                residual, memory, predict = Shorten(input, order, memorys[i-1])
-                memorys[i-1] = memory
-                temp_residuals.append(residual)
-            residuals.append(temp_residuals)
-
-
-    if test == 4:
-        if np.all(data2[best_mic,:]) != np.all(input):
-            input = data2[best_mic,:]
-            
-            print(memorys)
-            for i in range(1,4):
-                order = i
-                residual, memory, predict = Shorten(input, order, memorys[i-1])
-                memorys[i-1] = memory
-                residuals.append(residual)
-
-
-    if test == 3:
+    #This test tries different orders of Shorten to predict input.
+    #Output from Shorten is saved so it can be plotted.
+    if test == 12:
+        #This if statments make sure to wait until a new sample block is available
         if np.all(data2[best_mic,:]) != np.all(input):
             w_limit +=1
             input = data2[best_mic,:]
             
+            #Saves the amount of data points thats going to be plotted in plot_sig_temp from input data
             plot_sig_temp = []
             if recomnded_limit == 1:
                 for j in range(data_points):
                     plot_sig_temp.append(input[j])
             else:
                 plot_sig_temp = input
-                    
+            
+            #Calculates shorten for all orders for input data
             for i in range(4):
                 residual, memorys[i], predict = Shorten(plot_sig_temp, i, memorys[i])
                 
+                #Saves results of shorten for all orders to later be plotted
                 for j in range(len(residual)):
                     plot_residuals[i].append(residual[j])
                     plot_predict[i].append(predict[j])
                     plot_zero[i].append(plot_sig_temp[j] - ( predict[j] + residual[j]))
+                    #Input singla only needs sot be saved once
                     if i == 0:
                         plot_sig.append(plot_sig_temp[j])
 
 
-
-    if test == 2:
-        #This if statments make sure to wait until a new sample block is available
-        if np.all(data2[best_mic,:]) != np.all(input):
-            w_limit +=1
-            input = data[best_mic,:]
-            
-            for j in range(256):
-                #Picks mic nr j as input
-                input_temp = data2[j,:]
-                plot_sig_temp = []
-                
-                #Save data_points of sampels for each block in an array for every mic
-                for i in range(data_points):
-                    value = input_temp[i]
-                    plot_sig_temp.append(value)
-                #Appends the arrays of all mics into one array
-                plot_sig.append(plot_sig_temp)
-            
-                    
-    
-    if test == 1:
+    #Test Shorten and Rice coding if it can recreate the input data on the decompressed side   
+    if test == 11:
         if np.all(data2[best_mic,:]) != np.all(input):
             input = data2[best_mic,:]
             code_word =""
@@ -396,13 +240,65 @@ while w_limit < recomnded_limit:
             uncoded_words.append(uncoded_word)
 
 
+    #This test created arrays with minimum binary length for each input value
+    if test == 2:
+        #This if statments make sure to wait until a new sample block is available
+        if np.all(data2[best_mic,:]) != np.all(input):
+            input = data2[best_mic,:]
+            w_limit +=1
+
+            code_word_len = []
+
+            #loops through the inputs
+            for i in range(len(input)):
+                n = input[i]
+                #Have to manualy assign sign bit, since the data is signed
+                s = "0"
+                if n < 0:
+                    s = "1"
+                    #If the input is negative it can be converted to possitve after the sign bit is saved
+                    n = -n
+                
+                n = int(n)
+                #Convert input to binary and add sign bit
+                kodOrd = s + bin(n)[2:]
+                if len(kodOrd) > 16:
+                    print("Uncoded word have: ", kodOrd, " have length: ", len(kodOrd))
+                
+                #Saves the length of the binary input value in an array
+                code_word_len.append(len(kodOrd))
+            #Saves all the array values for the data block in an array
+            code_words_len.append(code_word_len)
+
+
+    #This test plots data from all mic
+    #Used to find which mices have good/bad recoreded data
+    if test == 1:
+        #This if statments make sure to wait until a new sample block is available
+        if np.all(data2[best_mic,:]) != np.all(input):
+            w_limit +=1
+            input = data[best_mic,:]
+            
+            for j in range(256):
+                #Picks mic nr j as input
+                input_temp = data2[j,:]
+                plot_sig_temp = []
+                
+                #Save data_points of sampels for each block in an array for every mic
+                for i in range(data_points):
+                    value = input_temp[i]
+                    plot_sig_temp.append(value)
+                #Appends the arrays of all mics into one array
+                plot_sig.append(plot_sig_temp)
+
+
 
 #disconect()
 
 
 #Test compression ratios for all orders of Shorten for some k-values
-if test == 10:
-    print("Test 10")
+if test == 13:
+    print("Test 13")
     
     
     print("")
@@ -616,145 +512,15 @@ if test == 10:
     plt.show()
 
 
-  
-
-
-
-
-
-    
-
-    
-
-
-    
-
-
-
-
-    
-
-
-
-
-
-
-
-
-
-
-
-#Test average length of binary representation for input data and the largest bit representation of input data
-if test == 7:
-    avg_len = []
-    max_len = []
-    for i in range(len(code_words_len)):
-        code_word_len = code_words_len[i]
-        sum_len = sum(code_word_len)
-        temp_max = np.max(code_word_len)
-
-        avg_len.append(sum_len / len(code_word_len))
-        max_len.append(temp_max)
-
-    print("Average length of uncoded words: ", avg_len)
-    print("Max length of uncoded words: ", max_len)
-
-
-#Test average length of code words
-if test == 6:
-    avg_len = []
-    for i in range(len(code_words)):
-        code_word = code_words[i]
-        sum_len = 0
-        for j in range(len(code_word)):
-            sum_len += len(code_word[j])
-        avg_len.append(sum_len / len(code_word))
-
-    print("Average length of code words: ", avg_len)
-
-
-
-#Test which Shorten order that gives the best mean and varriance
-if test == 5:
-    best_mean = []
-    best_var = []
-    best_mean_value = []
-    best_var_value = []
-    current_best_mean = 0
-    current_best_var = 0
-    order_mean = 0
-    order_var = 0
-    for i in range(len(residuals)):
-        temp_residuals = residuals[i]
-        for j in range(len(temp_residuals)):
-            abs_res = np.absolute(temp_residuals[j])
-            abs_res_mean = np.mean(abs_res)
-            abs_res_var = np.var(abs_res)
-
-            if j == 0:
-                current_best_mean = abs_res_mean
-                current_best_var = abs_res_var
-                order_mean = j+1
-                order_var = j+1
-            else:
-                if abs_res_mean < current_best_mean:
-                    current_best_mean = abs_res_mean
-                    current_best_var = abs_res_var
-                    order_mean = j+1
-                if abs_res_var < current_best_var:
-                    current_best_var = abs_res_var
-                    order_var = j+1
-        best_mean.append(order_mean)
-        best_var.append(order_var)
-        
-
-    
-
-    print("Order for best mean: ", best_mean)
-    
-    print("Order for best var: ", best_var)
-
-
-
-
-
-#Plot residuals of different orders to find which order gives the best residuals
-if test == 4:
-    print("Hello world")
-    for i in range(int(len(residuals)/3)):
-        fig = plt.figure(i)
-        for j in range(3):
-            sub_nr = j+1
-            ax = fig.add_subplot(220+sub_nr)
-            plt.plot(residuals[j + i*3])
-            order_title = "Order " + str(j+1)
-            ax.title.set_text(order_title)
-
-            abs_res = np.absolute(residuals[j + i*3])
-            abs_res_avg = np.mean(abs_res)
-            print("Variance of absolute residual[",j+i*3,"]: (Order",1+j,") ", np.var(abs_res))
-            print("Mean value of absolute residual[",j+i*3,"]: (Order",1+j,") ", abs_res_avg)
-            print("Largest residual[",j+i*3,"]: (Order",1+j,") ", np.max(abs_res))
-
-
-
-    plt.show()
-
-
-
-
-        
-
-
-
 #Plot input signal, residual, predicted value to see how good the result of shorten is
-if test == 3:
+if test == 12:
     #One figure for each order, created by a for loop of range 4
     for i in range(4):
         figure_title = "Shorten order " + str(i)
         fig = plt.figure(figure_title)
 
-        
+        #Each figure plots 4 subplots with:
+        #Input signal, prediction of Shorten, Residual of shorten, Zero (Input - (residual + prediciton) = 0)
         ax = fig.add_subplot(221)
         plt.plot(plot_sig)
         ax.title.set_text("Input signal")
@@ -774,32 +540,7 @@ if test == 3:
         plt.show()
 
 
-
-#Plot all mics to find which ones have good recorded values
-if test == 2:
-    plot_nr = 1
-    #loops thorugh the array with mic data, ploting each mic
-    #this is done in subplot so that each figure conatins 4 mic
-    for i in range(256):
-        fig = plt.figure(plot_nr)
-        sub_nr =(i%4 + 1)
-
-        ax = fig.add_subplot(220+sub_nr)
-        plt.plot(plot_sig[i])
-        mic_title = "Mic #" + str(i)
-        ax.title.set_text(mic_title)
-        
-
-
-
-        if i % 4 == 3:
-         
-            plot_nr +=1
-            plt.show()#Each figure is plotted one at a time, to plot all at the same time move this outsie for-loop
-        
-
-
-if test == 1:
+if test == 11:
     compression_ratio = []
     uncoded_values = []
     sign = True
@@ -824,6 +565,42 @@ if test == 1:
                 print("Decoded value = ", values[j])
 
 
+#Test average length of binary representation for input data and the largest bit representation of input data
+if test == 2:
+    avg_len = []
+    max_len = []
+    #loops trough each sample data block
+    for i in range(len(code_words_len)):
+        #Calculates the maximum and average length for the binary inputs of each data block sample
+        code_word_len = code_words_len[i]
+        sum_len = sum(code_word_len)
+        temp_max = np.max(code_word_len)
+
+        avg_len.append(sum_len / len(code_word_len))
+        max_len.append(temp_max)
+    #Prints the results of maximum and average length for the binary inputs of each data block sample
+    print("Average length of uncoded words: ", avg_len)
+    print("Max length of uncoded words: ", max_len)
+
+
+#Plot all mics to find which ones have good recorded values
+if test == 1:
+    plot_nr = 1
+    #loops thorugh the array with mic data, ploting each mic
+    #this is done in subplot so that each figure conatins 4 mic
+    for i in range(256):
+        fig = plt.figure(plot_nr)
+        sub_nr =(i%4 + 1)
+
+        ax = fig.add_subplot(220+sub_nr)
+        plt.plot(plot_sig[i])
+        mic_title = "Mic #" + str(i)
+        ax.title.set_text(mic_title)
+        
 
 
 
+        if i % 4 == 3:
+         
+            plot_nr +=1
+            plt.show()#Each figure is plotted one at a time, to plot all at the same time move this outsie for-loop
