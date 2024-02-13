@@ -134,7 +134,7 @@ class RiceCoding:
     
 
 
-if 1 > 0:
+if 1 < 0:
     print("Rice code test is running")
     sign = True
     n = [20, -20, 60, -60, 70]
