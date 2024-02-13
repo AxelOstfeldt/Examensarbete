@@ -1,7 +1,7 @@
 import numpy as np
 import math
 
-print("Hello world")
+
 
 class RiceCoding:
 
@@ -106,7 +106,7 @@ class RiceCoding:
             #a "0" as MSB followed by the last k-bits from the original binary value as LSB
             #By looping thorugh the codeword and removing k bits to the current value being decoded
             #The last bits in the code word for the current value can be decoded
-            for j in range(k):
+            for j in range(self.k):
                 code = code[1:]
                 value += code[0]
             #Since there is a 0 separating the MSB with the LSB 1 more bit needs to be removed for the current value in the codeword

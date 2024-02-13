@@ -10,26 +10,50 @@ import matplotlib.pyplot as plt
 
 
 
+
 connect()
 
 NORM_FACTOR = 16777216
 
 #for Shorten
-order = 2
-memory = [0] * order
-memorys = [[0],[0,0],[0,0,0]]
+order = 3
+
+memorys = [[],[0],[0,0],[0,0,0]]
+memory = memorys[order]
+
 input = 0
+inputs = []
+k_array = []
+w_limit = 0
 
 plot_sig = []
+
 code_words = []
+
 uncoded_words = []
+
 code_words_len = []
+
 code_words_order = [[],[],[],[]]
 
 
 
 
-test = 9
+test = 10
+
+if test == 10:
+    k_array = [4,5,6,7,8,9,10,11,12,13,14,15,16]
+    order_0_array = []
+    order_1_array = []
+    order_2_array = []
+    order_3_array = []
+    for i in range(len(k_array)):
+        order_0_array.append([])
+        order_1_array.append([])
+        order_2_array.append([])
+        order_3_array.append([])
+
+
 
 #From looking at the plots in test 2
 best_mic = 79
@@ -40,7 +64,7 @@ residuals = []
 #Grabs one package from the sound file
 #Each packet contains 256 smples from all 256 microphones
 data = np.empty((config.N_MICROPHONES, config.N_SAMPLES), dtype=np.float32)
-while len(code_words_order[0]) < 20:
+while w_limit < 10:
     
     receive(data)
 
@@ -57,8 +81,53 @@ while len(code_words_order[0]) < 20:
     
 
     if test == 10:
+
         if np.all(data2[best_mic,:]) != np.all(input):
             input = data2[best_mic,:]
+            
+            for j in range(len(k_array)):
+                k = k_array[j]
+
+                
+                for i in range(4):
+                    residual, memorys[i], predict = Shorten(input, i, memorys[i])
+
+                    code_word =""
+                    for q in range(len(input)):
+                        
+                        Rice_coder = RiceCoding(k, True)
+                        n = int(residual[q])
+                        kodOrd = Rice_coder.Encode(n)
+                        code_word += kodOrd
+                    
+                    if i == 0:
+                        order_0_array[j].append(code_word)
+
+                    elif i == 1:
+                        order_1_array[j].append(code_word)
+
+                    elif i == 2:
+                        order_2_array[j].append(code_word)
+
+                    elif i == 3:
+                        order_3_array[j].append(code_word)
+
+            uncoded_word = ""              
+            for j in range(len(input)):
+                uncoded_word += np.binary_repr(input[j],32)
+            uncoded_words.append(uncoded_word)
+            
+            w_limit += 1
+
+
+
+
+
+            
+            
+            
+
+
 
 
 
@@ -75,8 +144,8 @@ while len(code_words_order[0]) < 20:
 
             for i in range(1,4):
                 order = i
-                residual, memory, predict = Shorten(input, order, memorys[i-1])
-                memorys[i-1] = memory
+                residual, memory, predict = Shorten(input, order, memorys[i])
+                memorys[i] = memory
 
                 abs_res = np.absolute(residual)
                 abs_res_avg = np.mean(abs_res)
@@ -93,14 +162,6 @@ while len(code_words_order[0]) < 20:
                     kodOrd = Rice_coder.Encode(n)
                     code_word += kodOrd
                 code_words_order[i].append(code_word)
-
-
-
-
-                    
-
-
-
 
 
     if test == 8:
@@ -131,7 +192,6 @@ while len(code_words_order[0]) < 20:
             uncoded_words.append(uncoded_word)
 
 
-
     if test == 7:
         if np.all(data2[best_mic,:]) != np.all(input):
             input = data2[best_mic,:]
@@ -151,9 +211,6 @@ while len(code_words_order[0]) < 20:
                 
                 code_word_len.append(len(kodOrd))
             code_words_len.append(code_word_len)
-
-    
-      
 
 
     if test == 6:
@@ -181,8 +238,6 @@ while len(code_words_order[0]) < 20:
             code_words_len.append(code_word)
 
 
-
-
     if test == 5:
         if np.all(data2[best_mic,:]) != np.all(input):
             input = data2[best_mic,:]
@@ -205,10 +260,6 @@ while len(code_words_order[0]) < 20:
                 residual, memory, predict = Shorten(input, order, memorys[i-1])
                 memorys[i-1] = memory
                 residuals.append(residual)
-
-                
-
-
 
 
     if test == 3:
@@ -238,9 +289,6 @@ while len(code_words_order[0]) < 20:
                 plot_zero.append(plot_zero_temp)
 
 
-
-
-
     if test == 2:
         if np.all(data2[0,:]) != np.all(input):
             print("Test start")
@@ -256,19 +304,14 @@ while len(code_words_order[0]) < 20:
                     plot_sig_temp.append(value)
                 plot_sig.append(plot_sig_temp)
                     
-
-            
-
-    #print(input)       
-    #print(data2[216,:])
-
     
     if test == 1:
         if np.all(data2[best_mic,:]) != np.all(input):
             input = data2[best_mic,:]
             code_word =""
             uncoded_word = ""
-            k_array = []
+            inputs.append(input)
+            
 
             residuals, memory, predictions = Shorten(input, order, memory)
             abs_res = np.absolute(residuals)
@@ -293,13 +336,195 @@ while len(code_words_order[0]) < 20:
 
 
 
-
-
-
-          
-
-
 #disconect()
+
+
+#Test compression ratios for all orders of Shorten for some k-values
+if test == 10:
+    print("Test 10")
+    print("")
+
+    #Arrays for average compression rates
+    cr_0 = []
+    cr_1 = []
+    cr_2 = []
+    cr_3 = []
+    
+
+    #loop thorugh all k-values
+    for i in range(len(k_array)):
+        #loops thorugh all orders of shorten
+        for q in range(4):
+            temp_cr_array = []
+            #loops thorugh all sampled blocks of data
+            for j in range(len(uncoded_words)):
+                #depending on what order being calculated the compressed codeword is saved in a speicific array
+                #order_q_array[i][j] where q is oder, i is k-value, and j is code word from sampled data block
+
+                #compression ratio is calculated by dividing lenght of code word by length of uncoded word
+                #lenght of uncoded word is assumed to be 32 bits accourding to aucostic warefare paper
+                if q == 0:
+                    temp_cr = len(order_0_array[i][j]) / len(uncoded_words[j])
+
+                elif q == 1:
+                    temp_cr = len(order_1_array[i][j]) / len(uncoded_words[j])
+
+                elif q == 2:
+                    temp_cr = len(order_2_array[i][j]) / len(uncoded_words[j])
+
+                elif q == 3:
+                    temp_cr = len(order_3_array[i][j]) / len(uncoded_words[j])
+
+                #for each k-value several sampled blocks of data is saved
+                #for each block a compression ratio is calculated
+                temp_cr_array.append(temp_cr)
+
+
+            #The average compression ratio for all data block, given a specific k value and order is calculated
+            if q == 0:
+                cr_0.append(np.sum(temp_cr_array) / len(temp_cr_array))
+
+            elif q == 1:
+                cr_1.append(np.sum(temp_cr_array) / len(temp_cr_array))
+
+            elif q == 2:
+                cr_2.append(np.sum(temp_cr_array) / len(temp_cr_array))
+
+            elif q == 3:
+                cr_3.append(np.sum(temp_cr_array) / len(temp_cr_array))
+
+    #Print result of all average compression ratios for given order and k value
+    
+    print("For a given value: k = ", k_array)
+    print("Average compression rate for order 0 = ", cr_0)
+
+    print("Average compression rate for order 1 = ", cr_1)
+
+    print("Average compression rate for order 2 = ", cr_2)
+
+    print("Average compression rate for order 3 = ", cr_3)
+
+
+    #Calculates which order of Shorten and k-value gives the best compression ratio
+
+
+    all_cr = []
+    all_cr.append(cr_0)
+    all_cr.append(cr_1)
+    all_cr.append(cr_2)
+    all_cr.append(cr_3)
+
+
+    o = 0
+    for i in range(len(all_cr)-1):
+        if np.min(all_cr[i+1]) < np.min(all_cr[i]):
+            o = i+1
+
+    min_cr_array = all_cr[o]
+
+    print("")
+
+    k = 0
+    for i in range(len(min_cr_array)-1):
+        if min_cr_array[i+1] < min_cr_array[i]:
+            k = i+1
+
+    print("The best compression ratio is given by Shorten order ",o," with k-value ", k+k_array[0], ": cr = ", min_cr_array[k])
+
+
+    #Plots sub plots with each subplot being a specific order of Shorten
+    #y-axis is compression ratio and x-axis is k value
+    fig = plt.figure(1)
+
+    ax=fig.add_subplot(221)
+    plt.plot(k_array, cr_0, 'ro')
+    ax.title.set_text("Shorten Order 0")
+    plt.xlabel("k-value")
+    plt.ylabel("Average compression ratio")
+
+    ax=fig.add_subplot(222)
+    plt.plot(k_array, cr_1, 'ro')
+    ax.title.set_text("Shorten Order 1")
+    plt.xlabel("k-value")
+    plt.ylabel("Average compression ratio")
+
+    ax=fig.add_subplot(223)
+    plt.plot(k_array, cr_2, 'ro')
+    ax.title.set_text("Shorten Order 2")
+    plt.xlabel("k-value")
+    plt.ylabel("Average compression ratio")
+
+    ax=fig.add_subplot(224)
+    plt.plot(k_array, cr_3, 'ro')
+    ax.title.set_text("Shorten Order 3")
+    plt.xlabel("k-value")
+    plt.ylabel("Average compression ratio")
+
+
+    #Plots sub plots with each subplot being a specific order of Shorten
+    #y-axis is compression ratio and x-axis is k value
+    #This plot is a zoomed in version of figure 1.
+    #The first data points are ususaly not that interesting since compression ratio is high
+    #(Assuming starting k-value of 4)
+    fig = plt.figure(2)
+
+    ax=fig.add_subplot(221)
+    plt.plot(k_array[3:], cr_0[3:], 'ro')
+    ax.title.set_text("Shorten Order 0")
+    plt.xlabel("k-value")
+    plt.ylabel("Average compression ratio")
+
+    ax=fig.add_subplot(222)
+    plt.plot(k_array[3:], cr_1[3:], 'ro')
+    ax.title.set_text("Shorten Order 1")
+    plt.xlabel("k-value")
+    plt.ylabel("Average compression ratio")
+
+    ax=fig.add_subplot(223)
+    plt.plot(k_array[3:], cr_2[3:], 'ro')
+    ax.title.set_text("Shorten Order 2")
+    plt.xlabel("k-value")
+    plt.ylabel("Average compression ratio")
+
+    ax=fig.add_subplot(224)
+    plt.plot(k_array[3:], cr_3[3:], 'ro')
+    ax.title.set_text("Shorten Order 3")
+    plt.xlabel("k-value")
+    plt.ylabel("Average compression ratio")
+
+    #Plots Order 1, 2, and 3 of shorten in the same plot for some k-values
+    plt.figure(3)
+
+    plt.plot(k_array[3:], cr_1[3:], 'ro', label='Order 1')
+    plt.plot(k_array[3:], cr_2[3:], 'bo', label='Order 2')
+    plt.plot(k_array[3:], cr_3[3:], 'go', label='Order 3')
+    plt.title("Comparison of comression ratio for differente orders")
+    plt.xlabel("k-value")
+    plt.ylabel("Average compression ratio")
+    plt.legend()
+
+    plt.show()
+
+
+  
+
+
+
+
+
+    
+
+    
+
+
+    
+
+
+
+
+    
+
+
 
 
 #Test to find which order of shorten gives the best compression ratio
@@ -491,9 +716,29 @@ if test == 2:
 
 if test == 1:
     compression_ratio = []
+    uncoded_values = []
+    sign = True
     for i in range(len(code_words)):
         temp_comp_r = len(code_words[i]) / len(uncoded_words[i])
         compression_ratio.append(temp_comp_r)
     print("Compression ratio of Shorten are: ", compression_ratio)
+
+    for i in range(len(inputs)):
+        input = inputs[i]
+        k = k_array[i]
+        code_word = code_words[i]
+        Rice_coder = RiceCoding(k, sign)
+        values = Rice_coder.Decode(code_word)
+        uncoded_values.append(values)
+
+        for j in range(len(values)):
+            if values[j] != input[j]:
+                print("For sample ",i," value #",j," the values does not match. Input = ", input[j]," decoded value = ",values[j])
+            else:
+                print("Input = ", input[j])
+                print("Decoded value = ", values[j])
+
+
+
 
 

@@ -1,10 +1,13 @@
-k = 3
+a = 8.4
+b = 8.5
+c = 8.6
 
-test_code ="101001"
+print("8.4 som int är ", int(a))
+print("8.5 som int är ", int(b))
+print("8.6 som int är ", int(c))
 
-while len(test_code) > 0:
-    test_value =""
-    for j in range(k):
-        test_value += test_code[0]
-        test_code = test_code[1:]
-    print(test_value)
+print("med round:")
+
+print("8.4 som int är ", int(round(a)))
+print("8.5 som int är ", (round(b)))
+print("8.6 som int är ", int(round(c)))
