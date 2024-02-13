@@ -30,7 +30,7 @@ memory = memorys[order]
 
 
 #Choose what test to do:
-test = 1
+test = 13
 
 #General tests
 #Test 1. This test plots microphone data
@@ -73,6 +73,9 @@ if test == 12:
     plot_predict = [[],[],[],[]]
     plot_sig = []
     plot_zero = [[],[],[],[]]
+
+if test == 3:
+    timer = 0
 
 
 #Inital values for test 2
@@ -121,6 +124,7 @@ while w_limit < recomnded_limit:
         #Only starts calculations when a new sample block is available
         if np.all(data2[best_mic,:]) != np.all(input):
             input = data2[best_mic,:]
+
             
             #loops though all k values in k_array.
 
@@ -262,8 +266,7 @@ while w_limit < recomnded_limit:
                 n = int(n)
                 #Convert input to binary and add sign bit
                 kodOrd = s + bin(n)[2:]
-                if len(kodOrd) > 16:
-                    print("Uncoded word have: ", kodOrd, " have length: ", len(kodOrd))
+
                 
                 #Saves the length of the binary input value in an array
                 code_word_len.append(len(kodOrd))
