@@ -24,6 +24,7 @@ memory = memorys[order]
 input = 0
 inputs = []
 k_array = []
+
 w_limit = 0
 
 plot_sig = []
@@ -42,6 +43,7 @@ code_words_order = [[],[],[],[]]
 test = 10
 
 if test == 10:
+    k_ideal_array = [[],[],[],[]]
     k_array = [4,5,6,7,8,9,10,11,12,13,14,15,16]
     order_0_array = []
     order_1_array = []
@@ -52,6 +54,7 @@ if test == 10:
         order_1_array.append([])
         order_2_array.append([])
         order_3_array.append([])
+
 
 
 
@@ -79,19 +82,40 @@ while w_limit < 10:
     #To pick all sampels for a specific mic choose a number x for desired mic and ":" for samples:
     #data2[x,:]
     
+    #This test tries different k-values for all orders of shorten over several data points.
+    #With this it is possible to see:
+    #1. What order and k-value gives best cr result.
+    #2. What k-value for each order give best cr result.
+    #3. How well does the ideal k-value in Rice theory match the practical ideal k-value
 
     if test == 10:
-
+        #Only starts calculations when a new sample block is available
         if np.all(data2[best_mic,:]) != np.all(input):
             input = data2[best_mic,:]
             
+            #loops though all k values in k_array.
+
             for j in range(len(k_array)):
                 k = k_array[j]
 
-                
+                #loops thorugh all order, i = 0-3
                 for i in range(4):
+                    #Does the shorten calculations and updates memory
                     residual, memorys[i], predict = Shorten(input, i, memorys[i])
 
+                    #Calculates the ideal k_vaule for the Shorten residuals
+                    abs_res = np.absolute(residual)
+                    abs_res_avg = np.mean(abs_res)
+                    if abs_res_avg > 0:
+                        k_ideal = math.log(math.log(2,10) * abs_res_avg,2)
+                    else:
+                        k_ideal = 1
+
+                    #Appends the ideal k vaule in the array matching the correct Shorten order
+                    k_ideal_array[i].append(k_ideal)
+
+
+                    #calculates the Rice code word for the residual
                     code_word =""
                     for q in range(len(input)):
                         
@@ -99,7 +123,7 @@ while w_limit < 10:
                         n = int(residual[q])
                         kodOrd = Rice_coder.Encode(n)
                         code_word += kodOrd
-                    
+                    #The rice code word is saved in the array matching both order and k-value
                     if i == 0:
                         order_0_array[j].append(code_word)
 
@@ -111,10 +135,16 @@ while w_limit < 10:
 
                     elif i == 3:
                         order_3_array[j].append(code_word)
-
+            
+            #Calculates size of uncoded input.
+            #Assuming each vaule is repsented in 32 bits.
             uncoded_word = ""              
             for j in range(len(input)):
                 uncoded_word += np.binary_repr(input[j],32)
+
+
+
+            #Saves uncoded binary input in array
             uncoded_words.append(uncoded_word)
             
             w_limit += 1
@@ -342,6 +372,8 @@ while w_limit < 10:
 #Test compression ratios for all orders of Shorten for some k-values
 if test == 10:
     print("Test 10")
+    
+    
     print("")
 
     #Arrays for average compression rates
@@ -403,33 +435,80 @@ if test == 10:
     print("Average compression rate for order 2 = ", cr_2)
 
     print("Average compression rate for order 3 = ", cr_3)
+    print("")
 
 
-    #Calculates which order of Shorten and k-value gives the best compression ratio
+ 
+
+    
 
 
+    #Calculate the recomdnded k-value for each order based on Rice codeing theory
+    k_ideal_avg_array = []
+
+    for i in range(4):
+        #calculate average for recomended k-value for each order and save in array
+        k_ideal_avg = sum(k_ideal_array[i])/len(k_ideal_array[i])
+        k_ideal_avg_array.append(k_ideal_avg)
+
+    #prints ideal k-values for each order
+    #prints cr with ideal k-value (roundest to closest int) for each order
+    print("ideal k-value (Shorten order 0-3)= ", k_ideal_avg_array)
+    print("Shorten order 0 with k = ", int(round(k_ideal_avg_array[0])), " gives cr = ", cr_0[int(round(k_ideal_avg_array[0])) - k_array[0]])
+
+    print("Shorten order 1 with k = ", int(round(k_ideal_avg_array[1])), " gives cr = ", cr_1[int(round(k_ideal_avg_array[1])) - k_array[0]])
+
+    print("Shorten order 2 with k = ", int(round(k_ideal_avg_array[2])), " gives cr = ", cr_2[int(round(k_ideal_avg_array[2])) - k_array[0]])
+
+    print("Shorten order 3 with k = ", int(round(k_ideal_avg_array[3])), " gives cr = ", cr_3[int(round(k_ideal_avg_array[3])) - k_array[0]])
+
+    print("")
+
+    #calculate ideal choice of k-value for each order
+
+    #appends all orders CR into one array
     all_cr = []
     all_cr.append(cr_0)
     all_cr.append(cr_1)
     all_cr.append(cr_2)
     all_cr.append(cr_3)
 
+    for i in range(4):
+        #looks thorugh one order at a time to find the k that gives the best cr for that order
+        temp_min_cr_array = all_cr[i]
+        temp_k_min = 0
+        for j in range(len(temp_min_cr_array)-1):
+            #if the next k gives a better cr that k-value is saved
+            if temp_min_cr_array[j+1] < temp_min_cr_array[j]:
+                temp_k_min = j+1
+        #prints out the shorten order and its ideal k with the corresponding cr
+        print("Shorten order ",i," and k = ", temp_k_min + k_array[0]," gives best result with cr = ", temp_min_cr_array[temp_k_min])
 
+    print("")
+
+
+    #calculate ideal choice of order and k-value
+
+    #Finds the array with the lowest CR value
     o = 0
     for i in range(len(all_cr)-1):
         if np.min(all_cr[i+1]) < np.min(all_cr[i]):
             o = i+1
 
+    #Saves the array with the lowest cr value into its own varaible
     min_cr_array = all_cr[o]
 
-    print("")
-
-    k = 0
+    
+    #Loops trough the array with the lowest cr value to find the lowest cr value.
+    #Save the index of the lowest cr value
+    k_min = 0
     for i in range(len(min_cr_array)-1):
         if min_cr_array[i+1] < min_cr_array[i]:
-            k = i+1
+            k_min = i+1
+    #To find which k value corresponds to the index, take the index and add k_array[0]
+    print("The best compression ratio is given by Shorten order ",o," with k-value ", k_min+k_array[0], ": cr = ", min_cr_array[k_min])
+    print("")
 
-    print("The best compression ratio is given by Shorten order ",o," with k-value ", k+k_array[0], ": cr = ", min_cr_array[k])
 
 
     #Plots sub plots with each subplot being a specific order of Shorten
