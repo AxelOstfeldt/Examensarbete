@@ -60,6 +60,23 @@ def Shorten(input, order: int = 3, memory: list = [0] * 3):
     return residuals, memory, predictions
 
 
+#def Shorten_out(residuals, order: int  = 3, memory: list = [0] * 3):
+  #  input = []
+
+  #  for i in range(len(residuals)):
+
+
+       # if order == 0:
+        
+
+
+
+
+
+
+    #return input, memory
+
+
 #order = 3
 #input = [1,2,3,4,5,6,7,8,9,9,9,10,11,12,5,4,3,2,1,0]
 #samples = [0] * 3

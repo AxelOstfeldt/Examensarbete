@@ -576,11 +576,15 @@ if test == 12:
 if test == 11:
     compression_ratio = []
     uncoded_values = []
+    uncoded_residuals = []
     sign = True
     for i in range(len(code_words)):
         temp_comp_r = len(code_words[i]) / len(uncoded_words[i])
         compression_ratio.append(temp_comp_r)
-    print("Compression ratio of Shorten are: ", compression_ratio)
+    print("Compression ratio of Shorten is: ", compression_ratio)
+
+    
+
 
     for i in range(len(inputs)):
         input = inputs[i]
