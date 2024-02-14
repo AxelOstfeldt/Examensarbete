@@ -118,7 +118,7 @@ if test == 12:
 
 #Initial values for test 11
 if test == 11:
-    recomnded_limit = 23#Should not go over 23
+    recomnded_limit = 2#Should not go over 23
     inputs = []
     code_words = []
     uncoded_words = []
