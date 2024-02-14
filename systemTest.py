@@ -15,10 +15,13 @@ connect()
 
 #Some general inital values for testing
 NORM_FACTOR = 16777216
-input = 0
+input_new = 0#Used to check if new data is available
 w_limit = 0#Is incremented in while loop until limit is reached
 recomnded_limit = 10#Is the limit to reach in the while loop, set different at different tests
-best_mic = 79#From looking at the plots in test 2
+best_mic = 79#From looking at the plots in test 1
+blasted_mic = 217#From looking at the plots in test 1, seems to have realy high values
+silent_mic_1 = 20#From looking at the plots in test 1, allways 0
+silent_mic_2 = 19#From looking at the plots in test 1, allways [-1, 0]
 
 #Some inital values for Shorten
 memorys = [[],[0],[0,0],[0,0,0]]
@@ -27,7 +30,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 11
+test = 13
 
 #General tests
 #Test 1. This test plots microphone data
@@ -41,6 +44,19 @@ test = 11
 #Test 12. Plots results for differente orders of Shorten
 #Test 13. This test tries different k-values in Rice codes for all orders of shorten over several data points.
 
+
+
+#Initial values for test 14
+if test == 14:
+    recomnded_limit = 2
+    inputs = []
+    code_words = []
+    uncoded_words = []
+    order = 2
+    memory = memorys[order].copy()
+    Shorten_predictor = Shorten(order)
+    k_array = []
+    sign = True
 
 
 
@@ -64,7 +80,7 @@ if test == 13:
 
 #Inital values for test 12
 if test == 12:
-    recomnded_limit = 1
+    recomnded_limit = 2
     
     data_points = 256#How many samples for each block is gonna be plotted, lower value gives a more zoomed in picture.
     #Can only be changed if recomdended limit = 1
@@ -135,10 +151,60 @@ while w_limit < recomnded_limit:
     #1. What order and k-value gives best cr result.
     #2. What k-value for each order give best cr result.
     #3. How well does the ideal k-value in Rice theory match the practical ideal k-value
+
+    if test == 14:
+        #This if statments make sure to wait until a new sample block is available
+        if np.all(data2[best_mic,:]) != np.all(input_new):
+            input_new = data2[best_mic,:]#This data choice is only to make sure to wait for a new available data value
+            
+            input = data2[best_mic,:]#This mic choice is the mic that will be sent over channel
+            w_limit +=1
+            code_word =""
+            uncoded_word = ""
+            #Saves current input values in inputs array
+            inputs.append(input)
+            
+            #uses Shorten to calculate residuals
+            residuals, memory, predictions = Shorten_predictor.In(input, memory)
+
+            #Calculates the ideal k-value according to Rice theory
+            abs_res = np.absolute(residuals)
+            abs_res_avg = np.mean(abs_res)
+            
+            #if abs_res_avg is less than 4.7 it would give a k value less than 1.
+            #k needs tobe a int > 1 and therefore if abs_res_avg < 5 k is set to 1
+            #OBS. 4.7 < abs_res_avg < 5 would be rounded of to k=1 so setting the limit to 5 works well
+            if abs_res_avg > 5:
+                k = int(round(math.log(math.log(2,10) * abs_res_avg,2)))
+            else:
+                k = 1
+            #Saves the current ideal k value to later use for decoding
+            
+            k_array.append(k)
+
+            #Rice codes the residuals from shorten and saves the code word in code_word
+            for i in range(len(residuals)):
+                Rice_coder = RiceCoding(k, sign)
+                n = int(residuals[i])
+                kodOrd = Rice_coder.Encode(n)
+                code_word += kodOrd
+                
+                #Saves binary value of input, represented in 32 bits
+                uncoded_word += np.binary_repr(input[i],32)
+
+            #Saves Rice coded residuals and binary input values arrays
+            code_words.append(code_word)
+            uncoded_words.append(uncoded_word)
+        
+
+
     if test == 13:
         #Only starts calculations when a new sample block is available
-        if np.all(data2[best_mic,:]) != np.all(input):
-            input = data2[best_mic,:]
+        if np.all(data2[best_mic,:]) != np.all(input_new):
+            input_new = data2[best_mic,:]#Used to check if new data is available
+
+
+            input = data2[best_mic,:]#Input data used in test
 
             
             #loops though all k values in k_array.
@@ -155,8 +221,11 @@ while w_limit < recomnded_limit:
                     #Calculates the ideal k_vaule for the Shorten residuals
                     abs_res = np.absolute(residual)
                     abs_res_avg = np.mean(abs_res)
-                    if abs_res_avg > 0:
-                        k_ideal = math.log(math.log(2,10) * abs_res_avg,2)
+                    #if abs_res_avg is less than 4.7 it would give a k value less than 1.
+                    #k needs tobe a int > 1 and therefore if abs_res_avg < 5 k is set to 1
+                    #OBS. 4.7 < abs_res_avg < 5 would be rounded of to k=1 so setting the limit to 5 works well
+                    if abs_res_avg > 5:
+                        k_ideal = int(round(math.log(math.log(2,10) * abs_res_avg,2)))
                     else:
                         k_ideal = 1
 
@@ -203,9 +272,13 @@ while w_limit < recomnded_limit:
     #Output from Shorten is saved so it can be plotted.
     if test == 12:
         #This if statments make sure to wait until a new sample block is available
-        if np.all(data2[best_mic,:]) != np.all(input):
+        if np.all(data2[best_mic,:]) != np.all(input_new):
+            input_new = data2[best_mic,:]#Used to check if new data is available
+
+
+
             w_limit +=1
-            input = data2[best_mic,:]
+            input = data2[best_mic,:]#data used in test
             
             #Saves the amount of data points thats going to be plotted in plot_sig_temp from input data
             plot_sig_temp = []
@@ -234,10 +307,12 @@ while w_limit < recomnded_limit:
     #Test Shorten and Rice coding if it can recreate the input data on the decompressed side
     #It saves all input data in inputs array, all coded words in coded_words array and the inputs as binary values in 32 bits   
     if test == 11:
-        if np.all(data2[best_mic,:]) != np.all(input):
-            #This if statments make sure to wait until a new sample block is available
+        #This if statments make sure to wait until a new sample block is available
+        if np.all(data2[best_mic,:]) != np.all(input_new):
+            input_new = data2[best_mic,:]#This data choice is only to make sure to wait for a new available data value
+            
+            input = data2[best_mic,:]#This mic choice is the mic that will be sent over channel
             w_limit +=1
-            input = data2[best_mic,:]
             code_word =""
             uncoded_word = ""
             #Saves current input values in inputs array
@@ -249,11 +324,16 @@ while w_limit < recomnded_limit:
             #Calculates the ideal k-value according to Rice theory
             abs_res = np.absolute(residuals)
             abs_res_avg = np.mean(abs_res)
-            if abs_res_avg > 0:
+            
+            #if abs_res_avg is less than 4.7 it would give a k value less than 1.
+            #k needs tobe a int > 1 and therefore if abs_res_avg < 5 k is set to 1
+            #OBS. 4.7 < abs_res_avg < 5 would be rounded of to k=1 so setting the limit to 5 works well
+            if abs_res_avg > 5:
                 k = int(round(math.log(math.log(2,10) * abs_res_avg,2)))
             else:
                 k = 1
             #Saves the current ideal k value to later use for decoding
+            
             k_array.append(k)
 
             #Rice codes the residuals from shorten and saves the code word in code_word
@@ -274,8 +354,10 @@ while w_limit < recomnded_limit:
     #Test how long time it takes for a new data block sample to arrive
     if test == 3:
         #This if statments make sure to wait until a new sample block is available
-        if np.all(data2[best_mic,:]) != np.all(input):
-            input = data2[best_mic,:]
+        if np.all(data2[best_mic,:]) != np.all(input_new):
+            input_new = data2[best_mic,:]#This data choice is only to make sure to wait for a new available data value
+            
+           
             print(w_limit)
             if w_limit == 0:
                 t0 = time.time()
@@ -290,8 +372,10 @@ while w_limit < recomnded_limit:
     #This test created arrays with minimum binary length for each input value
     if test == 2:
         #This if statments make sure to wait until a new sample block is available
-        if np.all(data2[best_mic,:]) != np.all(input):
-            input = data2[best_mic,:]
+        if np.all(data2[best_mic,:]) != np.all(input_new):
+            input_new = data2[best_mic,:]#This data choice is only to make sure to wait for a new available data value
+            
+            input = data2[best_mic,:]#This mic choice is the mic that will be sent over channel
             w_limit +=1
             
 
@@ -322,13 +406,16 @@ while w_limit < recomnded_limit:
     #Used to find which mices have good/bad recoreded data
     if test == 1:
         #This if statments make sure to wait until a new sample block is available
-        if np.all(data2[best_mic,:]) != np.all(input):
+        if np.all(data2[best_mic,:]) != np.all(input_new):
+            input_new = data2[best_mic,:]#This data choice is only to make sure to wait for a new available data value
+            
+
             w_limit +=1
-            input = data[best_mic,:]
+
             
             for j in range(256):
                 #Picks mic nr j as input
-                input_temp = data2[j,:]
+                input_temp = data2[j,:]#data used in test
                 plot_sig_temp = []
                 
                 #Save data_points of sampels for each block in an array for every mic
@@ -428,13 +515,17 @@ if test == 13:
     #prints ideal k-values for each order
     #prints cr with ideal k-value (roundest to closest int) for each order
     print("ideal k-value (Shorten order 0-3)= ", k_ideal_avg_array)
-    print("Shorten order 0 with k = ", int(round(k_ideal_avg_array[0])), " gives cr = ", cr_0[int(round(k_ideal_avg_array[0])) - k_array[0]])
+    if k_ideal_avg_array[0] > k_array[0] and (k_ideal_avg_array[0] - k_array[0]) <= len(k_array):
+        print("Shorten order 0 with k = ", int(round(k_ideal_avg_array[0])), " gives cr = ", cr_0[int(round(k_ideal_avg_array[0])) - k_array[0]])
 
-    print("Shorten order 1 with k = ", int(round(k_ideal_avg_array[1])), " gives cr = ", cr_1[int(round(k_ideal_avg_array[1])) - k_array[0]])
+    if k_ideal_avg_array[1] > k_array[0] and (k_ideal_avg_array[1] - k_array[0]) <= len(k_array):
+        print("Shorten order 1 with k = ", int(round(k_ideal_avg_array[1])), " gives cr = ", cr_1[int(round(k_ideal_avg_array[1])) - k_array[0]])
 
-    print("Shorten order 2 with k = ", int(round(k_ideal_avg_array[2])), " gives cr = ", cr_2[int(round(k_ideal_avg_array[2])) - k_array[0]])
+    if k_ideal_avg_array[2] > k_array[0] and (k_ideal_avg_array[2] - k_array[0]) <= len(k_array):
+        print("Shorten order 2 with k = ", int(round(k_ideal_avg_array[2])), " gives cr = ", cr_2[int(round(k_ideal_avg_array[2])) - k_array[0]])
 
-    print("Shorten order 3 with k = ", int(round(k_ideal_avg_array[3])), " gives cr = ", cr_3[int(round(k_ideal_avg_array[3])) - k_array[0]])
+    if k_ideal_avg_array[3] > k_array[0] and (k_ideal_avg_array[3] - k_array[0]) <= len(k_array):
+        print("Shorten order 3 with k = ", int(round(k_ideal_avg_array[3])), " gives cr = ", cr_3[int(round(k_ideal_avg_array[3])) - k_array[0]])
 
     print("")
 
@@ -593,6 +684,7 @@ if test == 11:
     uncoded_values_array = []
     predictions_array = []
     memory_out = memorys[order].copy()
+
     
 
     #Calcuates compression ratios of Shorten by comparing length of binary values of input to length of Rice coded residuals
@@ -639,6 +731,20 @@ if test == 11:
             print("Itteration nr",i," failed decodeing ",value_check," values")
 
 
+        #Plots the original input values and the decoded input valus in subplots
+        fig = plt.figure(i)
+
+        ax = fig.add_subplot(211)
+        plt.plot(input)
+        ax.title.set_text("Original input values")
+
+        ax = fig.add_subplot(212)
+        plt.plot(uncoded_values)
+        ax.title.set_text("Decoded input values")
+
+        plt.show()
+
+
 
 
 
@@ -677,6 +783,35 @@ if test == 2:
 
 #Plot all mics to find which ones have good recorded values
 if test == 1:
+    #This if statment only plots some graphs deemed interesting in the report
+    if 1 < 0:
+
+        fig = plt.figure(0)
+
+        ax = fig.add_subplot(221)
+        plt.plot(plot_sig[best_mic])
+        mic_title = "Mic #" + str(best_mic) + ", example of good mic"
+        ax.title.set_text(mic_title)
+
+        ax = fig.add_subplot(222)
+        plt.plot(plot_sig[blasted_mic])
+        mic_title = "Mic #" + str(blasted_mic) + ", example of broken mic (blasted)"
+        ax.title.set_text(mic_title)
+
+        ax = fig.add_subplot(223)
+        plt.plot(plot_sig[silent_mic_1])
+        mic_title = "Mic #" + str(silent_mic_1) + ", example of broken mic (silent)"
+        ax.title.set_text(mic_title)
+
+        ax = fig.add_subplot(224)
+        plt.plot(plot_sig[silent_mic_2])
+        mic_title = "Mic #" + str(silent_mic_2) + ", example of broken mic (silent)"
+        ax.title.set_text(mic_title)
+
+        plt.show()
+
+
+
     plot_nr = 1
     #loops thorugh the array with mic data, ploting each mic
     #this is done in subplot so that each figure conatins 4 mic
@@ -696,3 +831,4 @@ if test == 1:
          
             plot_nr +=1
             plt.show()#Each figure is plotted one at a time, to plot all at the same time move this outsie for-loop
+
