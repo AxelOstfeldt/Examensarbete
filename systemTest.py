@@ -31,7 +31,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 14
+test = 1
 
 #General tests
 #Test 1. This test plots microphone data
@@ -43,13 +43,36 @@ test = 14
 #Shorten tests
 #Test 11. Test if Shorten using Rice code can correctly decode the input values
 #Test 12. Plots results for differente orders of Shorten
-#Test 13. This test tries different k-values in Rice codes for all orders of shorten over several data points.
+#Test 13. This test tries different k-values in Rice codes for all orders of shorten over several data blocks.
+#Test 14. Test if Shorten using Golomb code can correctly decode the input values
+#Test 15. This test tries different m-values in Golomb codes for all orders of shorten. 
+#Can be done over several data blocks in theory but computer dont seem to manage it 
 
+
+
+
+#Inital values for test 15
+if test == 15:
+    recomnded_limit = 1
+    uncoded_words = []
+    m_start = 100
+    m_stop = 4000
+    m_array = []
+    order_0_array = []
+    order_1_array = []
+    order_2_array = []
+    order_3_array = []
+    for i in range(m_start, m_stop):
+        m_array.append(i)
+        order_0_array.append([])
+        order_1_array.append([])
+        order_2_array.append([])
+        order_3_array.append([])
 
 
 #Initial values for test 14
 if test == 14:
-    recomnded_limit = 1
+    recomnded_limit = 23#Should not go over 23
     inputs = []
     code_words = []
     uncoded_words = []
@@ -60,19 +83,20 @@ if test == 14:
     sign = True
 
 
-
-
 #Inital values for test 13
 if test == 13:
     recomnded_limit = 10
     uncoded_words = []
     k_ideal_array = [[],[],[],[]]
-    k_array = [4,5,6,7,8,9,10,11,12,13,14,15,16]
+    k_start = 4
+    k_stop = 16
+    k_array = []
     order_0_array = []
     order_1_array = []
     order_2_array = []
     order_3_array = []
-    for i in range(len(k_array)):
+    for i in range(k_start, k_stop+1):
+        k_array.append(i)
         order_0_array.append([])
         order_1_array.append([])
         order_2_array.append([])
@@ -94,7 +118,7 @@ if test == 12:
 
 #Initial values for test 11
 if test == 11:
-    recomnded_limit = 5
+    recomnded_limit = 23#Should not go over 23
     inputs = []
     code_words = []
     uncoded_words = []
@@ -133,6 +157,7 @@ if test == 1:
 #Each packet contains 256 smples from all 256 microphones
 data = np.empty((config.N_MICROPHONES, config.N_SAMPLES), dtype=np.float32)
 while w_limit < recomnded_limit:
+
     
     receive(data)
 
@@ -147,16 +172,74 @@ while w_limit < recomnded_limit:
     #To pick all sampels for a specific mic choose a number x for desired mic and ":" for samples:
     #data2[x,:]
     
-    
+    #Tries different m-values in Golob codes for all orders of shorten in order to find which gives the best cr
+    if test == 15:
+         #Only starts calculations when a new sample block is available
+        if np.all(data2[best_mic,:]) != np.all(input_new):
+            input_new = data2[best_mic,:]#Used to check if new data is available
+            print("Test start")
+            w_limit += 1
+            
+
+
+            input = data2[best_mic,:]#Input data used in test
+
+            
+            #loops though all k values in k_array.
+
+            for j in range(len(m_array)):
+                m = m_array[j]
+
+
+                #loops thorugh all order, i = 0-3
+                for i in range(4):
+                    #Does the shorten calculations and updates memory
+                    Shorten_predictor = Shorten(i)
+                    residual, memorys[i], predict = Shorten_predictor.In(input, memorys[i])
+
+                    #calculates the Golomb code word for the residual
+                    code_word =""
+                    for q in range(len(input)):
+                        
+                        Golomb_coder = GolombCoding(m, True)
+                        n = int(residual[q])
+                        kodOrd = Golomb_coder.Encode(n)
+                        code_word += kodOrd
+                    #The rice code word is saved in the array matching both order and k-value
+                    if i == 0:
+                        order_0_array[j].append(code_word)
+
+                    elif i == 1:
+                        order_1_array[j].append(code_word)
+
+                    elif i == 2:
+                        order_2_array[j].append(code_word)
+
+                    elif i == 3:
+                        order_3_array[j].append(code_word)
+            
+            #Calculates size of uncoded input.
+            #Assuming each vaule is repsented in 32 bits.
+            uncoded_word = ""              
+            for j in range(len(input)):
+                uncoded_word += np.binary_repr(input[j],32)
+
+
+
+            #Saves uncoded binary input in array
+            uncoded_words.append(uncoded_word)
+            
+            
     #Test Shorten and Golomb coding if it can recreate the input data on the decompressed side
     #It saves all input data in inputs array, all coded words in coded_words array and the inputs as binary values in 32 bits   
     if test == 14:
         #This if statments make sure to wait until a new sample block is available
         if np.all(data2[best_mic,:]) != np.all(input_new):
             input_new = data2[best_mic,:]#This data choice is only to make sure to wait for a new available data value
-            
-            input = data2[best_mic,:]#This mic choice is the mic that will be sent over channel
             w_limit +=1
+
+            
+            input = data2[blasted_mic,:]#This mic choice is the mic that will be sent over channel
             code_word =""
             uncoded_word = ""
             #Saves current input values in inputs array
@@ -203,9 +286,11 @@ while w_limit < recomnded_limit:
         #Only starts calculations when a new sample block is available
         if np.all(data2[best_mic,:]) != np.all(input_new):
             input_new = data2[best_mic,:]#Used to check if new data is available
+            w_limit += 1
+            print(w_limit)
 
 
-            input = data2[best_mic,:]#Input data used in test
+            input = data2[silent_mic_1,:]#Input data used in test
 
             
             #loops though all k values in k_array.
@@ -266,7 +351,6 @@ while w_limit < recomnded_limit:
             #Saves uncoded binary input in array
             uncoded_words.append(uncoded_word)
             
-            w_limit += 1
 
 
     #This test tries different orders of Shorten to predict input.
@@ -311,9 +395,10 @@ while w_limit < recomnded_limit:
         #This if statments make sure to wait until a new sample block is available
         if np.all(data2[best_mic,:]) != np.all(input_new):
             input_new = data2[best_mic,:]#This data choice is only to make sure to wait for a new available data value
+            w_limit +=1
+            
             
             input = data2[best_mic,:]#This mic choice is the mic that will be sent over channel
-            w_limit +=1
             code_word =""
             uncoded_word = ""
             #Saves current input values in inputs array
@@ -429,6 +514,177 @@ while w_limit < recomnded_limit:
 
 
 #disconect()
+                
+#Test compression ratios for all orders of Shorten using Golomb codes for some m-values
+if test == 15:
+
+    print("Test 15")
+    
+    
+    print("")
+
+    #Arrays for average compression rates
+    cr_0 = []
+    cr_1 = []
+    cr_2 = []
+    cr_3 = []
+    
+
+    #loop thorugh all m-values
+    for i in range(len(m_array)):
+        #loops thorugh all orders of shorten
+        for q in range(4):
+            temp_cr_array = []
+            #loops thorugh all sampled blocks of data
+            for j in range(len(uncoded_words)):
+                #depending on what order being calculated the compressed codeword is saved in a speicific array
+                #order_q_array[i][j] where q is oder, i is m-value, and j is code word from sampled data block
+
+                #compression ratio is calculated by dividing lenght of code word by length of uncoded word
+                #lenght of uncoded word is assumed to be 32 bits accourding to aucostic warefare paper
+                if q == 0:
+                    temp_cr = len(order_0_array[i][j]) / len(uncoded_words[j])
+
+                elif q == 1:
+                    temp_cr = len(order_1_array[i][j]) / len(uncoded_words[j])
+
+                elif q == 2:
+                    temp_cr = len(order_2_array[i][j]) / len(uncoded_words[j])
+
+                elif q == 3:
+                    temp_cr = len(order_3_array[i][j]) / len(uncoded_words[j])
+
+                #for each k-value several sampled blocks of data is saved
+                #for each block a compression ratio is calculated
+                temp_cr_array.append(temp_cr)
+
+
+            #The average compression ratio for all data block, given a specific m value and order is calculated
+            if q == 0:
+                cr_0.append(np.sum(temp_cr_array) / len(temp_cr_array))
+
+            elif q == 1:
+                cr_1.append(np.sum(temp_cr_array) / len(temp_cr_array))
+
+            elif q == 2:
+                cr_2.append(np.sum(temp_cr_array) / len(temp_cr_array))
+
+            elif q == 3:
+                cr_3.append(np.sum(temp_cr_array) / len(temp_cr_array))
+
+    #Print result of all average compression ratios for given order and m value
+    if 1 < 0:
+        print("For a given value: m = ", m_array)
+        print("Average compression rate for order 0 = ", cr_0)
+
+        print("Average compression rate for order 1 = ", cr_1)
+
+        print("Average compression rate for order 2 = ", cr_2)
+
+        print("Average compression rate for order 3 = ", cr_3)
+        print("")
+
+
+    
+
+
+    #calculate ideal choice of m-value for each order
+
+    #appends all orders CR into one array
+    all_cr = []
+    all_cr.append(cr_0)
+    all_cr.append(cr_1)
+    all_cr.append(cr_2)
+    all_cr.append(cr_3)
+
+    for i in range(4):
+        #looks thorugh one order at a time to find the m that gives the best cr for that order
+        temp_min_cr_array = all_cr[i]
+        temp_m_min = 0
+        for j in range(len(temp_min_cr_array)-1):
+            
+            #if the next k gives a better cr that k-value is saved
+            if temp_min_cr_array[j+1] < temp_min_cr_array[temp_m_min]:
+                
+                temp_m_min = j+1
+                
+        #prints out the shorten order and its ideal k with the corresponding cr
+        print("Shorten order ",i," and m = ", m_array[temp_m_min]," gives best result with cr = ", temp_min_cr_array[temp_m_min])
+
+    print("")
+
+    
+
+
+    #calculate ideal choice of order and m-value
+
+    #Finds the array with the lowest CR value
+    o = 0
+    for i in range(len(all_cr)-1):
+        if np.min(all_cr[i+1]) < np.min(all_cr[i]):
+            o = i+1
+
+    #Saves the array with the lowest cr value into its own varaible
+    min_cr_array = all_cr[o]
+
+    
+    #Loops trough the array with the lowest cr value to find the lowest cr value.
+    #Save the index of the lowest cr value
+    m_min = 0
+    for i in range(len(min_cr_array)-1):
+        if min_cr_array[i+1] < min_cr_array[i]:
+            m_min = i+1
+    #To find which m value corresponds to the index, take the index and add m_array[0]
+    print("The best compression ratio is given by Shorten order ",o," with m-value ", m_min+m_array[0], ": cr = ", min_cr_array[m_min])
+    print("")
+
+    
+
+
+    #Plots sub plots with each subplot being a specific order of Shorten
+    #y-axis is compression ratio and x-axis is m value
+    fig = plt.figure(1)
+
+    ax=fig.add_subplot(221)
+    plt.plot(m_array, cr_0, 'ro')
+    ax.title.set_text("Shorten Order 0")
+    plt.xlabel("k-value")
+    plt.ylabel("Average compression ratio")
+
+    ax=fig.add_subplot(222)
+    plt.plot(m_array, cr_1, 'ro')
+    ax.title.set_text("Shorten Order 1")
+    plt.xlabel("k-value")
+    plt.ylabel("Average compression ratio")
+
+    ax=fig.add_subplot(223)
+    plt.plot(m_array, cr_2, 'ro')
+    ax.title.set_text("Shorten Order 2")
+    plt.xlabel("k-value")
+    plt.ylabel("Average compression ratio")
+
+    ax=fig.add_subplot(224)
+    plt.plot(m_array, cr_3, 'ro')
+    ax.title.set_text("Shorten Order 3")
+    plt.xlabel("k-value")
+    plt.ylabel("Average compression ratio")
+    
+
+
+    #Plots Order 1, 2, and 3 of shorten in the same plot showing cr depending on m used in Golomb code
+    #y-axis is compression rate [cr] and x-axis is m-value
+    plt.figure(2)
+
+    plt.plot(m_array, cr_1, 'ro', label='Order 1')
+    plt.plot(m_array, cr_2, 'bo', label='Order 2')
+    plt.plot(m_array, cr_3, 'go', label='Order 3')
+    plt.title("Comparison of comression ratio for differente orders")
+    plt.xlabel("k-value")
+    plt.ylabel("Average compression ratio")
+    plt.legend()
+
+    plt.show()
+
 
 #Test if Shorten can recreate input using Golomb coding
 #Indicates if any words was wrongly decoded and if so how many of the sampled datablock
@@ -452,7 +708,7 @@ if test == 14:
 
     
     
-    if 1 < 0:
+    if 1 > 0:
         #Recreates the original inputs
         for i in range(len(inputs)):
             #Grabs the original input values, k-value used to encode, and code_word from arrays
@@ -501,7 +757,7 @@ if test == 14:
             plt.show()
 
 
-#Test compression ratios for all orders of Shorten for some k-values
+#Test compression ratios for all orders of Shorten using Rice codes for some k-values
 if test == 13:
     print("Test 13")
     
@@ -614,8 +870,8 @@ if test == 13:
         temp_min_cr_array = all_cr[i]
         temp_k_min = 0
         for j in range(len(temp_min_cr_array)-1):
-            #if the next k gives a better cr that k-value is saved
-            if temp_min_cr_array[j+1] < temp_min_cr_array[j]:
+            #if the next k gives a better cr than the previous best cr that k-value is saved
+            if temp_min_cr_array[j+1] < temp_min_cr_array[temp_k_min]:
                 temp_k_min = j+1
         #prints out the shorten order and its ideal k with the corresponding cr
         print("Shorten order ",i," and k = ", temp_k_min + k_array[0]," gives best result with cr = ", temp_min_cr_array[temp_k_min])
@@ -870,7 +1126,7 @@ if test == 1:
 
         ax = fig.add_subplot(222)
         plt.plot(plot_sig[blasted_mic])
-        mic_title = "Mic #" + str(blasted_mic) + ", example of broken mic (blasted)"
+        mic_title = "Mic #" + str(blasted_mic) + ", example of broken mic (high volume)"
         ax.title.set_text(mic_title)
 
         ax = fig.add_subplot(223)
