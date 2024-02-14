@@ -4,6 +4,7 @@ import numpy as np
 import math
 from Shorten import Shorten
 from Rice import RiceCoding
+from Golomb import GolombCoding
 import matplotlib.pyplot as plt
 import time
 
@@ -30,7 +31,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 13
+test = 14
 
 #General tests
 #Test 1. This test plots microphone data
@@ -48,14 +49,14 @@ test = 13
 
 #Initial values for test 14
 if test == 14:
-    recomnded_limit = 2
+    recomnded_limit = 1
     inputs = []
     code_words = []
     uncoded_words = []
     order = 2
     memory = memorys[order].copy()
     Shorten_predictor = Shorten(order)
-    k_array = []
+    m_array = []
     sign = True
 
 
@@ -146,12 +147,9 @@ while w_limit < recomnded_limit:
     #To pick all sampels for a specific mic choose a number x for desired mic and ":" for samples:
     #data2[x,:]
     
-    #This test tries different k-values for all orders of shorten over several data points.
-    #With this it is possible to see:
-    #1. What order and k-value gives best cr result.
-    #2. What k-value for each order give best cr result.
-    #3. How well does the ideal k-value in Rice theory match the practical ideal k-value
-
+    
+    #Test Shorten and Golomb coding if it can recreate the input data on the decompressed side
+    #It saves all input data in inputs array, all coded words in coded_words array and the inputs as binary values in 32 bits   
     if test == 14:
         #This if statments make sure to wait until a new sample block is available
         if np.all(data2[best_mic,:]) != np.all(input_new):
@@ -179,14 +177,14 @@ while w_limit < recomnded_limit:
             else:
                 k = 1
             #Saves the current ideal k value to later use for decoding
-            
-            k_array.append(k)
+            m = pow(2,k)
+            m_array.append(m)
 
             #Rice codes the residuals from shorten and saves the code word in code_word
             for i in range(len(residuals)):
-                Rice_coder = RiceCoding(k, sign)
+                Golomb_coder = GolombCoding(m, sign)
                 n = int(residuals[i])
-                kodOrd = Rice_coder.Encode(n)
+                kodOrd = Golomb_coder.Encode(n)
                 code_word += kodOrd
                 
                 #Saves binary value of input, represented in 32 bits
@@ -196,8 +194,11 @@ while w_limit < recomnded_limit:
             code_words.append(code_word)
             uncoded_words.append(uncoded_word)
         
-
-
+    #This test tries different k-values for all orders of shorten over several data points.
+    #With this it is possible to see:
+    #1. What order and k-value gives best cr result.
+    #2. What k-value for each order give best cr result.
+    #3. How well does the ideal k-value in Rice theory match the practical ideal k-value
     if test == 13:
         #Only starts calculations when a new sample block is available
         if np.all(data2[best_mic,:]) != np.all(input_new):
@@ -428,6 +429,76 @@ while w_limit < recomnded_limit:
 
 
 #disconect()
+
+#Test if Shorten can recreate input using Golomb coding
+#Indicates if any words was wrongly decoded and if so how many of the sampled datablock
+#Plots Original input and decoded input
+#Gives compression rate of encoded values
+if test == 14:
+    compression_ratio = []
+    uncoded_residuals_array = []
+    uncoded_values_array = []
+    predictions_array = []
+    memory_out = memorys[order].copy()
+
+    
+
+    #Calcuates compression ratios of Shorten by comparing length of binary values of input to length of Rice coded residuals
+    for i in range(len(code_words)):
+        temp_comp_r = len(code_words[i]) / len(uncoded_words[i])
+        compression_ratio.append(temp_comp_r)
+    print("Compression ratio of Shorten using Golomb code is: ", compression_ratio)
+
+
+    
+    
+    if 1 < 0:
+        #Recreates the original inputs
+        for i in range(len(inputs)):
+            #Grabs the original input values, k-value used to encode, and code_word from arrays
+            input = inputs[i]
+            m = m_array[i]
+            code_word = code_words[i]
+            
+            #Decodes the residuals from the Rice code
+            Golomb_coder = GolombCoding(m, sign)
+            uncoded_residuals = Golomb_coder.Decode(code_word)
+            uncoded_residuals_array.append(uncoded_residuals)
+            
+            #Calculates the original inputs from the decoded residuals using Shorten
+            uncoded_values, memory_out, predictions = Shorten_predictor.Out(uncoded_residuals, memory_out)
+            uncoded_values_array.append(uncoded_values)
+            predictions_array.append(predictions)
+
+            #Checks if the uncoded values match the original inputs
+            value_check = 0
+            for j in range(len(uncoded_values)):
+                #If the orignal input dont match the uncoded values value check will increment by 1 
+                #and the data block containing the faulty decoded value will be printed out
+                if uncoded_values[j] != input[j]:
+                    print("Failed decode at data block i = ",i," Original input =  ",input[j]," Uncoded value = ", uncoded_values[j])
+                    value_check += 1
+            #Once all the values have been checked:
+            #If there are no wrongly decoded values the code will print out that all values have been correctly decoded for the data block
+            if value_check == 0:
+                print("Itteration nr",i," correctly decoded all orignal values")
+            #If there is some wrongly decoded values the code will print in which data block they are and how many there are
+            else:
+                print("Itteration nr",i," failed decodeing ",value_check," values")
+
+
+            #Plots the original input values and the decoded input valus in subplots
+            fig = plt.figure(i)
+
+            ax = fig.add_subplot(211)
+            plt.plot(input)
+            ax.title.set_text("Original input values")
+
+            ax = fig.add_subplot(212)
+            plt.plot(uncoded_values)
+            ax.title.set_text("Decoded input values")
+
+            plt.show()
 
 
 #Test compression ratios for all orders of Shorten for some k-values
@@ -678,6 +749,10 @@ if test == 12:
         plt.show()
 
 
+#Test if Shorten can recreate input using Rice coding
+#Indicates if any words was wrongly decoded and if so how many of the sampled datablock
+#Plots Original input and decoded input
+#Gives compression rate of encoded values
 if test == 11:
     compression_ratio = []
     uncoded_residuals_array = []

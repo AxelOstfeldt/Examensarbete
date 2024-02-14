@@ -174,7 +174,7 @@ class GolombCoding:
 
 #Test
     
-if 1 > 0:
+if 1 < 0:
 
     print("Golomb code test is running")
     sign = True
