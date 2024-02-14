@@ -31,7 +31,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 1
+test = 11
 
 #General tests
 #Test 1. This test plots microphone data
@@ -55,14 +55,14 @@ test = 1
 if test == 15:
     recomnded_limit = 1
     uncoded_words = []
-    m_start = 100
-    m_stop = 4000
+    m_start = 1
+    m_stop = 100
     m_array = []
     order_0_array = []
     order_1_array = []
     order_2_array = []
     order_3_array = []
-    for i in range(m_start, m_stop):
+    for i in range(m_start, m_stop+1):
         m_array.append(i)
         order_0_array.append([])
         order_1_array.append([])
@@ -85,11 +85,11 @@ if test == 14:
 
 #Inital values for test 13
 if test == 13:
-    recomnded_limit = 10
+    recomnded_limit = 15#15 is good value is k_start and k_stop are choosen well
     uncoded_words = []
     k_ideal_array = [[],[],[],[]]
-    k_start = 4
-    k_stop = 16
+    k_start = 1
+    k_stop = 5
     k_array = []
     order_0_array = []
     order_1_array = []
@@ -182,7 +182,7 @@ while w_limit < recomnded_limit:
             
 
 
-            input = data2[best_mic,:]#Input data used in test
+            input = data2[silent_mic_2,:]#Input data used in test
 
             
             #loops though all k values in k_array.
@@ -239,7 +239,7 @@ while w_limit < recomnded_limit:
             w_limit +=1
 
             
-            input = data2[blasted_mic,:]#This mic choice is the mic that will be sent over channel
+            input = data2[silent_mic_2,:]#This mic choice is the mic that will be sent over channel
             code_word =""
             uncoded_word = ""
             #Saves current input values in inputs array
@@ -287,7 +287,7 @@ while w_limit < recomnded_limit:
         if np.all(data2[best_mic,:]) != np.all(input_new):
             input_new = data2[best_mic,:]#Used to check if new data is available
             w_limit += 1
-            print(w_limit)
+
 
 
             input = data2[silent_mic_1,:]#Input data used in test
@@ -648,39 +648,39 @@ if test == 15:
     ax=fig.add_subplot(221)
     plt.plot(m_array, cr_0, 'ro')
     ax.title.set_text("Shorten Order 0")
-    plt.xlabel("k-value")
-    plt.ylabel("Average compression ratio")
+    plt.xlabel("m-value")
+    plt.ylabel("Compression ratio")
 
     ax=fig.add_subplot(222)
     plt.plot(m_array, cr_1, 'ro')
     ax.title.set_text("Shorten Order 1")
-    plt.xlabel("k-value")
-    plt.ylabel("Average compression ratio")
+    plt.xlabel("m-value")
+    plt.ylabel("Compression ratio")
 
     ax=fig.add_subplot(223)
     plt.plot(m_array, cr_2, 'ro')
     ax.title.set_text("Shorten Order 2")
-    plt.xlabel("k-value")
-    plt.ylabel("Average compression ratio")
+    plt.xlabel("m-value")
+    plt.ylabel("Compression ratio")
 
     ax=fig.add_subplot(224)
     plt.plot(m_array, cr_3, 'ro')
     ax.title.set_text("Shorten Order 3")
-    plt.xlabel("k-value")
-    plt.ylabel("Average compression ratio")
+    plt.xlabel("m-value")
+    plt.ylabel("Compression ratio")
     
 
 
     #Plots Order 1, 2, and 3 of shorten in the same plot showing cr depending on m used in Golomb code
     #y-axis is compression rate [cr] and x-axis is m-value
     plt.figure(2)
-
+    plt.plot(m_array, cr_0, 'yo', label='Order 0')
     plt.plot(m_array, cr_1, 'ro', label='Order 1')
     plt.plot(m_array, cr_2, 'bo', label='Order 2')
     plt.plot(m_array, cr_3, 'go', label='Order 3')
     plt.title("Comparison of comression ratio for differente orders")
-    plt.xlabel("k-value")
-    plt.ylabel("Average compression ratio")
+    plt.xlabel("m-value")
+    plt.ylabel("Compression ratio")
     plt.legend()
 
     plt.show()
@@ -932,43 +932,15 @@ if test == 13:
     plt.ylabel("Average compression ratio")
 
 
-    #Plots sub plots with each subplot being a specific order of Shorten
-    #y-axis is compression ratio and x-axis is k value
-    #This plot is a zoomed in version of figure 1.
-    #The first data points are ususaly not that interesting since compression ratio is high
-    #(Assuming starting k-value of 4)
-    fig = plt.figure(2)
-
-    ax=fig.add_subplot(221)
-    plt.plot(k_array[3:], cr_0[3:], 'ro')
-    ax.title.set_text("Shorten Order 0")
-    plt.xlabel("k-value")
-    plt.ylabel("Average compression ratio")
-
-    ax=fig.add_subplot(222)
-    plt.plot(k_array[3:], cr_1[3:], 'ro')
-    ax.title.set_text("Shorten Order 1")
-    plt.xlabel("k-value")
-    plt.ylabel("Average compression ratio")
-
-    ax=fig.add_subplot(223)
-    plt.plot(k_array[3:], cr_2[3:], 'ro')
-    ax.title.set_text("Shorten Order 2")
-    plt.xlabel("k-value")
-    plt.ylabel("Average compression ratio")
-
-    ax=fig.add_subplot(224)
-    plt.plot(k_array[3:], cr_3[3:], 'ro')
-    ax.title.set_text("Shorten Order 3")
-    plt.xlabel("k-value")
-    plt.ylabel("Average compression ratio")
+    
 
     #Plots Order 1, 2, and 3 of shorten in the same plot for some k-values
-    plt.figure(3)
+    plt.figure(2)
 
-    plt.plot(k_array[3:], cr_1[3:], 'ro', label='Order 1')
-    plt.plot(k_array[3:], cr_2[3:], 'bo', label='Order 2')
-    plt.plot(k_array[3:], cr_3[3:], 'go', label='Order 3')
+    plt.plot(k_array, cr_0, 'yo', label='Order 0')#Sometimes comented out when Order 0 gives to large CR
+    plt.plot(k_array, cr_1, 'ro', label='Order 1')
+    plt.plot(k_array, cr_2, 'bo', label='Order 2')
+    plt.plot(k_array, cr_3, 'go', label='Order 3')
     plt.title("Comparison of comression ratio for differente orders")
     plt.xlabel("k-value")
     plt.ylabel("Average compression ratio")
