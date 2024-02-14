@@ -77,12 +77,15 @@ if test == 12:
 
 #Initial values for test 11
 if test == 11:
-    recomnded_limit = 1
+    recomnded_limit = 5
     inputs = []
     code_words = []
     uncoded_words = []
     order = 2
-    memory = memorys[order]
+    memory = memorys[order].copy()
+    Shorten_predictor = Shorten(order)
+    k_array = []
+    sign = True
 
 
 #Initial values for test 3
@@ -102,7 +105,6 @@ if test == 1:
     recomnded_limit = 1
     plot_sig = []
     data_points = 256#How many samples for each block is gonna be plotted, lower value gives a more zoomed in picture
-
 
 
 
@@ -147,7 +149,8 @@ while w_limit < recomnded_limit:
                 #loops thorugh all order, i = 0-3
                 for i in range(4):
                     #Does the shorten calculations and updates memory
-                    residual, memorys[i], predict = Shorten(input, i, memorys[i])
+                    Shorten_predictor = Shorten(i)
+                    residual, memorys[i], predict = Shorten_predictor.In(input, memorys[i])
 
                     #Calculates the ideal k_vaule for the Shorten residuals
                     abs_res = np.absolute(residual)
@@ -214,7 +217,9 @@ while w_limit < recomnded_limit:
             
             #Calculates shorten for all orders for input data
             for i in range(4):
-                residual, memorys[i], predict = Shorten(plot_sig_temp, i, memorys[i])
+                Shorten_predictor = Shorten(i)
+
+                residual, memorys[i], predict = Shorten_predictor.In(plot_sig_temp, memorys[i])
                 
                 #Saves results of shorten for all orders to later be plotted
                 for j in range(len(residual)):
@@ -226,33 +231,42 @@ while w_limit < recomnded_limit:
                         plot_sig.append(plot_sig_temp[j])
 
 
-    #Test Shorten and Rice coding if it can recreate the input data on the decompressed side   
+    #Test Shorten and Rice coding if it can recreate the input data on the decompressed side
+    #It saves all input data in inputs array, all coded words in coded_words array and the inputs as binary values in 32 bits   
     if test == 11:
         if np.all(data2[best_mic,:]) != np.all(input):
+            #This if statments make sure to wait until a new sample block is available
+            w_limit +=1
             input = data2[best_mic,:]
             code_word =""
             uncoded_word = ""
+            #Saves current input values in inputs array
             inputs.append(input)
             
+            #uses Shorten to calculate residuals
+            residuals, memory, predictions = Shorten_predictor.In(input, memory)
 
-            residuals, memory, predictions = Shorten(input, order, memory)
+            #Calculates the ideal k-value according to Rice theory
             abs_res = np.absolute(residuals)
             abs_res_avg = np.mean(abs_res)
             if abs_res_avg > 0:
                 k = int(round(math.log(math.log(2,10) * abs_res_avg,2)))
             else:
                 k = 1
-
+            #Saves the current ideal k value to later use for decoding
             k_array.append(k)
 
+            #Rice codes the residuals from shorten and saves the code word in code_word
             for i in range(len(residuals)):
-                Rice_coder = RiceCoding(k, True)
+                Rice_coder = RiceCoding(k, sign)
                 n = int(residuals[i])
                 kodOrd = Rice_coder.Encode(n)
                 code_word += kodOrd
-
+                
+                #Saves binary value of input, represented in 32 bits
                 uncoded_word += np.binary_repr(input[i],32)
 
+            #Saves Rice coded residuals and binary input values arrays
             code_words.append(code_word)
             uncoded_words.append(uncoded_word)
 
@@ -575,31 +589,60 @@ if test == 12:
 
 if test == 11:
     compression_ratio = []
-    uncoded_values = []
-    uncoded_residuals = []
-    sign = True
+    uncoded_residuals_array = []
+    uncoded_values_array = []
+    predictions_array = []
+    memory_out = memorys[order].copy()
+    
+
+    #Calcuates compression ratios of Shorten by comparing length of binary values of input to length of Rice coded residuals
     for i in range(len(code_words)):
         temp_comp_r = len(code_words[i]) / len(uncoded_words[i])
         compression_ratio.append(temp_comp_r)
     print("Compression ratio of Shorten is: ", compression_ratio)
 
+
+    
     
 
-
+    #Recreates the original inputs
     for i in range(len(inputs)):
+        #Grabs the original input values, k-value used to encode, and code_word from arrays
         input = inputs[i]
         k = k_array[i]
         code_word = code_words[i]
+        
+        #Decodes the residuals from the Rice code
         Rice_coder = RiceCoding(k, sign)
-        values = Rice_coder.Decode(code_word)
-        uncoded_values.append(values)
+        uncoded_residuals = Rice_coder.Decode(code_word)
+        uncoded_residuals_array.append(uncoded_residuals)
+        
+        #Calculates the original inputs from the decoded residuals using Shorten
+        uncoded_values, memory_out, predictions = Shorten_predictor.Out(uncoded_residuals, memory_out)
+        uncoded_values_array.append(uncoded_values)
+        predictions_array.append(predictions)
 
-        for j in range(len(values)):
-            if values[j] != input[j]:
-                print("For sample ",i," value #",j," the values does not match. Input = ", input[j]," decoded value = ",values[j])
-            else:
-                print("Input = ", input[j])
-                print("Decoded value = ", values[j])
+        #Checks if the uncoded values match the original inputs
+        value_check = 0
+        for j in range(len(uncoded_values)):
+            #If the orignal input dont match the uncoded values value check will increment by 1 
+            #and the data block containing the faulty decoded value will be printed out
+            if uncoded_values[j] != input[j]:
+                print("Failed decode at data block i = ",i," Original input =  ",input[j]," Uncoded value = ", uncoded_values[j])
+                value_check += 1
+        #Once all the values have been checked:
+        #If there are no wrongly decoded values the code will print out that all values have been correctly decoded for the data block
+        if value_check == 0:
+            print("Itteration nr",i," correctly decoded all orignal values")
+        #If there is some wrongly decoded values the code will print in which data block they are and how many there are
+        else:
+            print("Itteration nr",i," failed decodeing ",value_check," values")
+
+
+
+
+
+            
 
 #Test how long time it takes to get a new sample
 if test == 3:

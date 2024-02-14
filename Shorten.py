@@ -47,7 +47,7 @@ class Shorten:
         
         
         #raises error if memory is not the length of order
-        if order != len(memory):
+        if self.order != len(memory):
             raise ValueError(f"Order and memory length should match. Current values are: order = {order}, memory length = {len(memory)}")
         
         predictions = []#only needed for testing?
@@ -64,7 +64,10 @@ class Shorten:
             residual = input[i] - prediction
 
             #update the first memory slot with the current input value
-            memory[0] = input[i]
+            #This should not be done for order 0 since that have an empty memory
+            if self.order > 0:
+                memory[0] = input[i]
+            
             
             #saves residuals and prediction in their respective array
             predictions.append(prediction)
@@ -89,7 +92,9 @@ class Shorten:
             current_input = residuals[i] + prediction
 
             #update the first memory slot with the current input value
-            memory[0] = current_input
+            #This should not be done for order 0 since that have an empty memory
+            if self.order > 0:
+                memory[0] = current_input
             
             #saves residuals and prediction in their respective array
             input.append(current_input)
