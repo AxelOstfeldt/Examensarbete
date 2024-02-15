@@ -31,7 +31,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 11
+test = 15
 
 #General tests
 #Test 1. This test plots microphone data
@@ -55,8 +55,8 @@ test = 11
 if test == 15:
     recomnded_limit = 1
     uncoded_words = []
-    m_start = 1
-    m_stop = 100
+    m_start = 30000
+    m_stop = 70000
     m_array = []
     order_0_array = []
     order_1_array = []
@@ -72,7 +72,7 @@ if test == 15:
 
 #Initial values for test 14
 if test == 14:
-    recomnded_limit = 23#Should not go over 23
+    recomnded_limit = 2#Should not go over 23
     inputs = []
     code_words = []
     uncoded_words = []
@@ -85,11 +85,11 @@ if test == 14:
 
 #Inital values for test 13
 if test == 13:
-    recomnded_limit = 15#15 is good value is k_start and k_stop are choosen well
+    recomnded_limit = 15#15 is good value if k_start and k_stop are choosen well
     uncoded_words = []
     k_ideal_array = [[],[],[],[]]
-    k_start = 1
-    k_stop = 5
+    k_start = 10
+    k_stop = 20
     k_array = []
     order_0_array = []
     order_1_array = []
@@ -143,7 +143,7 @@ if test == 2:
 
 #Inital values for test 1
 if test == 1:
-    recomnded_limit = 1
+    recomnded_limit = 3
     plot_sig = []
     data_points = 256#How many samples for each block is gonna be plotted, lower value gives a more zoomed in picture
 
@@ -182,7 +182,7 @@ while w_limit < recomnded_limit:
             
 
 
-            input = data2[silent_mic_2,:]#Input data used in test
+            input = data2[silent_mic_1,:]#Input data used in test
 
             
             #loops though all k values in k_array.
@@ -239,7 +239,7 @@ while w_limit < recomnded_limit:
             w_limit +=1
 
             
-            input = data2[silent_mic_2,:]#This mic choice is the mic that will be sent over channel
+            input = data2[best_mic,:]#This mic choice is the mic that will be sent over channel
             code_word =""
             uncoded_word = ""
             #Saves current input values in inputs array
@@ -290,7 +290,7 @@ while w_limit < recomnded_limit:
 
 
 
-            input = data2[silent_mic_1,:]#Input data used in test
+            input = data2[best_mic,:]#Input data used in test
 
             
             #loops though all k values in k_array.
@@ -509,7 +509,13 @@ while w_limit < recomnded_limit:
                     value = input_temp[i]
                     plot_sig_temp.append(value)
                 #Appends the arrays of all mics into one array
-                plot_sig.append(plot_sig_temp)
+                if w_limit == 1:
+                    plot_sig.append(plot_sig_temp)
+                else:
+                    for i in range(len(plot_sig_temp)):
+                        plot_sig[j].append(plot_sig_temp[i])
+
+
 
 
 
@@ -743,18 +749,32 @@ if test == 14:
                 print("Itteration nr",i," failed decodeing ",value_check," values")
 
 
-            #Plots the original input values and the decoded input valus in subplots
-            fig = plt.figure(i)
+            if 1 < 0:#Only plots for report
 
-            ax = fig.add_subplot(211)
-            plt.plot(input)
-            ax.title.set_text("Original input values")
 
-            ax = fig.add_subplot(212)
-            plt.plot(uncoded_values)
-            ax.title.set_text("Decoded input values")
+                plt.figure("Original values")
 
-            plt.show()
+                plt.plot(input)
+
+                plt.figure("Uncoded values")
+
+                plt.plot(uncoded_values)
+
+                plt.show()
+
+
+            else:#Plots the original input values and the decoded input valus in subplots
+                fig = plt.figure(i)
+
+                ax = fig.add_subplot(211)
+                plt.plot(input)
+                ax.title.set_text("Original input values")
+
+                ax = fig.add_subplot(212)
+                plt.plot(uncoded_values)
+                ax.title.set_text("Decoded input values")
+
+                plt.show()
 
 
 #Test compression ratios for all orders of Shorten using Rice codes for some k-values
@@ -952,29 +972,43 @@ if test == 13:
 #Plot input signal, residual, predicted value to see how good the result of shorten is
 if test == 12:
     #One figure for each order, created by a for loop of range 4
-    for i in range(4):
-        figure_title = "Shorten order " + str(i)
-        fig = plt.figure(figure_title)
+    
 
-        #Each figure plots 4 subplots with:
-        #Input signal, prediction of Shorten, Residual of shorten, Zero (Input - (residual + prediciton) = 0)
-        ax = fig.add_subplot(221)
-        plt.plot(plot_sig)
-        ax.title.set_text("Input signal")
+    if 1 < 0:#Only for plots in report
+        plots_report = [plot_sig, plot_predict[2], plot_residuals[2], plot_zero[2]]#the number decides what order to plot
+        for i in range(4):
 
-        ax = fig.add_subplot(222)
-        plt.plot(plot_predict[i])
-        ax.title.set_text("Predicted signal")
+            plt.figure(i)
 
-        ax = fig.add_subplot(223)
-        plt.plot(plot_residuals[i])
-        ax.title.set_text("Residual signal")
-
-        ax = fig.add_subplot(224)
-        plt.plot(plot_zero[i])
-        ax.title.set_text("Input - (Predict + Residual) = 0")
+            plt.plot(plots_report[i])
 
         plt.show()
+            
+
+    else:
+        for i in range(4):
+            figure_title = "Shorten order " + str(i)
+            fig = plt.figure(figure_title)
+
+            #Each figure plots 4 subplots with:
+            #Input signal, prediction of Shorten, Residual of shorten, Zero (Input - (residual + prediciton) = 0)
+            ax = fig.add_subplot(221)
+            plt.plot(plot_sig)
+            ax.title.set_text("Input signal")
+
+            ax = fig.add_subplot(222)
+            plt.plot(plot_predict[i])
+            ax.title.set_text("Predicted signal")
+
+            ax = fig.add_subplot(223)
+            plt.plot(plot_residuals[i])
+            ax.title.set_text("Residual signal")
+
+            ax = fig.add_subplot(224)
+            plt.plot(plot_zero[i])
+            ax.title.set_text("Input - (Predict + Residual) = 0")
+
+            plt.show()
 
 
 #Test if Shorten can recreate input using Rice coding
@@ -1033,19 +1067,33 @@ if test == 11:
         else:
             print("Itteration nr",i," failed decodeing ",value_check," values")
 
+        if 1 < 0:#Only plots for report
 
-        #Plots the original input values and the decoded input valus in subplots
-        fig = plt.figure(i)
 
-        ax = fig.add_subplot(211)
-        plt.plot(input)
-        ax.title.set_text("Original input values")
+            plt.figure("Original values")
 
-        ax = fig.add_subplot(212)
-        plt.plot(uncoded_values)
-        ax.title.set_text("Decoded input values")
+            plt.plot(input)
 
-        plt.show()
+            plt.figure("Uncoded values")
+
+            plt.plot(uncoded_values)
+
+            plt.show()
+
+
+        else:
+            #Plots the original input values and the decoded input valus in subplots
+            fig = plt.figure(i)
+
+            ax = fig.add_subplot(211)
+            plt.plot(input)
+            ax.title.set_text("Original input values")
+
+            ax = fig.add_subplot(212)
+            plt.plot(uncoded_values)
+            ax.title.set_text("Decoded input values")
+
+            plt.show()
 
 
 
@@ -1087,6 +1135,7 @@ if test == 2:
 #Plot all mics to find which ones have good recorded values
 if test == 1:
     #This if statment only plots some graphs deemed interesting in the report
+
     if 1 < 0:
 
         fig = plt.figure(0)
@@ -1113,25 +1162,34 @@ if test == 1:
 
         plt.show()
 
+    #Test that only shows best mic
+    elif 1 < 0:
+    
+   
+        plt.figure(0)
+
+        plt.plot(plot_sig[136])
+
+        plt.show()
+
+    else:
+        plot_nr = 1
+        #loops thorugh the array with mic data, ploting each mic
+        #this is done in subplot so that each figure conatins 4 mic
+        for i in range(256):
+            fig = plt.figure(plot_nr)
+            sub_nr =(i%4 + 1)
+
+            ax = fig.add_subplot(220+sub_nr)
+            plt.plot(plot_sig[i])
+            mic_title = "Mic #" + str(i)
+            ax.title.set_text(mic_title)
+            
 
 
-    plot_nr = 1
-    #loops thorugh the array with mic data, ploting each mic
-    #this is done in subplot so that each figure conatins 4 mic
-    for i in range(256):
-        fig = plt.figure(plot_nr)
-        sub_nr =(i%4 + 1)
 
-        ax = fig.add_subplot(220+sub_nr)
-        plt.plot(plot_sig[i])
-        mic_title = "Mic #" + str(i)
-        ax.title.set_text(mic_title)
-        
-
-
-
-        if i % 4 == 3:
-         
-            plot_nr +=1
-            plt.show()#Each figure is plotted one at a time, to plot all at the same time move this outsie for-loop
+            if i % 4 == 3:
+            
+                plot_nr +=1
+                plt.show()#Each figure is plotted one at a time, to plot all at the same time move this outsie for-loop
 
