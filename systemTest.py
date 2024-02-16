@@ -7,6 +7,7 @@ from Rice import RiceCoding
 from Golomb import GolombCoding
 import matplotlib.pyplot as plt
 import time
+from Adjacant import Shorten_adjacent
 
 
 
@@ -31,7 +32,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 15
+test = 16
 
 #General tests
 #Test 1. This test plots microphone data
@@ -39,6 +40,7 @@ test = 15
 #Test 3. Suposed to test how long time it takes to grab a new sample. 
 #In theory it should be around 0.005 s, calculated from 256 samples at a sampling frequency of about 48 k Hz
 #However this does not seem to hold because of other processes runing on the computer makeing it slower
+#Test 4. Try Rice and Golom codes on original inputs
 
 #Shorten tests
 #Test 11. Test if Shorten using Rice code can correctly decode the input values
@@ -47,6 +49,19 @@ test = 15
 #Test 14. Test if Shorten using Golomb code can correctly decode the input values
 #Test 15. This test tries different m-values in Golomb codes for all orders of shorten. 
 #Can be done over several data blocks in theory but computer dont seem to manage it 
+#Test 16. Uses Shorten to predict values on adjacent mics
+
+if test == 16:
+    #The mics to use are based on what mics gives good values.
+    #The starting mic is mic 83, the 4 following mics are next to startin mic, the 4 following after that is diagonaly next from starting mic
+    mics = [83, 84, 82, 91, 75, 93, 90, 76, 74]
+
+    recomnded_limit = 1
+
+   
+
+
+    
 
 
 
@@ -105,7 +120,7 @@ if test == 13:
 
 #Inital values for test 12
 if test == 12:
-    recomnded_limit = 2
+    recomnded_limit = 1
     
     data_points = 256#How many samples for each block is gonna be plotted, lower value gives a more zoomed in picture.
     #Can only be changed if recomdended limit = 1
@@ -129,6 +144,17 @@ if test == 11:
     sign = True
 
 
+#Inital values for test 4
+if test == 4:
+    recomnded_limit = 15
+    sign = True
+    code_words_r = []
+    code_words_g = []
+    uncoded_words_32 = []
+    uncoded_words_smal = []
+    uncoded_smal_max_array = []
+
+
 #Initial values for test 3
 if test == 3:
     loop_time = []
@@ -143,7 +169,7 @@ if test == 2:
 
 #Inital values for test 1
 if test == 1:
-    recomnded_limit = 3
+    recomnded_limit = 1
     plot_sig = []
     data_points = 256#How many samples for each block is gonna be plotted, lower value gives a more zoomed in picture
 
@@ -172,6 +198,29 @@ while w_limit < recomnded_limit:
     #To pick all sampels for a specific mic choose a number x for desired mic and ":" for samples:
     #data2[x,:]
     
+
+    #Predict adjacent values with mic
+    if test == 16:
+        #Only starts calculations when a new sample block is available
+        if np.all(data2[best_mic,:]) != np.all(input_new):
+            input_new = data2[best_mic,:]#Used to check if new data is available
+            print("Test 16 start")
+            w_limit += 1
+
+            mic0 = data2[83,:]
+            mic1 = data2[84,:]
+            plot_zero = []
+
+            Shorten_predictor2 = Shorten_adjacent(1)
+            res, pred = Shorten_predictor2.In(mic0.copy(),mic1.copy())
+
+            for i in range(len(res)):
+                plot_zero.append(mic1[i].copy() - (res[i].copy() + pred[i].copy()) )
+
+
+
+
+
     #Tries different m-values in Golob codes for all orders of shorten in order to find which gives the best cr
     if test == 15:
          #Only starts calculations when a new sample block is available
@@ -363,7 +412,7 @@ while w_limit < recomnded_limit:
 
 
             w_limit +=1
-            input = data2[best_mic,:]#data used in test
+            input = data2[84,:]#data used in test
             
             #Saves the amount of data points thats going to be plotted in plot_sig_temp from input data
             plot_sig_temp = []
@@ -437,6 +486,84 @@ while w_limit < recomnded_limit:
             uncoded_words.append(uncoded_word)
 
 
+
+            
+    #Test Rice coding and Golomb coding original inputs, compare them to binary coded input values
+    if test == 4:
+        #This if statments make sure to wait until a new sample block is available
+        if np.all(data2[best_mic,:]) != np.all(input_new):
+            input_new = data2[best_mic,:]#This data choice is only to make sure to wait for a new available data value
+            
+            input = data2[best_mic,:]#This mic choice is the mic that will be sent over channel
+            w_limit +=1
+            code_word_r =""
+            code_word_g =""
+            uncoded_word_32 = ""
+            uncoded_word_smal = ""
+            
+
+            #Calculates the ideal k-value according to Rice theory
+            abs_res = np.absolute(input)
+            abs_res_avg = np.mean(abs_res)
+
+            if abs_res_avg > 5:
+                k = int(round(math.log(math.log(2,10) * abs_res_avg,2)))
+            else:
+                k = 1
+
+            #Calculates what m value to use by taking m = 2^k
+            m = pow(2,k)
+            
+
+
+
+            #Rice codes the inputs and saves the code word in code_word
+            uncoded_smal_max = 0
+            for i in range(len(input)):
+
+                Golomb_coder = GolombCoding(m, sign)
+                Rice_coder = RiceCoding(k, sign)
+                n = int(input[i])
+
+                kodOrd_r = Rice_coder.Encode(n)
+                code_word_r += kodOrd_r
+ 
+                kodOrd_g = Golomb_coder.Encode(n)
+                code_word_g += kodOrd_g
+                
+                #Saves binary value of input, represented in 32 bits
+                uncoded_word_32 += np.binary_repr(input[i],32)
+
+                #Have to manualy assign sign bit, since the data is signed
+                s = "0"
+                if n < 0:
+                    s = "1"
+                    #If the input is negative it can be converted to possitve after the sign bit is saved
+                    n = -n
+            
+                #Convert input to binary and add sign bit
+                temp_smal = (s + bin(n)[2:])
+
+                if len(temp_smal) > uncoded_smal_max:
+                    uncoded_smal_max = len(temp_smal)
+
+                uncoded_word_smal += temp_smal
+
+
+
+            #Saves Rice coded input values, Golomb coded input values, and binary input values arrays (both as 32 bits and smalest possible bit value)
+            code_words_r.append(code_word_r)
+            code_words_g.append(code_word_g)
+            uncoded_words_32.append(uncoded_word_32)
+            uncoded_words_smal.append(uncoded_word_smal)
+            uncoded_smal_max_array.append(uncoded_smal_max)
+            
+                
+
+
+
+
+
     #Test how long time it takes for a new data block sample to arrive
     if test == 3:
         #This if statments make sure to wait until a new sample block is available
@@ -452,7 +579,6 @@ while w_limit < recomnded_limit:
                 loop_time.append(t1-t0)
                 t0 = t1
             w_limit +=1
-
 
 
     #This test created arrays with minimum binary length for each input value
@@ -520,7 +646,30 @@ while w_limit < recomnded_limit:
 
 
 #disconect()
-                
+
+if test == 16:
+    fig = plt.figure(0)
+
+    ax = fig.add_subplot(221)
+    plt.plot(mic1)
+    ax.title.set_text("mic1")
+
+    ax = fig.add_subplot(222)
+    plt.plot(pred)
+    ax.title.set_text("predictions")
+
+    ax = fig.add_subplot(223)
+    plt.plot(res)
+    ax.title.set_text("residuals")
+
+    ax = fig.add_subplot(224)
+    plt.plot(plot_zero)
+    ax.title.set_text("zeros")
+
+    plt.show()
+    
+
+
 #Test compression ratios for all orders of Shorten using Golomb codes for some m-values
 if test == 15:
 
@@ -1097,8 +1246,43 @@ if test == 11:
 
 
 
+#Calculates compression rate of using Golomb and Rice codes directly on the input values (Assuming input values at 32 bits)
+#Compares average length of input values with average binary length of input values
+#Also states the longest binary input value
+if test == 4:
+    cr_r = []
+    cr_g = []
+    avg_len_r = []
+    avg_len_g = []
+    avg_len_smal = []
 
+    print("Array lengths:")
+    print("Rice: ", len(code_words_r[0]))
+    print("Golomb: ", len(code_words_g[0]))
+    print("32 bit: ", len(uncoded_words_32[0]))
+    print("Smal bit: ", len(uncoded_words_smal[0]))
 
+    
+
+    for i in range(len(code_words_r)):
+        cr_r.append(len(code_words_r[i])/len(uncoded_words_32[i]))
+        cr_g.append(len(code_words_g[i])/len(uncoded_words_32[i]))
+
+        avg_len_r.append(len(code_words_r[i])/256)
+        avg_len_g.append(len(code_words_g[i])/256)
+        avg_len_smal.append(len(uncoded_words_smal[i])/256)
+
+    print("Rice codes compression rates: ", cr_r)
+    print("Golomb codes compression rates: ", cr_g)
+    print("")
+    print("Average compression rate of Rice codes: ", sum(cr_r)/len(cr_r))
+    print("Average compression rate of Golomb codes: ", sum(cr_g)/len(cr_g))
+    print("")
+    print("Average length of Rice coded inputs: ", sum(avg_len_r)/len(avg_len_r))
+    print("Average length of Golomb coded inputs: ", sum(avg_len_g)/len(avg_len_g))
+    print("Average length of binary inputs: ", sum(avg_len_smal)/len(avg_len_smal))
+    print("Largest binary representation of inputs: ", np.max(uncoded_smal_max_array))
+        
             
 
 #Test how long time it takes to get a new sample
@@ -1163,14 +1347,37 @@ if test == 1:
         plt.show()
 
     #Test that only shows best mic
-    elif 1 < 0:
+    elif 1 > 0:
     
    
-        plt.figure(0)
+        plt.figure("Test1_mic79")
+
+        plt.plot(plot_sig[79])
+
+        plt.figure("Test1_mic19")
+
+        plt.plot(plot_sig[19])
+
+        plt.figure("Test1_mic20")
+
+        plt.plot(plot_sig[20])
+
+        plt.figure("Test1_mic217")
+
+        plt.plot(plot_sig[217])
+
+        plt.figure("Test1_mic136")
 
         plt.plot(plot_sig[136])
 
+        plt.figure("Test1_mic235")
+
+        plt.plot(plot_sig[235])
+
         plt.show()
+        
+
+
 
     else:
         plot_nr = 1
