@@ -1,105 +1,103 @@
 import numpy as np
 
-def autocorrelation(x, lag):
 
-    if lag >= len(x):
-        raise ValueError(f"Lag must be shorter than array length")
-    if not isinstance(lag, int) or lag < 0:
-        raise ValueError(f"Lag must be an positive int")
 
-    x_mean = np.mean(x)
-    n = 0
-    t = 0
+class LPC:
 
-        
-    for i in range(len(x)):
-        n += pow(x[i] - x_mean, 2)
-        if i >= lag:
-            t += (x[i] - x_mean) * (x[i-lag] - x_mean)
+    def __init__(self, order):
+        self.order = order
+
+
+
+    def autocorrelation(self, x, lag):
+
+        if lag >= len(x):
+            raise ValueError(f"Lag must be shorter than array length")
+        if not isinstance(lag, int) or lag < 0:
+            raise ValueError(f"Lag must be an positive int")
+
+        x_mean = np.mean(x)
+        n = 0
+        t = 0
 
             
+        for i in range(len(x)):
+            n += pow(x[i] - x_mean, 2)
+            if i >= lag:
+                t += (x[i] - x_mean) * (x[i-lag] - x_mean)
 
-    return t/n
+                
 
-
-
-residuals = [1, 2, 3, 4, 5, 4, 3, 2, 1, 0, -1, -2, -3, -4, -5]
-
-R =[]
-
-for t in range(len(residuals)):
-    R.append(autocorrelation(residuals,t))
-
-
-print(R)
-
-order = 5
-
-a = [0]
-
-k = [0]
-
-n = order+1
-
-E = [R[0]]
-
-for i in range(1, n):
-
-
-    a_old = a
-    k_temp = 0
+        return t/n
 
 
 
-    for j in range(i-1):
-        k_temp = a[j] * R[i-j] + k_temp
+    def Coefficents(self, inputs):
 
-    k_temp = ( R[i] - k_temp ) / E[i-1]
+        E = self.autocorrelation(inputs, 0)
+        a = []
+
+        for i in range(self.order):
+
+            k = self.autocorrelation(inputs, i)
+            a.append(k)
+
+            if i > 0:
+                a_old = a.copy()
+                for j in range(i):
+                    a[j] = a_old[j] - k * a_old[(i-1)-j]
+            E = (1 - pow(k,2)) * E
+
+        return a
 
 
-    k.append(k_temp)
 
-    a.append(k[i])
-    #print("i = ",i)
-    if i > 1:
-        for j in range (1, i):
-            #print("j = ", j)
-            a[j] = a_old[j] - k[i]*a_old[i-j]
+    def prediciton(self, memory, coef):
+        prediction = 0
+
+        for j in reversed(range(1, self.order)):
+            prediction += coef[j] * memory[j]
+            memory[j] = memory[j-1]
+
+        prediction += coef[0] * memory[0]
+
+        return prediction, memory
+    
+    
+
+    def In(self, inputs, memory):
+
+        coef = self.Coefficents(inputs)
+
+        residuals = []
+        predictions = []
+
+        for i in range(len(inputs)):
+            predict, memory = self.prediciton(memory, coef)
+
+            memory[0] = inputs[i]
+            residual = inputs[i] - predict
+
+            residuals.append(residual)
+            predictions.append(predict)
+
+        return coef, residuals, memory, predictions
+
         
         
-    E.append((1 - pow(k[i],2)) * E[i-1])
-    
-    #print("loop #i: ", i)
-    #print("k = ", k)
-    #print("E = ", E)
-    print("a = ", a)
-    
+    def Out(self, coef, residuals, memory):
+        predictions = []
+        inputs = []
 
+        for i in range(len(residuals)):
+            predict, memory = self.prediciton(memory, coef)
 
-prediction = [0] * (len(residuals))
-diff = [0] * len(residuals)
+            memory[0] = residuals[i]
+            input = residuals[i] + predict
 
-#for i in range(4, len(residuals)):
+            predictions.append(predict)
+            inputs.append(input)
 
-    
-    
-    #pred = a[1] * residuals[i-1] + a[2] * residuals[i-2] + a[3] * residuals[i-3] + a[4] * residuals[i-4]
-
-    #prediction[i] = int(pred)
-
-for i in range(len(residuals)):
-    diff[i] = residuals[i] - prediction[i]
-
-
-#print("Original values: ", residuals)
-#print("Predicted values: ", prediction)
-#print("Residuals: ", diff)
-        
-
-
-
-
-
-
+        return inputs, memory, predictions
 
 
