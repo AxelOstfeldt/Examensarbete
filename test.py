@@ -1,61 +1,51 @@
 import numpy as np
 import statsmodels.tsa.api as smt
+#smt.acf(in)[:lag] autocorelation return as array, in = inputs, lag = how many lags back the array will go
 import random
+from Shorten import Shorten
+from LPC import LPC
+
+
+
+input = []
+x = 1
+for i in range(10):
+    leng = random.randint(20,30)
+    lut = random.randint(-5,5)
+    x_start = x
+    for j in range(leng):
+        x = x_start + j * lut
+        input.append(x)
+
+
+order_S = 3
+order_L = 3
+
+Shorten_predictor = Shorten(order_S)
+LPC_predictor = LPC(order_L)
+
+
+
+res_s, mem_s, pred_s = Shorten_predictor.In(input.copy(), [0]*order_S)
+cof_l, res_l, mem_l, pred_l = LPC_predictor.In(input.copy(), [0]*order_L)
+
+MSE_S = 0
+MSE_L = 0
+es = np.mean(res_s)
+el = np.mean(res_l)
+
+for i in range(len(res_l)):
+    MSE_S += pow(res_s[i]-es, 2)
+    MSE_L += pow(res_l[i]-el,2)
+
+MSE_S = MSE_S / len(res_s)
+
+MSE_L = MSE_L / len(res_l)
+
+print("Mean square error Shorten = ", MSE_S)
+
+print("Mean square error LPC = ", MSE_L)
 
 
 
 
-#LPC testing 
-if 1 < 0:
-    order = 3
-    for i in range(order):
-        print("i = ",i)
-        if i > 0:
-            for j in range(i):
-                print("j = ", j)
-                print("i-j = ", i-j-1)
-
-
-def autocorrelation(x, lag):
-
-    if lag >= len(x):
-        raise ValueError(f"Lag must be shorter than array length")
-    if not isinstance(lag, int) or lag < 0:
-        raise ValueError(f"Lag must be an positive int")
-
-    x_mean = np.mean(x)
-    n = 0
-    t = 0
-
-        
-    for i in range(len(x)):
-        n += pow(x[i] - x_mean, 2)
-        if i >= lag:
-            t += (x[i] - x_mean) * (x[i-lag] - x_mean)
-
-            
-
-    return t/n
-
-max_val = 8
-test_array = []
-
-for i in range(max_val):
-    test_array.append(random.randint(-10,10))
-    
-#test autocorre functions
-if 1 > 0:
-    test_array = [1,2,3,4,5]
-
-    test_lag = 5
-
-    print("Lag = ", test_lag)
-    print("Array = ", test_array)
-
-
-    acf_f = autocorrelation(test_array, test_lag)
-
-    acf_i = smt.acf(test_array)[:4]
-
-    print("My function for autocorrelation: ", acf_f)
-    print("Result from imported autocorrelation: ", acf_i)

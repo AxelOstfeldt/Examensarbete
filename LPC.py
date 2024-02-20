@@ -101,3 +101,25 @@ class LPC:
         return inputs, memory, predictions
 
 
+
+#Tests
+if 1 > 0:
+    input = []
+    for i in range(10):
+        input.append[i*3]
+
+
+    order = 1
+    memory = [0]*order
+    LPC_predictor = LPC(order)
+
+    coff, res, memory, pred = LPC_predictor.In(input, memory)
+
+    print("Inputs = ", input)
+    print("Prediction = ", pred)
+    print("Memory = ", memory)
+    print("Coefficents = ", coff)
+
+    
+
+
