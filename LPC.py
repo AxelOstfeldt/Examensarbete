@@ -39,7 +39,15 @@ class LPC:
 
         for i in range(self.order):
 
-            k = self.autocorrelation(inputs, i)
+            k = self.autocorrelation(inputs, i+1)
+            if i > 0:
+                for j in range(i):
+                    k -= a[j] * self.autocorrelation(inputs, i-j)
+
+            k = k / E
+
+
+
             a.append(k)
 
             if i > 0:
@@ -105,20 +113,21 @@ class LPC:
 #Tests
 if 1 > 0:
     input = []
-    for i in range(10):
-        input.append[i*3]
+    for i in range(1, 100):
+        input.append(i*3)
 
 
-    order = 1
+    order = 8
     memory = [0]*order
     LPC_predictor = LPC(order)
 
     coff, res, memory, pred = LPC_predictor.In(input, memory)
 
     print("Inputs = ", input)
-    print("Prediction = ", pred)
+    print("Prediction = ", np.array(pred).astype(int))
     print("Memory = ", memory)
     print("Coefficents = ", coff)
+
 
     
 
