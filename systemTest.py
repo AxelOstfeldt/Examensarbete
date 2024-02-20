@@ -2,12 +2,15 @@ from lib.beamformer import *
 import config as config
 import numpy as np
 import math
-from Shorten import Shorten
 from Rice import RiceCoding
 from Golomb import GolombCoding
+from Shorten import Shorten
+from LPC import LPC
+#from Adjacant import Shorten_adjacent
+
 import matplotlib.pyplot as plt
 import time
-from Adjacant import Shorten_adjacent
+
 
 
 
@@ -31,8 +34,9 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 
+
 #Choose what test to do:
-test = 16
+test = 21
 
 #General tests
 #Test 1. This test plots microphone data
@@ -51,6 +55,37 @@ test = 16
 #Can be done over several data blocks in theory but computer dont seem to manage it 
 #Test 16. Uses Shorten to predict values on adjacent mics
 
+#LPC tests
+#Test 21. Test if LPC using Rice code can correctly decode the input values
+#Test 22. Test if LPC using Golomb code can correctly decode the input values
+
+
+if test == 22:
+    recomnded_limit = 10#Limit not tested over 10 with order 32
+    inputs = []
+    code_words = []
+    uncoded_words = []
+    order = 32
+    memory = [0] * order
+    LPC_predictor = LPC(order)
+    cof_array = []
+    m_array = []
+    sign = True
+
+
+if test == 21:
+    recomnded_limit = 10#Limit not tested over 10 with order 32
+    inputs = []
+    code_words = []
+    uncoded_words = []
+    order = 32
+    memory = [0] * order
+    LPC_predictor = LPC(order)
+    cof_array = []
+    k_array = []
+    sign = True
+
+
 if test == 16:
     #The mics to use are based on what mics gives good values.
     #The starting mic is mic 83, the 4 following mics are next to startin mic, the 4 following after that is diagonaly next from starting mic
@@ -59,13 +94,6 @@ if test == 16:
     recomnded_limit = 1
 
    
-
-
-    
-
-
-
-
 #Inital values for test 15
 if test == 15:
     recomnded_limit = 1
@@ -198,6 +226,108 @@ while w_limit < recomnded_limit:
     #To pick all sampels for a specific mic choose a number x for desired mic and ":" for samples:
     #data2[x,:]
     
+    #Test LPC and Golomb coding if it can recreate the input data on the decompressed side
+    #It saves all input data in inputs array, all coded words in coded_words array and the inputs as binary values in 32 bits
+    #It also saves the m-values used and coeficents used for the differente data blocks 
+    if test == 22:
+        #This if statments make sure to wait until a new sample block is available
+        if np.all(data2[best_mic,:]) != np.all(input_new):
+            input_new = data2[best_mic,:]#This data choice is only to make sure to wait for a new available data value
+            w_limit +=1
+
+            
+            input = data2[best_mic,:]#This mic choice is the mic that will be sent over channel
+            code_word =""
+            uncoded_word = ""
+            #Saves current input values in inputs array
+            inputs.append(input)
+            
+            #uses LPC to calculate residuals
+            cof, residuals, memory, predictions = LPC_predictor.In(input, memory)
+
+            #Saves the coefficents to later be used for decoding
+            cof_array.append(cof)
+
+            #Calculates the ideal k-value according to Rice theory
+            abs_res = np.absolute(residuals)
+            abs_res_avg = np.mean(abs_res)
+            
+            #if abs_res_avg is less than 4.7 it would give a k value less than 1.
+            #k needs tobe a int > 1 and therefore if abs_res_avg < 5 k is set to 1
+            #OBS. 4.7 < abs_res_avg < 5 would be rounded of to k=1 so setting the limit to 5 works well
+            if abs_res_avg > 5:
+                k = int(round(math.log(math.log(2,10) * abs_res_avg,2)))
+            else:
+                k = 1
+            #Saves the current ideal k value to later use for decoding
+            m = pow(2,k)
+            m_array.append(m)
+
+            #Rice codes the residuals from shorten and saves the code word in code_word
+            for i in range(len(residuals)):
+                Golomb_coder = GolombCoding(m, sign)
+                n = int(residuals[i])
+                kodOrd = Golomb_coder.Encode(n)
+                code_word += kodOrd
+                
+                #Saves binary value of input, represented in 32 bits
+                uncoded_word += np.binary_repr(input[i],32)
+
+            #Saves Rice coded residuals and binary input values arrays
+            code_words.append(code_word)
+            uncoded_words.append(uncoded_word)
+
+
+    #Test LPC and Rice coding if it can recreate the input data on the decompressed side
+    #It saves all input data in inputs array, all coded words in coded_words array and the inputs as binary values in 32 bits
+    #It also saves the k-values used and coeficents used for the differente data blocks   
+    if test == 21:
+        #This if statments make sure to wait until a new sample block is available
+        if np.all(data2[best_mic,:]) != np.all(input_new):
+            input_new = data2[best_mic,:]#This data choice is only to make sure to wait for a new available data value
+            w_limit +=1
+            
+            
+            input = data2[best_mic,:]#This mic choice is the mic that will be sent over channel
+            code_word =""
+            uncoded_word = ""
+            #Saves current input values in inputs array
+            inputs.append(input)
+            
+            #uses LPC to calculate residuals
+            cof, residuals, memory, predictions = LPC_predictor.In(input, memory)
+
+            #Saves the coefficents so that they later can be sued when decoding
+            cof_array.append(cof)
+
+            #Calculates the ideal k-value according to Rice theory
+            abs_res = np.absolute(residuals)
+            abs_res_avg = np.mean(abs_res)
+            
+            #if abs_res_avg is less than 4.7 it would give a k value less than 1.
+            #k needs tobe a int > 1 and therefore if abs_res_avg < 5 k is set to 1
+            #OBS. 4.7 < abs_res_avg < 5 would be rounded of to k=1 so setting the limit to 5 works well
+            if abs_res_avg > 5:
+                k = int(round(math.log(math.log(2,10) * abs_res_avg,2)))
+            else:
+                k = 1
+            #Saves the current ideal k value to later use for decoding
+            
+            k_array.append(k)
+
+            #Rice codes the residuals from shorten and saves the code word in code_word
+            for i in range(len(residuals)):
+                Rice_coder = RiceCoding(k, sign)
+                n = int(residuals[i])
+                kodOrd = Rice_coder.Encode(n)
+                code_word += kodOrd
+                
+                #Saves binary value of input, represented in 32 bits
+                uncoded_word += np.binary_repr(input[i],32)
+
+            #Saves Rice coded residuals and binary input values arrays
+            code_words.append(code_word)
+            uncoded_words.append(uncoded_word)
 
     #Predict adjacent values with mic
     if test == 16:
@@ -216,9 +346,6 @@ while w_limit < recomnded_limit:
 
             for i in range(len(res)):
                 plot_zero.append(mic1[i].copy() - (res[i].copy() + pred[i].copy()) )
-
-
-
 
 
     #Tries different m-values in Golob codes for all orders of shorten in order to find which gives the best cr
@@ -325,7 +452,8 @@ while w_limit < recomnded_limit:
             #Saves Rice coded residuals and binary input values arrays
             code_words.append(code_word)
             uncoded_words.append(uncoded_word)
-        
+
+
     #This test tries different k-values for all orders of shorten over several data points.
     #With this it is possible to see:
     #1. What order and k-value gives best cr result.
@@ -400,7 +528,6 @@ while w_limit < recomnded_limit:
             #Saves uncoded binary input in array
             uncoded_words.append(uncoded_word)
             
-
 
     #This test tries different orders of Shorten to predict input.
     #Output from Shorten is saved so it can be plotted.
@@ -485,9 +612,7 @@ while w_limit < recomnded_limit:
             code_words.append(code_word)
             uncoded_words.append(uncoded_word)
 
-
-
-            
+           
     #Test Rice coding and Golomb coding original inputs, compare them to binary coded input values
     if test == 4:
         #This if statments make sure to wait until a new sample block is available
@@ -559,11 +684,6 @@ while w_limit < recomnded_limit:
             uncoded_smal_max_array.append(uncoded_smal_max)
             
                 
-
-
-
-
-
     #Test how long time it takes for a new data block sample to arrive
     if test == 3:
         #This if statments make sure to wait until a new sample block is available
@@ -646,6 +766,180 @@ while w_limit < recomnded_limit:
 
 
 #disconect()
+                        
+#Test if LPC can recreate input using Golomb coding
+#Indicates if any words was wrongly decoded and if so how many of the sampled datablock
+#Plots Original input and decoded input
+#Gives compression rate of encoded values
+if test == 22:
+    compression_ratio = []
+    uncoded_residuals_array = []
+    uncoded_values_array = []
+    predictions_array = []
+    memory_out = [0] * order
+
+
+    
+
+    #Calcuates compression ratios of LPC by comparing length of binary values of input to length of Rice coded residuals
+    for i in range(len(code_words)):
+        temp_comp_r = len(code_words[i]) / len(uncoded_words[i])
+        compression_ratio.append(temp_comp_r)
+    print("Compression ratio of LPC using Golomb code is: ", compression_ratio)
+
+    #Recreates the original inputs
+    for i in range(len(inputs)):
+        #Grabs the original input values, k-value used to encode, and code_word from arrays
+        input = inputs[i]
+        m = m_array[i]
+        code_word = code_words[i]
+        coef = cof_array[i]
+        
+        #Decodes the residuals from the Rice code
+        Golomb_coder = GolombCoding(m, sign)
+        uncoded_residuals = Golomb_coder.Decode(code_word)
+        uncoded_residuals_array.append(uncoded_residuals)
+        
+        #Calculates the original inputs from the decoded residuals using Shorten
+        uncoded_values, memory_out, predictions = LPC_predictor.Out(coef, uncoded_residuals, memory_out)
+        uncoded_values_array.append(uncoded_values)
+        predictions_array.append(predictions)
+
+        #Checks if the uncoded values match the original inputs
+        value_check = 0
+        for j in range(len(uncoded_values)):
+            #If the orignal input dont match the uncoded values (rounded to neartest int) value check will increment by 1 
+            #and the data block containing the faulty decoded value can be printed out
+            if round(uncoded_values[j]) != input[j]:
+                #print("Failed decode at data block i = ",i," Original input =  ",input[j]," Uncoded value = ", uncoded_values[j])
+                value_check += 1
+        #Once all the values have been checked:
+        #If there are no wrongly decoded values the code will print out that all values have been correctly decoded for the data block
+        if value_check == 0:
+            print("Itteration nr",i," correctly decoded all orignal values")
+        #If there is some wrongly decoded values the code will print in which data block they are and how many there are
+        else:
+            print("Itteration nr",i," failed decodeing ",value_check," values")
+
+
+        if 1 < 0:#Only plots for report
+
+
+            plt.figure("Original values")
+
+            plt.plot(input)
+
+            plt.figure("Uncoded values")
+
+            plt.plot(uncoded_values)
+
+            plt.show()
+
+
+        else:#Plots the original input values and the decoded input valus in subplots
+            fig = plt.figure(i)
+
+            ax = fig.add_subplot(211)
+            plt.plot(input)
+            ax.title.set_text("Original input values")
+
+            ax = fig.add_subplot(212)
+            plt.plot(uncoded_values)
+            ax.title.set_text("Decoded input values")
+
+            plt.show()
+
+
+
+
+                        
+#Test if LPC using Rice codes can correctly decode the original inputs
+#Prints the cr for each data block
+#Prints how many misses of decoded values there are in each data block (uncoded rounded to int)
+#Can print where the misses are aswell
+#Plots original input and recreated input for each data block
+if test == 21:
+    compression_ratio = []
+    uncoded_residuals_array = []
+    uncoded_values_array = []
+    predictions_array = []
+    memory_out = [0] * order
+
+    
+
+    #Calcuates compression ratios of LPC by comparing length of binary values of input to length of Rice coded residuals
+    for i in range(len(code_words)):
+        temp_comp_r = len(code_words[i]) / len(uncoded_words[i])
+        compression_ratio.append(temp_comp_r)
+    print("Compression ratio of LPC is: ", compression_ratio)
+
+
+    #Recreates the original inputs
+    for i in range(len(inputs)):
+        #Grabs the original input values, k-value used to encode, and code_word from arrays
+        input = inputs[i]
+        k = k_array[i]
+        code_word = code_words[i]
+        coef = cof_array[i]
+        
+        #Decodes the residuals from the Rice code
+        Rice_coder = RiceCoding(k, sign)
+        uncoded_residuals = Rice_coder.Decode(code_word)
+        uncoded_residuals_array.append(uncoded_residuals)
+        
+        #Calculates the original inputs from the decoded residuals using LPC
+        uncoded_values, memory_out, predictions = LPC_predictor.Out(coef, uncoded_residuals, memory_out)
+        uncoded_values_array.append(uncoded_values)
+        predictions_array.append(predictions)
+
+        #Checks if the uncoded values match the original inputs
+        value_check = 0
+        for j in range(len(uncoded_values)):
+            #If the orignal input dont match the uncoded values value check will increment by 1 
+            #and the data block containing the faulty decoded value will be printed out
+            if round(uncoded_values[j]) != input[j]:
+                if 1 < 0:#Alot of print outs from this, can be toggled out to see where the errors are
+                    print("Failed decode at data block i = ",i)
+                    print(" Original input =  ",input[j])
+                    print(" Uncoded value = ", uncoded_values[j])
+                    print("Rounrded to = ",round(uncoded_values[j]))
+                value_check += 1
+        #Once all the values have been checked:
+        #If there are no wrongly decoded values the code will print out that all values have been correctly decoded for the data block
+        if value_check == 0:
+            print("Itteration nr",i," correctly decoded all orignal values")
+        #If there is some wrongly decoded values the code will print in which data block they are and how many there are
+        else:
+            print("Itteration nr",i," failed decodeing ",value_check," values")
+
+        if 1 < 0:#Only plots for report
+
+
+            plt.figure("Original values")
+
+            plt.plot(input)
+
+            plt.figure("Uncoded values")
+
+            plt.plot(uncoded_values)
+
+            plt.show()
+
+
+        else:
+            #Plots the original input values and the decoded input valus in subplots
+            fig = plt.figure(i)
+
+            ax = fig.add_subplot(211)
+            plt.plot(input)
+            ax.title.set_text("Original input values")
+
+            ax = fig.add_subplot(212)
+            plt.plot(uncoded_values)
+            ax.title.set_text("Decoded input values")
+
+            plt.show()
+
 
 if test == 16:
     fig = plt.figure(0)
@@ -668,7 +962,6 @@ if test == 16:
 
     plt.show()
     
-
 
 #Test compression ratios for all orders of Shorten using Golomb codes for some m-values
 if test == 15:

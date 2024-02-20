@@ -159,9 +159,9 @@ if 1 < 0:
 
 #Test to compare matrix multiplication with function
 #works correctly
-#need import:
-import statsmodels.tsa.api as smt
 if 1 < 0:
+    #need import:
+    import statsmodels.tsa.api as smt
     order = 5
     inputs = [1,2.9,4.4,6.6,8.7,11.5,13,16,19]
     R = smt.acf(inputs)
