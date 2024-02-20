@@ -8,10 +8,20 @@ from LPC import LPC
 
 
 
-if 1 > 0:
 
-    order_S = 3
-    order_L = 5
+    
+
+
+
+
+    
+
+    
+#Compare Shorten and LPC
+if 1 < 0:
+
+    order_S = 2
+    order_L = 25
 
     Shorten_predictor = Shorten(order_S)
     LPC_predictor = LPC(order_L)
@@ -21,13 +31,13 @@ if 1 > 0:
 
     
 
-    for q in range(10):
+    for q in range(100):
         mem_s = [0]*order_S
         mem_l = [0]*order_L
         input = []
         x = 1
-        for i in range(10):
-            leng = random.randint(20,30)
+        for i in range(4):
+            leng = 64
             lut = random.randint(-5,5)
             x_start = x
             for j in range(leng):
@@ -59,9 +69,9 @@ if 1 > 0:
         MAS.append(MSE_S)
         MAL.append(MSE_L)
 
-    print("Mean square error Shorten = ", MAS)
+    print("AVG mean square error Shorten = ", sum(MAS)/len(MAS))
 
-    print("Mean square error LPC = ", MAL)
+    print("AVG mean square error LPC = ", sum(MAL)/len(MAL))
 
 
 
