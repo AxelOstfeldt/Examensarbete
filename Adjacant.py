@@ -6,7 +6,7 @@
 #memory as the last sampels beffore the input data
 #memory should be the length of order
 #if memory is the start of the data stream it should be an array of zeros
-class Shorten_adjacent:
+class Predcit_adjacent:
 
     def __init__(self, order: int = 1):
         #Order can only be between 0 and 3 for Shorten, and have to be an int
@@ -55,7 +55,7 @@ if 1 > 0:
     mic0 = [1,2,3,4,5,6]
     mic1 = [0,1,2,3,4,5]
 
-    Shorten_predictor = Shorten_adjacent(1)
+    Shorten_predictor = Predcit_adjacent(1)
     res, pred = Shorten_predictor.In(mic0,mic1)
 
     print("Residuals = ", res)
