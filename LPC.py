@@ -20,6 +20,10 @@ class LPC:
             raise ValueError(f"Lag must be shorter than array length")
         if not isinstance(lag, int) or lag < 0:
             raise ValueError(f"Lag must be an positive int")
+        
+ 
+
+        
 
         x_mean = np.mean(x)
         n = 0
@@ -31,7 +35,16 @@ class LPC:
             if i >= lag:
                 t += (x[i] - x_mean) * (x[i-lag] - x_mean)
 
-        print(n)                
+
+        #In the case where all x values are identical to each other the equation for autocorrelation dont work
+        #This is beceause n will be equal to 0 and this can not be used to dicide t
+        #In the case that all values are identical the autocorrelation should be =1 regardless of lag-value
+        if n == 0:
+            t = 1
+            n = 1
+            
+
+                       
 
         return t/n
 
@@ -200,39 +213,3 @@ if 1 < 0:
     cof_l, res_l, mem_l, pred_l = LPC_predictor.In(inputs, mem_l)
 
     print("Coeficents from function: ", cof_l)
-
-
-if 1 > 0:
-    import random
-    import statsmodels.tsa.api as smt
-    order = 5
-    inputs = [1,2.9,4.4,6.6,8.7,11.5,13,16,19]
-    R = smt.acf(inputs)
-    order = 3
-    inputs = [0]*100000
-    inputs.append(-1)
-    for i in range(len(inputs)):
-        inputs.append(0)
-
-    LPC_predictor = LPC(order)
-    mem = [0]*order
-
-
-    lag = random.randint(0, len(inputs)-1)
-
-    LPC_predictor.autocorrelation(inputs, order)
-
-    if 1 < 0:
-        cof_l, res_l, mem_l, pred_l = LPC_predictor.In(inputs, mem.copy())
-
-
-        print("Coefficents: ", cof_l)
-        print("Residuals: ",res_l)
-        print("Memory in: ",mem_l)
-        print("Predicitons in: ", pred_l)
-
-        input_o, mem_o, pred_o =LPC_predictor.Out(cof_l, res_l, mem.copy())
-        print("Original inputs: ", inputs)
-        print("Recreated inputs: ",input_o)
-        print("Memory out: ",mem_o)
-        print("Predicitons out: ", pred_o)
