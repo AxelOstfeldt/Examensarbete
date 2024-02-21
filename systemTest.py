@@ -36,7 +36,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 21
+test = 24
 
 #General tests
 #Test 1. This test plots microphone data
@@ -58,6 +58,55 @@ test = 21
 #LPC tests
 #Test 21. Test if LPC using Rice code can correctly decode the input values
 #Test 22. Test if LPC using Golomb code can correctly decode the input values
+#Test 23. Test what order of LPC gives best result, also test how large of an order it is possible to try
+
+if test == 24:
+    recomnded_limit = 1
+    uncoded_words = []
+    orders = []
+    order_start = 1
+    order_stop = 32
+    order_array = []
+    k_ideal_array = []
+    memorys = []
+    for i in range(order_start, order_stop+1):
+        orders.append(i)
+        order_array.append([])
+        k_ideal_array.append([])
+        memorys.append([0]*i)
+    
+    k_start = 8
+    k_stop = 14
+    k_array = []
+    for i in range(k_start, k_stop+1):
+        k_array.append(i)
+        for j in range(len(order_array)):
+            order_array[j].append([])
+
+   
+
+
+if test == 23:
+    recomnded_limit = 1
+    
+    data_points = 256#How many samples for each block is gonna be plotted, lower value gives a more zoomed in picture.
+    #Can only be changed if recomdended limit = 1
+    order_start = 1#Should never be bellow 1
+    order_stop = 32#Tested upper limit with 32 as start was =1
+    orders = []
+    plot_residuals = []
+    plot_predict = []
+    plot_sig = []
+    plot_zero = []
+    cof_array = []
+    memorys = []
+
+    for i in range(order_start, order_stop+1):
+        orders.append(i)
+        plot_residuals.append([])
+        plot_predict.append([])
+        plot_zero.append([])
+        memorys.append([0]*i)
 
 
 if test == 22:
@@ -225,6 +274,100 @@ while w_limit < recomnded_limit:
     #Pick a micrphone by giving left argument, and sample by giving right arbument
     #To pick all sampels for a specific mic choose a number x for desired mic and ":" for samples:
     #data2[x,:]
+
+    if test == 24:
+        #This if statments make sure to wait until a new sample block is available
+        if np.all(data2[best_mic,:]) != np.all(input_new):
+            input_new = data2[best_mic,:]#This data choice is only to make sure to wait for a new available data value
+            w_limit +=1
+            print("w = ", w_limit)
+        
+            input = data2[best_mic,:]#Input data used in test
+
+            
+            #loops though all k values in k_array.
+
+            for j in range(len(k_array)):
+                k = k_array[j]
+
+                #loops thorugh all order, i = 0-3
+                for i in range(len(orders)):
+                    #Does the LPC calculations and updates memory
+                    LPC_predictor = LPC(orders[i])
+                    cof, residual, memorys[i], predict = LPC_predictor.In(input, memorys[i])
+
+                    #Calculates the ideal k_vaule for the LPC residuals
+                    abs_res = np.absolute(residual)
+                    abs_res_avg = np.mean(abs_res)
+                    #if abs_res_avg is less than 4.7 it would give a k value less than 1.
+                    #k needs tobe a int > 1 and therefore if abs_res_avg < 5 k is set to 1
+                    #OBS. 4.7 < abs_res_avg < 5 would be rounded of to k=1 so setting the limit to 5 works well
+                    if abs_res_avg > 5:
+                        k_ideal = int(round(math.log(math.log(2,10) * abs_res_avg,2)))
+                    else:
+                        k_ideal = 1
+
+                    #Appends the ideal k vaule in the array matching the correct Shorten order
+                    k_ideal_array[i].append(k_ideal)
+
+
+                    #calculates the Rice code word for the residual
+                    code_word =""
+                    for q in range(len(input)):
+                        
+                        Rice_coder = RiceCoding(k, True)
+                        n = int(residual[q])
+                        kodOrd = Rice_coder.Encode(n)
+                        code_word += kodOrd
+                    #The rice code word is saved in the array matching both order and k-value
+                    order_array[i][j].append(code_word)
+                    
+            
+            #Calculates size of uncoded input.
+            #Assuming each vaule is repsented in 32 bits.
+            uncoded_word = ""              
+            for j in range(len(input)):
+                uncoded_word += np.binary_repr(input[j],32)
+
+
+
+            #Saves uncoded binary input in array
+            uncoded_words.append(uncoded_word)
+
+
+    #Plot LPC
+    if test == 23:
+        #This if statments make sure to wait until a new sample block is available
+        if np.all(data2[best_mic,:]) != np.all(input_new):
+            input_new = data2[best_mic,:]#This data choice is only to make sure to wait for a new available data value
+            w_limit +=1
+
+            input = data2[best_mic,:]#data used in test
+            
+            #Saves the amount of data points thats going to be plotted in plot_sig_temp from input data
+            plot_sig_temp = []
+            if recomnded_limit == 1:
+                for j in range(data_points):
+                    plot_sig_temp.append(input[j])
+            else:
+                plot_sig_temp = input
+            
+            #Calculates LPC for some orders for input data
+            for i in range(len(orders)):
+                LPC_predictor = LPC(orders[i])
+
+                cof, residual, memorys[i], predict = LPC_predictor.In(plot_sig_temp, memorys[i])
+                
+                cof_array.append(cof)
+
+                #Saves results of shorten for all orders to later be plotted
+                for j in range(len(residual)):
+                    plot_residuals[i].append(residual[j])
+                    plot_predict[i].append(predict[j])
+                    plot_zero[i].append(plot_sig_temp[j] - ( predict[j] + residual[j]))
+                    #Input singla only needs sot be saved once
+                    if i == 0:
+                        plot_sig.append(plot_sig_temp[j])
     
     #Test LPC and Golomb coding if it can recreate the input data on the decompressed side
     #It saves all input data in inputs array, all coded words in coded_words array and the inputs as binary values in 32 bits
@@ -539,7 +682,7 @@ while w_limit < recomnded_limit:
 
 
             w_limit +=1
-            input = data2[84,:]#data used in test
+            input = data2[best_mic,:]#data used in test
             
             #Saves the amount of data points thats going to be plotted in plot_sig_temp from input data
             plot_sig_temp = []
@@ -767,6 +910,226 @@ while w_limit < recomnded_limit:
 
 #disconect()
                         
+if test == 24:
+    print("Test 24")
+    
+    
+    print("")
+
+    #Arrays for average compression rates
+    # cr[order][k-value] = compression rate for given order and k-value
+    cr = []
+    for i in range(len(orders)):
+        cr.append([])
+
+    for i in range(len(k_array)):
+        for j in range(len(order_array)):
+            cr[j].append([])
+
+
+    #loop thorugh all k-values
+    for i in range(len(k_array)):
+        #loops thorugh all orders of LPC
+        for q in range(len(orders)):
+            temp_cr_array = []
+
+            #The code words for a given order of LPC, q, and a given k-value, i.
+            temp_code_word_array = order_array[q][i]
+
+
+
+
+            #loops thorugh all sampled blocks of data
+            for j in range(len(uncoded_words)):
+                #Calculates the cr rate for each data block 
+                #by comparing rice coded length with 32 bit representation
+                temp_cr = len(temp_code_word_array[j]) / len(uncoded_words[j])
+                
+                #Saves the cr for current code word in array
+                temp_cr_array.append(temp_cr)
+
+            #Calculates avg cr for all data blocks given a LPC order, q, and k-value, i.
+            avg_temp_cr = np.sum(temp_cr_array) / len(temp_cr_array)
+
+            #Saves avg cr in array
+            cr[q][i] = avg_temp_cr
+
+                
+
+                    
+                        
+
+               
+                        
+    print("For a given value: k = ", k_array)
+    for i in range(len(orders)):
+        print("Average compression rate for order ",orders[i]," = ", cr[i])
+
+
+    print("")
+
+    #Calculate the recomdnded k-value for each order based on Rice codeing theory
+    k_ideal_avg_array = []
+
+    for i in range(len(orders)):
+        #calculate average for recomended k-value for each order and save in array
+        k_ideal_avg = sum(k_ideal_array[i])/len(k_ideal_array[i])
+        k_ideal_avg_array.append(k_ideal_avg)
+
+    #prints ideal k-values for each order
+    #prints cr with ideal k-value (roundest to closest int) for each order
+
+    print("ideal k-value (LPC order ",order_start,"-",order_stop,")= ", k_ideal_avg_array)
+
+    for i in range(len(orders)):
+        print("LPC order ",orders[i], "with k = ", int(round(k_ideal_avg_array[i]))," gives cr = ",cr[i][int(round(k_ideal_avg_array[i])) - k_array[0]])
+
+   
+
+    print("")
+
+    k_best = []
+    cr_best = []
+    for q in range(len(orders)):
+        temp_best_cr = cr[q][0]
+        temp_best_k = k_array[0]
+        for i in range(len(k_array)-1):
+            if cr[q][i+1] < temp_best_cr:
+                temp_best_cr = cr[q][i+1]
+                temp_best_k = k_array[i+1]
+
+        k_best.append(temp_best_k)
+        cr_best.append(temp_best_cr)
+    
+    for i in range(len(orders)):
+        print("LPC order ",orders[i],"have best cr at k = ",k_best[i],"with cr = ",cr_best[i])
+
+    #Plots sub plots with each subplot being a specific order of LPC
+    #y-axis is compression ratio and x-axis is k value
+    plot_nr = 1
+
+    for i in range(len(orders)):
+        fig = plt.figure(plot_nr)
+        sub_nr = i%4 + 1
+        order_text = "LPC Order " + str(orders[i])
+
+        ax = fig.add_subplot(220+sub_nr)
+        plt.plot(k_array, cr[i], 'ro')
+        ax.title.set_text(order_text)
+        plt.xlabel("k-value")
+        plt.ylabel("Average compression ratio")
+
+
+        if i % 4 == 3:
+            plot_nr +=1
+            plt.show()
+
+    if len(orders)%4 != 0:
+        plt.show()
+
+
+    
+
+
+    
+    
+    colors = ['yo', 'ro', 'bo', 'go']
+    #Plots Order 1, 2, and 3 of shorten in the same plot for some k-values
+    for i in range(len(orders)):
+        label_order = "Order " + str(orders[i])
+        plt.plot(k_array, cr[i], colors[i%4], label=label_order)
+
+        if i % 4 == 3:
+            plt.title("Comparison of comression ratio for differente orders")
+            plt.xlabel("k-value")
+            plt.ylabel("Average compression ratio")
+            plt.legend()
+
+            plt.show()
+
+    if len(orders)%4 != 0:
+        plt.title("Comparison of comression ratio for differente orders")
+        plt.xlabel("k-value")
+        plt.ylabel("Average compression ratio")
+        plt.legend()
+
+        plt.show()
+        
+            
+            
+    
+
+
+
+#Plots the results for using LPC of different orders
+if test == 23:
+
+    #These are to plot rounding error limits in the zero_plot
+    #LPC gives some error due to having to round the residuals beffore encoding them
+    
+    #Limit 1 shows that all residuals bellow it would be correct if rounded to closest integer
+    round_lim_up_1 = [0.5]*len(plot_zero[0])
+    round_lim_down_1 = [-0.5]*len(plot_zero[0])
+
+    #Limit 2 show that all residuals bellow it would be correct if negative integers are rounded up
+    #and positive integers are rounded down
+    round_lim_up_2 = [1]*len(plot_zero[0])
+    round_lim_down_2 = [-1]*len(plot_zero[0])
+
+
+
+    if 1 > 0:#Only for plots in report
+        plots_report = [plot_sig, plot_predict[31], plot_residuals[31], plot_zero[31]]#the number decides what order to plot
+        for i in range(4):
+
+            plt.figure(i)
+
+            plt.plot(plots_report[i])
+
+            if i == 3:
+                plt.plot(round_lim_up_1, 'r')
+                plt.plot(round_lim_down_1, 'r')
+
+                plt.plot(round_lim_up_2, 'g')
+                plt.plot(round_lim_down_2, 'g')
+
+
+        plt.show()
+            
+
+    else:
+        for i in range(len(orders)):
+            figure_title = "LPC order " + str(i)
+            fig = plt.figure(figure_title)
+
+            #Each figure plots 4 subplots with:
+            #Input signal, prediction of LPC, Residual of LPC Zero (Input - (residual + prediciton) = 0)
+            ax = fig.add_subplot(221)
+            plt.plot(plot_sig)
+            ax.title.set_text("Input signal")
+
+            ax = fig.add_subplot(222)
+            plt.plot(plot_predict[i])
+            ax.title.set_text("Predicted signal")
+
+            ax = fig.add_subplot(223)
+            plt.plot(plot_residuals[i])
+            ax.title.set_text("Residual signal")
+
+            ax = fig.add_subplot(224)
+            plt.plot(plot_zero[i])
+            plt.plot(round_lim_up_1, 'r')
+            plt.plot(round_lim_down_1, 'r')
+            plt.plot(round_lim_up_2, 'g')
+            plt.plot(round_lim_down_2, 'g')
+
+            ax.title.set_text("Input - (Predict + Residual) = 0")
+
+
+            plt.show()
+    
+
+
 #Test if LPC can recreate input using Golomb coding
 #Indicates if any words was wrongly decoded and if so how many of the sampled datablock
 #Plots Original input and decoded input
@@ -849,10 +1212,7 @@ if test == 22:
 
             plt.show()
 
-
-
-
-                        
+                
 #Test if LPC using Rice codes can correctly decode the original inputs
 #Prints the cr for each data block
 #Prints how many misses of decoded values there are in each data block (uncoded rounded to int)
