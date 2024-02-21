@@ -36,7 +36,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 24
+test = 21
 
 #General tests
 #Test 1. This test plots microphone data
@@ -59,12 +59,13 @@ test = 24
 #Test 21. Test if LPC using Rice code can correctly decode the input values
 #Test 22. Test if LPC using Golomb code can correctly decode the input values
 #Test 23. Test what order of LPC gives best result, also test how large of an order it is possible to try
+#Test 24. Test what k-value gives the best compression rate when using LPC and Rice codes for different orders of LPC
 
 if test == 24:
-    recomnded_limit = 3
+    recomnded_limit = 10
     uncoded_words = []
     orders = []
-    order_start = 1
+    order_start = 8
     order_stop = 8
     order_array = []
     k_ideal_array = []
@@ -76,7 +77,7 @@ if test == 24:
         memorys.append([0]*i)
     
     k_start = 13
-    k_stop = 18
+    k_stop = 16
     k_array = []
     for i in range(k_start, k_stop+1):
         k_array.append(i)
@@ -84,15 +85,13 @@ if test == 24:
             order_array[j].append([])
 
    
-
-
 if test == 23:
     recomnded_limit = 1
     
     data_points = 256#How many samples for each block is gonna be plotted, lower value gives a more zoomed in picture.
     #Can only be changed if recomdended limit = 1
     order_start = 1#Should never be bellow 1
-    order_stop = 32#Tested upper limit with 32 as start was =1
+    order_stop = 8#Tested upper limit with 32 as start was =1
     orders = []
     plot_residuals = []
     plot_predict = []
@@ -127,7 +126,7 @@ if test == 21:
     inputs = []
     code_words = []
     uncoded_words = []
-    order = 32
+    order = 8
     memory = [0] * order
     LPC_predictor = LPC(order)
     cof_array = []
@@ -1077,12 +1076,7 @@ if test == 24:
 
             plt.show()
         
-            
-            
-    
-
-
-
+                
 #Plots the results for using LPC of different orders
 if test == 23:
 
@@ -1101,10 +1095,15 @@ if test == 23:
 
 
     if 1 > 0:#Only for plots in report
-        plots_report = [plot_sig, plot_predict[31], plot_residuals[31], plot_zero[31]]#the number decides what order to plot
+        num_plot = 7#the number decides what order to plot, the plotted order is num_plot+1
+        plots_report = [plot_sig, plot_predict[num_plot], plot_residuals[num_plot], plot_zero[num_plot]]
+        plots_label = ["Test23_input_order_","Test23_predict_order_","Test23_res_order_","Test23_zero_order_"]
         for i in range(4):
 
-            plt.figure(i)
+            figure_title = plots_label[i] + str(num_plot + 1)
+
+            plt.figure(figure_title)
+            
 
             plt.plot(plots_report[i])
 
@@ -1121,7 +1120,7 @@ if test == 23:
 
     else:
         for i in range(len(orders)):
-            figure_title = "LPC order " + str(i)
+            figure_title = "LPC order " + str(i+1)
             fig = plt.figure(figure_title)
 
             #Each figure plots 4 subplots with:
@@ -1276,15 +1275,24 @@ if test == 21:
 
         #Checks if the uncoded values match the original inputs
         value_check = 0
+        plot_zero = []
         for j in range(len(uncoded_values)):
             #If the orignal input dont match the uncoded values value check will increment by 1 
             #and the data block containing the faulty decoded value will be printed out
-            if round(uncoded_values[j]) != input[j]:
+
+            if uncoded_values[j] < 0:
+                rounded_value = math.ceil(uncoded_values[j])
+            else:
+                rounded_value = math.floor(uncoded_values[j])
+
+            plot_zero.append(input[j] - uncoded_values[j])
+
+            if rounded_value != input[j]:
                 if 1 < 0:#Alot of print outs from this, can be toggled out to see where the errors are
                     print("Failed decode at data block i = ",i)
                     print(" Original input =  ",input[j])
                     print(" Uncoded value = ", uncoded_values[j])
-                    print("Rounrded to = ",round(uncoded_values[j]))
+                    print("Rounrded to = ", rounded_value)
                 value_check += 1
         #Once all the values have been checked:
         #If there are no wrongly decoded values the code will print out that all values have been correctly decoded for the data block
@@ -1294,18 +1302,39 @@ if test == 21:
         else:
             print("Itteration nr",i," failed decodeing ",value_check," values")
 
-        if 1 < 0:#Only plots for report
+        #Limit 1 shows that all residuals bellow it would be correct if rounded to closest integer
+        round_lim_up_1 = [0.5]*len(plot_zero)
+        round_lim_down_1 = [-0.5]*len(plot_zero)
+
+        #Limit 2 show that all residuals bellow it would be correct if negative integers are rounded up
+        #and positive integers are rounded down
+        round_lim_up_2 = [1]*len(plot_zero)
+        round_lim_down_2 = [-1]*len(plot_zero)
 
 
-            plt.figure("Original values")
+        if 1 > 0:#Only plots for report
 
-            plt.plot(input)
+            if i == 1:#Only want to display on plot
 
-            plt.figure("Uncoded values")
+                plt.figure("Test21_Original_values")
 
-            plt.plot(uncoded_values)
+                plt.plot(input)
 
-            plt.show()
+                plt.figure("Test21_Uncoded_values")
+
+                plt.plot(uncoded_values)
+
+
+                plt.figure("Test_21_zero")
+
+                plt.plot(plot_zero)
+
+                plt.plot(round_lim_up_1, 'r')
+                plt.plot(round_lim_down_1, 'r')
+                plt.plot(round_lim_up_2, 'g')
+                plt.plot(round_lim_down_2, 'g')
+
+                plt.show()
 
 
         else:
