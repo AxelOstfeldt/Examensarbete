@@ -61,11 +61,11 @@ test = 24
 #Test 23. Test what order of LPC gives best result, also test how large of an order it is possible to try
 
 if test == 24:
-    recomnded_limit = 1
+    recomnded_limit = 3
     uncoded_words = []
     orders = []
     order_start = 1
-    order_stop = 32
+    order_stop = 8
     order_array = []
     k_ideal_array = []
     memorys = []
@@ -75,8 +75,8 @@ if test == 24:
         k_ideal_array.append([])
         memorys.append([0]*i)
     
-    k_start = 8
-    k_stop = 14
+    k_start = 13
+    k_stop = 18
     k_array = []
     for i in range(k_start, k_stop+1):
         k_array.append(i)
@@ -1004,56 +1004,78 @@ if test == 24:
     for i in range(len(orders)):
         print("LPC order ",orders[i],"have best cr at k = ",k_best[i],"with cr = ",cr_best[i])
 
-    #Plots sub plots with each subplot being a specific order of LPC
-    #y-axis is compression ratio and x-axis is k value
-    plot_nr = 1
+    
+    if 1 > 0:#only for plots in report
 
-    for i in range(len(orders)):
-        fig = plt.figure(plot_nr)
-        sub_nr = i%4 + 1
-        order_text = "LPC Order " + str(orders[i])
+        colors = ['k', 'c', 'm', 'y', 'r', 'b', 'g', 'purple']
+        #Plots Order 1, 2, and 3 of shorten in the same plot for some k-values
+        for i in range(len(orders)):
+            label_order = "Order " + str(orders[i])
+            plt.plot(k_array, cr[i], "o", color = colors[i], label=label_order)
 
-        ax = fig.add_subplot(220+sub_nr)
-        plt.plot(k_array, cr[i], 'ro')
-        ax.title.set_text(order_text)
+            
+        
         plt.xlabel("k-value")
         plt.ylabel("Average compression ratio")
+        plt.legend()
 
-
-        if i % 4 == 3:
-            plot_nr +=1
-            plt.show()
-
-    if len(orders)%4 != 0:
         plt.show()
 
+        
 
-    
+    else:
+        
+        
+        #Plots sub plots with each subplot being a specific order of LPC
+        #y-axis is compression ratio and x-axis is k value
+        plot_nr = 1
+
+        for i in range(len(orders)):
+            fig = plt.figure(plot_nr)
+            sub_nr = i%4 + 1
+            order_text = "LPC Order " + str(orders[i])
+
+            ax = fig.add_subplot(220+sub_nr)
+            plt.plot(k_array, cr[i], 'ro')
+            ax.title.set_text(order_text)
+            plt.xlabel("k-value")
+            plt.ylabel("Average compression ratio")
 
 
-    
-    
-    colors = ['yo', 'ro', 'bo', 'go']
-    #Plots Order 1, 2, and 3 of shorten in the same plot for some k-values
-    for i in range(len(orders)):
-        label_order = "Order " + str(orders[i])
-        plt.plot(k_array, cr[i], colors[i%4], label=label_order)
+            if i % 4 == 3:
+                plot_nr +=1
+                plt.show()
 
-        if i % 4 == 3:
+        if len(orders)%4 != 0:
+            plt.show()
+
+
+        
+
+
+        
+        
+        colors = ['yo', 'ro', 'bo', 'go']
+        #Plots Order 1, 2, and 3 of shorten in the same plot for some k-values
+        for i in range(len(orders)):
+            label_order = "Order " + str(orders[i])
+            plt.plot(k_array, cr[i], colors[i%4], label=label_order)
+
+            if i % 4 == 3:
+                plt.title("Comparison of comression ratio for differente orders")
+                plt.xlabel("k-value")
+                plt.ylabel("Average compression ratio")
+                plt.legend()
+
+                plt.show()
+
+        if len(orders)%4 != 0:
             plt.title("Comparison of comression ratio for differente orders")
             plt.xlabel("k-value")
             plt.ylabel("Average compression ratio")
             plt.legend()
 
             plt.show()
-
-    if len(orders)%4 != 0:
-        plt.title("Comparison of comression ratio for differente orders")
-        plt.xlabel("k-value")
-        plt.ylabel("Average compression ratio")
-        plt.legend()
-
-        plt.show()
         
             
             
