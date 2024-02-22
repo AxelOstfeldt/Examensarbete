@@ -36,7 +36,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 21
+test = 25
 
 #General tests
 #Test 0. Saves all new input data in an array and return it outside read data loop
@@ -61,6 +61,33 @@ test = 21
 #Test 22. Test if LPC using Golomb code can correctly decode the input values
 #Test 23. Test what order of LPC gives best result, also test how large of an order it is possible to try
 #Test 24. Test what k-value gives the best compression rate when using LPC and Rice codes for different orders of LPC
+#Test 25. Test what m-value gives the best compression rate when using LPC and Golomb codes for different order of LPC
+
+if test == 25:
+    recomnded_limit = 3
+    uncoded_words = []
+    orders = []
+    order_start = 1
+    order_stop = 8
+    order_array = []
+    memorys = []
+    for i in range(order_start, order_stop+1):
+        orders.append(i)
+        order_array.append([])
+        memorys.append([0]*i)
+    
+    #m starting and stop value will be their assigned values times factorr
+    #m will increment by step factor each time
+    factorr = 60
+    m_start = 3
+    m_stop = 38
+    m_array = []
+
+    for i in range(m_start, m_stop+1):
+        m_array.append(int(i*factorr))
+        for j in range(len(order_array)):
+            order_array[j].append([])
+
 
 if test == 24:
     recomnded_limit = 10
@@ -278,12 +305,61 @@ while w_limit < recomnded_limit:
     #To pick all sampels for a specific mic choose a number x for desired mic and ":" for samples:
     #data2[x,:]
 
+    
+    if test == 25:
+        #This if statments make sure to wait until a new sample block is available
+        if np.all(data2[best_mic,:]) != np.all(input_new):
+            input_new = data2[best_mic,:]#This data choice is only to make sure to wait for a new available data value
+            w_limit +=1
+            print(w_limit)
+
+            input = data2[best_mic,:]#Input data used in test
+
+            
+            #loops though all k values in k_array.
+
+            for j in range(len(m_array)):
+                m = m_array[j]
+
+                #loops thorugh all order, i = 0-3
+                for i in range(len(orders)):
+                    #Does the LPC calculations and updates memory
+                    LPC_predictor = LPC(orders[i])
+                    cof, residual, memorys[i], predict = LPC_predictor.In(input, memorys[i])
+
+
+
+                    #calculates the Rice code word for the residual
+                    code_word =""
+                    for q in range(len(input)):
+                        
+                        Golomb_coder = GolombCoding(m, True)
+                        n = int(residual[q])
+                        kodOrd = Golomb_coder.Encode(n)
+                        code_word += kodOrd
+                    #The rice code word is saved in the array matching both order and k-value
+                    order_array[i][j].append(code_word)
+                    
+            
+            #Calculates size of uncoded input.
+            #Assuming each vaule is repsented in 32 bits.
+            uncoded_word = ""              
+            for j in range(len(input)):
+                uncoded_word += np.binary_repr(input[j],32)
+
+
+
+            #Saves uncoded binary input in array
+            uncoded_words.append(uncoded_word)
+
+
+
     if test == 24:
         #This if statments make sure to wait until a new sample block is available
         if np.all(data2[best_mic,:]) != np.all(input_new):
             input_new = data2[best_mic,:]#This data choice is only to make sure to wait for a new available data value
             w_limit +=1
-            print("w = ", w_limit)
+            
         
             input = data2[best_mic,:]#Input data used in test
 
@@ -914,7 +990,6 @@ while w_limit < recomnded_limit:
             input_new = data2[best_mic,:]#This data choice is only to make sure to wait for a new available data value
             
             w_limit +=1
-            print(w_limit)
 
             inputs.append(data2)
 
@@ -923,7 +998,171 @@ while w_limit < recomnded_limit:
 
 
 #disconect()
+
+if test == 25:
+    print("Test 25")
+
+
+    print("")
+
+    #Arrays for average compression rates
+    # cr[order][k-value] = compression rate for given order and m-value
+    cr = []
+    for i in range(len(orders)):
+        cr.append([])
+
+    for i in range(len(m_array)):
+        for j in range(len(order_array)):
+            cr[j].append([])
+
+
+
+
+    
+
+
+    #loop thorugh all m-values
+    for i in range(len(m_array)):
+        #loops thorugh all orders of LPC
+        for q in range(len(orders)):
+            temp_cr_array = []
+
+            #The code words for a given order of LPC, q, and a given m-value, i.
+            temp_code_word_array = order_array[q][i]
+
+
+
+
+            #loops thorugh all sampled blocks of data
+            for j in range(len(uncoded_words)):
+                #Calculates the cr rate for each data block 
+                #by comparing rice coded length with 32 bit representation
+                temp_cr = len(temp_code_word_array[j]) / len(uncoded_words[j])
+                
+                #Saves the cr for current code word in array
+                temp_cr_array.append(temp_cr)
+
+            #Calculates avg cr for all data blocks given a LPC order, q, and k-value, i.
+            avg_temp_cr = np.sum(temp_cr_array) / len(temp_cr_array)
+
+            #Saves avg cr in array
+            cr[q][i] = avg_temp_cr
+
+                
+
+                    
                         
+
+            
+    if 1 < 0:#this gives alot of outputs in text since alot of m-values are looked at
+    #if statement can be changed if print out is desired
+        print("For a given value: m = ", m_array)
+        for i in range(len(orders)):
+            print("Average compression rate for order ",orders[i]," = ", cr[i])
+
+
+        print("")
+
+
+    
+
+
+    
+    #find the m-value that gives the best compression rate for each order of LPC
+    m_best = []
+    cr_best = []
+    for q in range(len(orders)):
+        temp_best_cr = cr[q][0]
+        temp_best_m = m_array[0]
+        for i in range(len(m_array)-1):
+            if cr[q][i+1] < temp_best_cr:
+                temp_best_cr = cr[q][i+1]
+                temp_best_m = m_array[i+1]
+
+        m_best.append(temp_best_m)
+        cr_best.append(temp_best_cr)
+    
+    for i in range(len(orders)):
+        print("LPC order ",orders[i],"have best cr at m = ",m_best[i],"with cr = ",cr_best[i])
+
+
+    #plotting compression rate over m-values for differente orders
+        
+    if 1 > 0:#only for plots in report
+
+        colors = ['k', 'c', 'm', 'y', 'r', 'b', 'g', 'purple']
+        #Plots Order 1, 2, and 3 of shorten in the same plot for some k-values
+        for i in range(len(orders)):
+            label_order = "Order " + str(orders[i])
+            plt.plot(m_array, cr[i], "o", color = colors[i], label=label_order)
+
+            
+        
+        plt.xlabel("m-value")
+        plt.ylabel("Compression ratio")
+        plt.legend()
+
+        plt.show()
+
+        
+
+    else:
+        
+        
+        #Plots sub plots with each subplot being a specific order of LPC
+        #y-axis is compression ratio and x-axis is m value
+        plot_nr = 1
+
+        for i in range(len(orders)):
+            fig = plt.figure(plot_nr)
+            sub_nr = i%4 + 1
+            order_text = "LPC Order " + str(orders[i])
+
+            ax = fig.add_subplot(220+sub_nr)
+            plt.plot(m_array, cr[i], 'ro')
+            ax.title.set_text(order_text)
+            plt.xlabel("m-value")
+            plt.ylabel("Cmpression ratio")
+
+
+            if i % 4 == 3:
+                plot_nr +=1
+                plt.show()
+
+        if len(orders)%4 != 0:
+            plt.show()
+
+
+        
+
+
+        
+        
+        colors = ['yo', 'ro', 'bo', 'go']
+        #Plots some orders of LPC in the same plot for some m-values
+        for i in range(len(orders)):
+            label_order = "Order " + str(orders[i])
+            plt.plot(m_array, cr[i], colors[i%4], label=label_order)
+
+            if i % 4 == 3:
+                plt.title("Comparison of comression ratio for differente orders")
+                plt.xlabel("m-value")
+                plt.ylabel("Compression ratio")
+                plt.legend()
+
+                plt.show()
+
+        if len(orders)%4 != 0:
+            plt.title("Comparison of comression ratio for differente orders")
+            plt.xlabel("m-value")
+            plt.ylabel("Compression ratio")
+            plt.legend()
+
+            plt.show()
+
+
+#Test compression rate for different k-values and orders
+#using LPC and Rice codes                       
 if test == 24:
     print("Test 24")
     
