@@ -39,6 +39,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 test = 21
 
 #General tests
+#Test 0. Saves all new input data in an array and return it outside read data loop
 #Test 1. This test plots microphone data
 #Test 2. This test checks average binary len and max length of input data if every data point was written with minimal amount of bits
 #Test 3. Suposed to test how long time it takes to grab a new sample. 
@@ -249,7 +250,10 @@ if test == 1:
     plot_sig = []
     data_points = 256#How many samples for each block is gonna be plotted, lower value gives a more zoomed in picture
 
-
+#Initial values for test 0
+if test == 0:
+    recomnded_limit = 23#limit seems to depend on what sound file to use, for sine10s limit is 23
+    inputs = []
 
 
 
@@ -902,6 +906,17 @@ while w_limit < recomnded_limit:
                 else:
                     for i in range(len(plot_sig_temp)):
                         plot_sig[j].append(plot_sig_temp[i])
+
+
+    if test == 0:
+        #This if statments make sure to wait until a new sample block is available
+        if np.all(data2[best_mic,:]) != np.all(input_new):
+            input_new = data2[best_mic,:]#This data choice is only to make sure to wait for a new available data value
+            
+            w_limit +=1
+            print(w_limit)
+
+            inputs.append(data2)
 
 
 
@@ -2103,4 +2118,10 @@ if test == 1:
             
                 plot_nr +=1
                 plt.show()#Each figure is plotted one at a time, to plot all at the same time move this outsie for-loop
+
+
+if test == 0:
+    print("len inputs: ", len(inputs))
+    temp_input = inputs[0]
+    print("dimension of each input is: ", len(temp_input[0,:]),"by ",len(temp_input[:,0]))
 
