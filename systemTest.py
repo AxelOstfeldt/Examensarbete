@@ -36,7 +36,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 25
+test = 24
 
 #General tests
 #Test 0. Saves all new input data in an array and return it outside read data loop
@@ -273,7 +273,7 @@ if test == 2:
 
 #Inital values for test 1
 if test == 1:
-    recomnded_limit = 1
+    recomnded_limit = 2
     plot_sig = []
     data_points = 256#How many samples for each block is gonna be plotted, lower value gives a more zoomed in picture
 
@@ -2305,7 +2305,7 @@ if test == 1:
         plt.show()
 
     #Test that only shows best mic
-    elif 1 > 0:
+    elif 1 < 0:
     
    
         plt.figure("Test1_mic79")
