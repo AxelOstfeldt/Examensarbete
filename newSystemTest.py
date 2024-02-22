@@ -70,9 +70,9 @@ if test == 25:
     
     #m starting and stop value will be their assigned values times factorr
     #m will increment by step factor each time
-    factorr = 60
-    m_start = 3
-    m_stop = 38
+    factorr = 1
+    m_start = 1
+    m_stop = 100
     m_array = []
 
     for i in range(m_start, m_stop+1):
@@ -247,7 +247,7 @@ if test == 1:
 #The data from the while loop is appended in the test_data array
 #It loops recomended_limit amount of time, this depends on the size of the sound file
 #23 was found to be a good number to use
-recomnded_limit = 2
+recomnded_limit = 20
 test_data = []
 data = np.empty((config.N_MICROPHONES, config.N_SAMPLES), dtype=np.float32)
 while w_limit < recomnded_limit:
@@ -267,7 +267,6 @@ while w_limit < recomnded_limit:
         input_new = data2[best_mic,:]#This data choice is only to make sure to wait for a new available data value
         
         w_limit +=1
-        print(w_limit)
         test_data.append(data2)
     
     
@@ -288,7 +287,7 @@ for itter in range(len(test_data)):
     if test == 25:
     
 
-        input = current_data[best_mic,:]#Input data used in test
+        input = current_data[silent_mic_2,:]#Input data used in test
 
         
         #loops though all k values in k_array.
@@ -850,8 +849,7 @@ for itter in range(len(test_data)):
 
 
 
-
-print("For loop done")
+print("")
 
 if test == 25:
     print("Test 25")
@@ -2251,35 +2249,3 @@ if test == 1:
                 plt.show()#Each figure is plotted one at a time, to plot all at the same time move this outsie for-loop
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-if 1 < 0:
-
-    print("len inputs: ", len(test_data))
-    temp_input = test_data[0]
-    print("dimension of each input is: ", len(temp_input[0,:]),"by ",len(temp_input[:,0]))
-
-    temp_input = test_data[0]
-
-    plt.plot(temp_input[best_mic,:])
-    plt.show()
