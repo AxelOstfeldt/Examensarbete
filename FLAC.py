@@ -228,9 +228,8 @@ class FLAC:
 
         
 #Test FLAC
-if 1 < 0:
+if 1 > 0:
 
     LPC_Order = 8
     FLAC_prediction = FLAC(LPC_Order)
 
-    
