@@ -120,18 +120,19 @@ class FLAC:
             #Replace the first spot in the memory array with the current input
             memory[0] = inputs[i]
 
-            #Calculates the current residual for all orders of shorten and LPC
-            #The memory is atleast for 
-            for j in range(len(memory)):
-                if i <= 3:
-                    ShortCurrentResidual = inputs[i] - shortCurrentPrediciton[i]
-                    ShortResiduals[i].append(ShortCurrentResidual)
-                    ShortPredcitions[i].append(shortCurrentPrediciton[i])
-                
-                if i < self.LpcOrder:
-                    LpcCurrentResidual = inputs[i] - LpcCurrentPrediction[i]
-                    LpcResiduals[i].append(LpcCurrentResidual)
-                    LpcPredictions[i].append(LpcCurrentPrediction[i])
+            #Calculates the current residual for all orders of shorten
+            #By looping through all the calculated predictions by different orders for the current input 
+            #and subtracting the value from the current input and saving the ressidual in an array
+            for j in range(len(shortCurrentPrediciton)):
+                ShortCurrentResidual = inputs[i] - shortCurrentPrediciton[j]
+                ShortResiduals[j].append(ShortCurrentResidual)
+                ShortPredcitions[j].append(shortCurrentPrediciton[j])
+
+            #The same is done for all orders of LPC  
+            for j in range(len(LpcCurrentPrediction)):
+                LpcCurrentResidual = inputs[i] - LpcCurrentPrediction[j]
+                LpcResiduals[j].append(LpcCurrentResidual)
+                LpcPredictions[j].append(LpcCurrentPrediction[j])
 
         return RleCode, ShortResiduals, LpcResiduals, memory, LpcCoff, ShortPredcitions, LpcPredictions
 
@@ -226,3 +227,10 @@ class FLAC:
 
 
         
+#Test FLAC
+if 1 < 0:
+
+    LPC_Order = 8
+    FLAC_prediction = FLAC(LPC_Order)
+
+    

@@ -17,7 +17,11 @@ test_lpc_array = ["LPC order 1", "LPC order 2", "LPC order 3", "LPC order 4", "L
 
 
 
-memory = ["Spot 1", "SPot 2", "Spot 3", "Spot 4", "Spot 5", "Spot 6", "Spot 7", "Spot 8"]
+memory = ["Spot 1", "SPot 2", "Spot 3", "Spot 4"]#, "Spot 5", "Spot 6", "Spot 7", "Spot 8"]
+
+for i in range(len(memory)):
+    if i <= 3:
+        print(test_short_array[i+1])
 
 test_array = [1,2,3,4]
 
@@ -29,15 +33,7 @@ short_cof = [[0],[1],[2, -1],[3, -3, 1],[4,-6,4,-1]]
 
 memory = [1,1,1,1,1,1]
 
-prediction = [0]*5
-for i in range(len(prediction)):
-    prediction[i] = i
 
-print(prediction)
-
-for i in range(len(memory)):
-    if i <= 3:
-        print(prediction[i])
 
     
 
