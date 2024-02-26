@@ -1,5 +1,5 @@
 import numpy as np
-import statsmodels.tsa.api as smt
+#import statsmodels.tsa.api as smt
 #smt.acf(in)[:lag] autocorelation return as array, in = inputs, lag = how many lags back the array will go
 import random
 from Shorten import Shorten
@@ -9,10 +9,35 @@ from LPC import LPC
 
 
 
+test_short_array = ["Shorten order 0","Shorten order 1","Shorten order 2","Shorten order 3","Shorten order 4"]
+
+LPC_order = 8
+
+test_lpc_array = ["LPC order 1", "LPC order 2", "LPC order 3", "LPC order 4", "LPC order 5", "LPC order 6", "LPC order 7", "LPC order 8"]
+
+
+
+memory = ["Spot 1", "SPot 2", "Spot 3", "Spot 4", "Spot 5", "Spot 6", "Spot 7", "Spot 8"]
+
+test_array = [1,2,3,4]
+
+test_1 = [1,0,1,0]
+
     
 
+short_cof = [[0],[1],[2, -1],[3, -3, 1],[4,-6,4,-1]]
 
+memory = [1,1,1,1,1,1]
 
+prediction = [0]*5
+for i in range(len(prediction)):
+    prediction[i] = i
+
+print(prediction)
+
+for i in range(len(memory)):
+    if i <= 3:
+        print(prediction[i])
 
     
 
