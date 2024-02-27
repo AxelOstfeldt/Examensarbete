@@ -95,9 +95,6 @@ class FLAC:
                     #Reset the Rle Counter
                     RleCount = 0
                     
-                    
-
-
             #calculates the current prediction for all orders of shorten and LPC, aswell as steps the memory array
             shortCurrentPrediciton, LpcCurrentPrediction, memory = self.prediction(memory, LpcCoff, ShortCoff)
 
@@ -114,7 +111,7 @@ class FLAC:
 
             #The same is done for all orders of LPC  
             for j in range(len(LpcCurrentPrediction)):
-                LpcCurrentResidual = inputs[i] - LpcCurrentPrediction[j]
+                LpcCurrentResidual = round(inputs[i] - LpcCurrentPrediction[j])
                 LpcResiduals[j].append(LpcCurrentResidual)
                 LpcPredictions[j].append(LpcCurrentPrediction[j])
 
@@ -127,6 +124,7 @@ class FLAC:
         
 
         return RleCode, ShortResiduals, LpcResiduals, memory, LpcCoff, ShortPredcitions, LpcPredictions
+
 
     def In(self, inputs, memory):
 
@@ -156,15 +154,17 @@ class FLAC:
         codeChoice = 0
         k_Choice = 0
         valueChoice = AllResidualsBinary[0]
-
+        #Only for test
+        encodeNames = ["Shorten order 0", "Shorten order 1", "Shorten order 2", "Shorten order 3", "Shorten order 4", "LPC order 1","LPC order 2","LPC order 3","LPC order 4","LPC order 5","LPC order 6","LPC order 7","LPC order 8"]
         for i in range(1, len(AllResidualsBinary)):
-            
+            print(encodeNames[i-1])
+            print("length = ",len(AllResidualsBinary[i]))
             if len(AllResidualsBinary[i]) < len(valueChoice):
                 valueChoice = AllResidualsBinary[i]
                 codeChoice = i
                 k_Choice = k_array[i]
 
-        return valueChoice, np.binary_repr(k_Choice,5), np.binary_repr(codeChoice, 6), memory, LpcCoff
+        return valueChoice, np.binary_repr(k_Choice,5), codeChoice, memory, LpcCoff
 
             
     def RleEnconder(self, RleValue, RleCounter):
@@ -193,10 +193,6 @@ class FLAC:
         #Return the binary representation of the RLE
         return RleBinary
         
-        
-
-
-
 
     def FlacRice(self, current_residuals):
         #calculates the ideal k-value for the current residuals
@@ -223,7 +219,6 @@ class FLAC:
         return code_word, k_ideal
             
 
-
     def prediction(self, memory, LpcCoff, ShortCoff):
         ShortCurrentPredcition = [0]*5
         LpcCurrentPrediciton = [0]*self.LpcOrder
@@ -246,17 +241,94 @@ class FLAC:
 
         
 #Test FLAC
+    
+from Shorten import Shorten
+from LPC import LPC
+
 if 1 > 0:
 
     LPC_Order = 8
     FLAC_prediction = FLAC(LPC_Order)
 
-    testInput = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2]
+    testInput = [1,2,3,4,5,5,5,5,5,5,5,6,7,8,9,9,9,9]
 
     if LPC_Order > 4:
         testMemory = [0]*LPC_Order
     else:
         testMemory = [0]*4
+
+    Encoded_inputs, k_value, Encoding_choice, mem, LPC_Cofficents = FLAC_prediction.In(testInput, testMemory)
+    #print("Encoded_inputs: ", Encoded_inputs)
+    #print("k_value: ", k_value)
+    #print("Encoding choice: ", Encoding_choice)
+    #print("New memory: ", mem)
+    #print("LPC cofficents from FLAC:")
+    for i in range(len(LPC_Cofficents)):
+        i
+        
+        #print("LPC order ",i+1,": ",LPC_Cofficents[i])
+
+    S_order = 3
+    L_order = 1
+    for i in range(1, 8):
+        L_order = i
+        S_memory = [0]*S_order
+        L_memory = [0]*L_order
+        Shorten_predictor = Shorten(S_order)
+        LPC_predictor = LPC(L_order)
+
+        res_s, mem_s, pred_s = Shorten_predictor.In(testInput, S_memory)
+        cof_l, res_l, mem_l, pred_l = LPC_predictor.In(testInput, L_memory)
+        for j in range(L_order):
+            curr_flac_cofs = LPC_Cofficents[i-1]
+            if cof_l[j] != curr_flac_cofs[j]:
+                print("Wrong cofficents at: ", cof_l[j],"=! ", curr_flac_cofs[j])
+
+
+        #Calculates the ideal k_vaule for the LPC residuals
+        abs_res = np.absolute(res_s)
+        abs_res_avg = np.mean(abs_res)
+        #if abs_res_avg is less than 4.7 it would give a k value less than 1.
+        #k needs tobe a int > 1 and therefore if abs_res_avg < 5 k is set to 1
+        #OBS. 4.7 < abs_res_avg < 5 would be rounded of to k=1 so setting the limit to 5 works well
+        if abs_res_avg > 5:
+            k_s = int(round(math.log(math.log(2,10) * abs_res_avg,2)))
+        else:
+            k_s = 1
+
+        #Calculates the ideal k_vaule for the LPC residuals
+        abs_res = np.absolute(res_l)
+        abs_res_avg = np.mean(abs_res)
+        #if abs_res_avg is less than 4.7 it would give a k value less than 1.
+        #k needs tobe a int > 1 and therefore if abs_res_avg < 5 k is set to 1
+        #OBS. 4.7 < abs_res_avg < 5 would be rounded of to k=1 so setting the limit to 5 works well
+        if abs_res_avg > 5:
+            k_l = int(round(math.log(math.log(2,10) * abs_res_avg,2)))
+        else:
+            k_l = 1
+
+
+        #calculates the Rice code word for the residual
+        code_word =""
+        for q in range(len(res_s)):
+            
+            Rice_coder = RiceCoding(k_s, True)
+            n = int(res_s[q])
+            kodOrd = Rice_coder.Encode(n)
+            code_word += kodOrd
+        #print("Lenght for Shorten order ",S_order," = ",len(code_word))
+
+
+        #calculates the Rice code word for the residual
+        code_word =""
+        for q in range(len(res_l)):
+            Rice_coder = RiceCoding(k_l, True)
+            n = int(res_l[q])
+            kodOrd = Rice_coder.Encode(n)
+            code_word += kodOrd
+        print("Lenght for LPC order ",L_order," = ",len(code_word))
+
+    
 
     
     #auto_Corr = FLAC_prediction.autocorrelation(testInput, 2)#Works
@@ -265,14 +337,15 @@ if 1 > 0:
     #Lpc_coff = FLAC_prediction.LpcCoefficentsCalc(testInput)#Works
     #print(Lpc_coff[8])
 
-    #RleCode, ShortResiduals, LpcResiduals, memory, LpcCoff, SPred, LPred = FLAC_prediction.ResidualCalculation(testInput,testMemory)
+    RleCode, ShortResiduals, LpcResiduals, memory, LpcCoff, SPred, LPred = FLAC_prediction.ResidualCalculation(testInput,testMemory)
+
+    for i in range(len(LpcResiduals)):
+        print((LpcResiduals[i]))
+    
 
     
 
-    Encoded_inputs, k_value, Encoding_choice, mem, LPC_Cofficents = FLAC_prediction.In(testInput, testMemory)
+    
 
-    print("Encoded_inputs: ", Encoded_inputs)
-    print("k_value: ", k_value)
-    print("Encoding choice: ", Encoding_choice)
-    #print("New memory: ", mem)
-    #print("LPC cofficents: ", LPC_Cofficents)
+
+

@@ -7,7 +7,9 @@ from LPC import LPC
 
 
 
+test_float = 0.51
 
+print(round(test_float))
 
 test_short_array = ["Shorten order 0","Shorten order 1","Shorten order 2","Shorten order 3","Shorten order 4"]
 
