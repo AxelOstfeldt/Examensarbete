@@ -5,6 +5,14 @@ import random
 from Shorten import Shorten
 from LPC import LPC
 
+for_loop_cnt = 99
+
+
+test_RLE = [4,3,2,1,0]
+
+test_RLE = [for_loop_cnt] + test_RLE[:-1]
+
+print("test RLE ",test_RLE)
 
 
 test_float = 0.51

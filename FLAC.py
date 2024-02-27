@@ -1,12 +1,15 @@
 import numpy as np
 import math
 from Rice import RiceCoding
+from Shorten import Shorten
+from LPC import LPC
 
 
 class FLAC:
 
     def __init__(self, LpcOrder):
         self.LpcOrder = LpcOrder
+        self.ShortCoff = [[0],[1],[2, -1],[3, -3, 1],[4,-6,4,-1]]
 
     #Function to calculate the autocorrelation of the input values
     def autocorrelation(self, x, lag):
@@ -66,7 +69,6 @@ class FLAC:
 
     def ResidualCalculation(self, inputs, memory):
         LpcCoff = self.LpcCoefficentsCalc(inputs)
-        ShortCoff = [[0],[1],[2, -1],[3, -3, 1],[4,-6,4,-1]]
 
         ShortPredcitions = [[],[],[],[],[]]
         ShortResiduals = [[],[],[],[],[]]
@@ -96,7 +98,7 @@ class FLAC:
                     RleCount = 0
                     
             #calculates the current prediction for all orders of shorten and LPC, aswell as steps the memory array
-            shortCurrentPrediciton, LpcCurrentPrediction, memory = self.prediction(memory, LpcCoff, ShortCoff)
+            shortCurrentPrediciton, LpcCurrentPrediction, memory = self.prediction(memory, LpcCoff)
 
             #Replace the first spot in the memory array with the current input
             memory[0] = inputs[i]
@@ -166,7 +168,99 @@ class FLAC:
 
         return valueChoice, np.binary_repr(k_Choice,5), codeChoice, memory, LpcCoff
 
+    
+    def Out(self, code_residuals, memory, k_value, code_choose, LpcCoff):
+        DecodedValues = []#Arrat to save decoded values
+
+        #If code_chosse is 0 the residual is encoded using RLE
+        if code_choose == 0:
+            print("RLE")#Only for test
             
+            #Loops trough all the enocded binary values with a while llop
+            while len(code_residuals) > 0:
+
+                #The first bit in each code word is the sign bit
+                #This is saved as s and then the code_residuals is stepped one step
+                s = code_residuals[0]
+                code_residuals = code_residuals[1:]
+
+                #The next 24 bits represents the value that have been encoded
+                #Once they been saved 24 steps trough the code_residuals are taken
+                RleValue = code_residuals[:24]
+                code_residuals = code_residuals[24:]
+
+                #The next 8 bits represent how many times the value was repeated
+                #Once it been saved 8 steps is taken in the code_residuals
+                RleCount = code_residuals[:8]
+                code_residuals = code_residuals[8:]
+
+                #The value that have been encoded is converted to int
+                IntRelValue = int(RleValue, 2)
+
+                #If the sign bit is "1" the value is converted to negative
+                if s == "1":
+                    IntRelValue = -IntRelValue
+
+                #A for loop is used to append as many values as needed
+                #The RleCount value is increased by 1 because even though
+                #a value never was reapeted it occured once
+                for i in range(1 + int(RleCount, 2)):
+                    DecodedValues.append(IntRelValue)
+
+        else:
+            #In cases where RLE encoding is not used, the resiudals have been encoded using Rice codes
+            #Decodes the Residuals with Rice.Decode
+            Rice_decoder = RiceCoding(k_value, True)
+            Residuals = Rice_decoder.Decode(code_residuals)
+
+            #loops thorugh all the residuals to calculate the original input value
+            for i in range(len(Residuals)):
+                #If code_choose is 1 to 5 Shorten have been used by FLAC
+                if code_choose < 6:
+                    print("Shorten")#Only for test
+                    #The Shorten order will be 1 less than code_choose since code_choice 0 is for RLE
+                    ShortenOrder = code_choose -1
+
+                    #If shorten order does not match length of memeory array error should be raised
+                    if len(memory) != ShortenOrder:
+                        raise ValueError(f"Memory lenght does not match order, memory = {memory} and order = {ShortenOrder}")
+
+                    #If Shorten order is 0 the prediciton is allways 0
+                    if ShortenOrder == 0:
+                        current_prediciton = 0
+                    #In other cases the current predicition is calculated by multiplying the orders cofficents with the memory array
+                    else:
+                        current_prediciton = sum( np.array(self.ShortCoff(ShortenOrder)) * np.array(memory) )
+
+                #If the code_choose is larger than 5 LPC have been used by FLAC
+                else:
+                     #If length of memeory array and cofficents array does not match an error should be raised
+                    if len(memory) != ShortenOrder:
+                        raise ValueError(f"Memory lenght does not match order, memory = {memory} and order = {ShortenOrder}")
+
+
+                    print("LPC")#Only for test
+                    #Calculated the current_prediciton by multiplying the LpcCoff with the memory
+                    current_prediciton = sum( np.array(LpcCoff) * np.array(memory) )
+
+                #Calculating current input by taking the prediciton and adding the current residual
+                current_input = current_prediciton + Residuals[i]
+
+                #Uppdating memory by stepping all slots one step back and putting the current_input in the first slot
+                memory = [current_input] + memory[:-1]
+
+                #Append the decoded input value
+                DecodedValues.append(current_input)
+
+        #Return the decoded values and memory array
+        return DecodedValues, memory
+                
+
+
+
+
+        
+
     def RleEnconder(self, RleValue, RleCounter):
         #First the signed dignit is set, 0 for positive and 1 for negative
         if RleValue < 0:
@@ -219,7 +313,7 @@ class FLAC:
         return code_word, k_ideal
             
 
-    def prediction(self, memory, LpcCoff, ShortCoff):
+    def prediction(self, memory, LpcCoff):
         ShortCurrentPredcition = [0]*5
         LpcCurrentPrediciton = [0]*self.LpcOrder
         new_memory = [0]
@@ -227,7 +321,7 @@ class FLAC:
 
         for i in range(len(memory)):
             if i <= 3:
-                ShortCurrentPredcition[i+1] = sum( np.array(memory[:i+1]) * np.array(ShortCoff[i+1]) )
+                ShortCurrentPredcition[i+1] = sum( np.array(memory[:i+1]) * np.array(self.ShortCoff[i+1]) )
 
             if i < self.LpcOrder:
                 LpcCurrentPrediciton[i] = sum( np.array(memory[:i+1]) * np.array(LpcCoff[i]) )
