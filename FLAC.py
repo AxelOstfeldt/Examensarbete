@@ -241,11 +241,14 @@ class FLAC:
 
         
 #Test FLAC
-    
+
+
+
+#Test to see that FLAC can perform aswell as Shorten and LPC
+#Aswell as test output from FLAC
 from Shorten import Shorten
 from LPC import LPC
-
-if 1 > 0:
+if 1 < 0:
 
     LPC_Order = 8
     FLAC_prediction = FLAC(LPC_Order)
