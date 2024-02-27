@@ -59,7 +59,7 @@ class FLAC:
                 for j in range(i):
                     a[j] = a_old[j] - k * a_old[(i-1)-j]
             E = (1 - pow(k,2)) * E
-            CoefficentsArray.append(a)
+            CoefficentsArray.append(a.copy())
 
         return CoefficentsArray
 
@@ -138,7 +138,7 @@ class FLAC:
 
     def In(self, inputs, memory):
 
-        RleCode, ShortResiduals, LpcResiduals, memory, LpcCoff, *_ = self.ResidualCalculation(inputs, memory)
+        RleCode, ShortResiduals, LpcResiduals, memory, LpcCoff, SPred, LPred = self.ResidualCalculation(inputs, memory)
 
         #Crate an array to store all binary represented values for the residuals and RLE
         AllResidualsBinary = []
@@ -172,7 +172,7 @@ class FLAC:
                 codeChoice = i
                 k_Choice = k_array[i]
 
-        return valueChoice, k_Choice, np.binary_repr(codeChoice, 6), memory, LpcCoff
+        return valueChoice, np.binary_repr(k_Choice,5), np.binary_repr(codeChoice, 6), memory, LpcCoff
 
             
 
@@ -233,3 +233,28 @@ if 1 > 0:
     LPC_Order = 8
     FLAC_prediction = FLAC(LPC_Order)
 
+    testInput = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0]
+
+    if LPC_Order > 4:
+        testMemory = [0]*LPC_Order
+    else:
+        testMemory = [0]*4
+
+    
+    #auto_Corr = FLAC_prediction.autocorrelation(testInput, 2)#Works
+    #print(auto_Corr)
+
+    #Lpc_coff = FLAC_prediction.LpcCoefficentsCalc(testInput)#Works
+    #print(Lpc_coff[8])
+
+    #RleCode, ShortResiduals, LpcResiduals, memory, LpcCoff, SPred, LPred = FLAC_prediction.ResidualCalculation(testInput,testMemory)
+
+    
+
+    Encoded_inputs, k_value, Encoding_choice, mem, LPC_Cofficents = FLAC_prediction.In(testInput, testMemory)
+
+    print("Encoded_inputs: ", Encoded_inputs)
+    print("k_value: ", k_value)
+    print("Encoding choice: ", Encoding_choice)
+    print("New memory: ", mem)
+    print("LPC cofficents: ", LPC_Cofficents)
