@@ -90,28 +90,12 @@ class FLAC:
                 #If the next input is not the same as the first one in memory it means that a new value have arrived at input
                 #The old value is then encoded with its RLE count
                 else:
-                    #First the signed dignit is set, 0 for positive and 1 for negative
-                    if memory[0] < 0:
-                        s = "1"
-                        #if the value was negative it is turned to positive beffore saved as value to be RLE encoded
-                        Rle_value = -memory[0]
-                    else:
-                        s = "0"
-                        Rle_value = memory[0]
-
-                    #The RLE value is written as a 24 bit representation since this is the largest that can be sampled by the system
-                    RleValueBinary = np.binary_repr(Rle_value, 24)
-                    #The RLE count is written as 8 bit value
-                    #The current block size is 256, which then is the max amount of identical sampels that can come in a row for the same block
-                    #It is important to note that what is RLE encoded is the amount of repitions.
-                    #So that if RLE count is encoded as 0 that means that the value occours once and then is repeated 0 times.
-                    RleCountBinary = np.binary_repr(RleCount, 8)
+                    #Save the encoded Rle value in the RleCode variable
+                    RleCode += self.RleEnconder(memory[0], RleCount)
+                    #Reset the Rle Counter
                     RleCount = 0
-
-                    #Completes the current binary representation of the RLE
-                    RleBinary = s + RleValueBinary + RleCountBinary
-                    #Saves the current representation of the RLE in array
-                    RleCode += RleBinary
+                    
+                    
 
 
             #calculates the current prediction for all orders of shorten and LPC, aswell as steps the memory array
@@ -133,6 +117,14 @@ class FLAC:
                 LpcCurrentResidual = inputs[i] - LpcCurrentPrediction[j]
                 LpcResiduals[j].append(LpcCurrentResidual)
                 LpcPredictions[j].append(LpcCurrentPrediction[j])
+
+        #The last value needs to be RLE encoded
+        #This is done by calling the RLE function
+        #Save the encoded Rle value in the RleCode variable
+        RleCode += self.RleEnconder(memory[0], RleCount)
+        #Reset the Rle Counter
+        RleCount = 0
+        
 
         return RleCode, ShortResiduals, LpcResiduals, memory, LpcCoff, ShortPredcitions, LpcPredictions
 
@@ -175,7 +167,33 @@ class FLAC:
         return valueChoice, np.binary_repr(k_Choice,5), np.binary_repr(codeChoice, 6), memory, LpcCoff
 
             
+    def RleEnconder(self, RleValue, RleCounter):
+        #First the signed dignit is set, 0 for positive and 1 for negative
+        if RleValue < 0:
+            s = "1"
+            #if the value was negative it is turned to positive beffore saved as value to be RLE encoded
+            Rle_value = -RleValue
+        else:
+            s = "0"
+            Rle_value = RleValue
 
+        #The RLE value is written as a 24 bit representation since this is the largest that can be sampled by the system
+        RleValueBinary = np.binary_repr(Rle_value, 24)
+        #The RLE count is written as 8 bit value
+        #The current block size is 256, which then is the max amount of identical sampels that can come in a row for the same block
+        #It is important to note that what is RLE encoded is the amount of repitions.
+        #So that if RLE count is encoded as 0 that means that the value occours once and then is repeated 0 times.
+        RleCountBinary = np.binary_repr(RleCounter, 8)
+        
+
+
+        #Completes the current binary representation of the RLE
+        RleBinary = s + RleValueBinary + RleCountBinary
+
+        #Return the binary representation of the RLE
+        return RleBinary
+        
+        
 
 
 
@@ -233,7 +251,7 @@ if 1 > 0:
     LPC_Order = 8
     FLAC_prediction = FLAC(LPC_Order)
 
-    testInput = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0]
+    testInput = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2]
 
     if LPC_Order > 4:
         testMemory = [0]*LPC_Order
@@ -256,5 +274,5 @@ if 1 > 0:
     print("Encoded_inputs: ", Encoded_inputs)
     print("k_value: ", k_value)
     print("Encoding choice: ", Encoding_choice)
-    print("New memory: ", mem)
-    print("LPC cofficents: ", LPC_Cofficents)
+    #print("New memory: ", mem)
+    #print("LPC cofficents: ", LPC_Cofficents)
