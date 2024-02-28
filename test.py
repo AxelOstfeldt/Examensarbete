@@ -6,100 +6,12 @@ from Shorten import Shorten
 from LPC import LPC
 
 
-    
-class LPC:
-
-    def __init__(self, order):
-        #Order have to be an integer of size 1 or larger for LPC
-        #No upperlimit exist other than when the order is larger than the number of inputs the lag when caluclating autocorrelation will raise an error
-        if  order < 0 or not isinstance(order, int):
-            raise ValueError(f"Order can only have integer values larger than 0. Current value of is {order}")
-        
-        self.order = order
-
-
-    #Function to calculate the autocorrelation of the input values
-       #Function to calculate the autocorrelation of the input values
-    def autocorrelation(self, x, lag):
-
-        if lag >= len(x):
-            raise ValueError(f"Lag must be shorter than array length")
-        if not isinstance(lag, int) or lag < 0:
-            raise ValueError(f"Lag must be an positive int")
-        
- 
-
-        
-
-        x_mean = np.mean(x)
-        n = 0
-        t = 0
-
-            
-        for i in range(len(x)):
-            n += pow(x[i] - x_mean, 2)
-            if i >= lag:
-                t += (x[i] - x_mean) * (x[i-lag] - x_mean)
-
-
-        #In the case where all x values are identical to each other the equation for autocorrelation dont work
-        #This is beceause n will be equal to 0 and this can not be used to dicide t
-        #In the case that all values are identical the autocorrelation should be =1 regardless of lag-value
-        if n == 0:
-            t = 1
-            n = 1
-            
-
-                       
-
-        return t/n
-
-
-    #Calculates the coefficents for LPC using the Levinson-Durbin algorithm
-    #The coefficents can be calculated with matrix multiplications
-    #How ever it is faster to use this algorithm
-    def Coefficents(self, inputs):
-
-        if all(element == inputs[0] for element in inputs):
-            a = [1] + [0] * (self.order - 1)
-
-        else:
-            E = self.autocorrelation(inputs, 0)
-            a = []
-
-            for i in range(self.order):
-
-                k = self.autocorrelation(inputs, i+1)
-                if i > 0:
-                    for j in range(i):
-                        k -= a[j] * self.autocorrelation(inputs, i-j)
-
-                k = k / E
-                a.append(k)
-
-                if i > 0:
-                    a_old = a.copy()
-                    for j in range(i):
-                        a[j] = a_old[j] - k * a_old[(i-1)-j]
-                E = (1 - pow(k,2)) * E
-
-        return a
 
 if 1 > 0:
-    order = 8
-    input_1 = [2.0]*32
-    input_2 = input_1.copy()
-    input_1.append(2.00000000001)
-    input_2.append(1)
 
-
-    LPC_predictor = LPC(order)
-    Test_output = LPC_predictor.Coefficents(input_1)
-    #for i in range(5):
-    #    Test_output = LPC_predictor.autocorrelation(input_3, i)
-
-    print(Test_output)
-    print("Test done")
+    i = 8
+    for i in range(8):
+        print(i)
 
 
 

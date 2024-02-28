@@ -10,6 +10,7 @@ class FLAC:
         self.LpcOrder = LpcOrder
         self.ShortCoff = [[0],[1],[2, -1],[3, -3, 1],[4,-6,4,-1]]
 
+
     #Function to calculate the autocorrelation of the input values
     def autocorrelation(self, x, lag):
 
@@ -46,21 +47,34 @@ class FLAC:
         a = []
         CoefficentsArray = []
 
+        #Check if all the inputs are the same, this will give a divison by zero error when using levensin durbin algorithm
+        if all(element == inputs[0] for element in inputs):
+            AllSame = True
+        else:
+            AllSame = False
+
         for i in range(self.LpcOrder):
 
-            k = self.autocorrelation(inputs, i+1)
-            if i > 0:
-                for j in range(i):
-                    k -= a[j] * self.autocorrelation(inputs, i-j)
+            #To avoid division by zero this if statement is implemented
+            #Since this edge case only handels when all inputs are the same the first cofficents is set to a 1
+            #and the rest is set to 0
+            if AllSame == True:
+                a = [1] + [0] * i
 
-            k = k / E
-            a.append(k)
+            else:
+                k = self.autocorrelation(inputs, i+1)
+                if i > 0:
+                    for j in range(i):
+                        k -= a[j] * self.autocorrelation(inputs, i-j)
 
-            if i > 0:
-                a_old = a.copy()
-                for j in range(i):
-                    a[j] = a_old[j] - k * a_old[(i-1)-j]
-            E = (1 - pow(k,2)) * E
+                k = k / E
+                a.append(k)
+
+                if i > 0:
+                    a_old = a.copy()
+                    for j in range(i):
+                        a[j] = a_old[j] - k * a_old[(i-1)-j]
+                E = (1 - pow(k,2)) * E
             CoefficentsArray.append(a.copy())
 
         return CoefficentsArray
@@ -340,7 +354,27 @@ class FLAC:
 
         
 #Test FLAC
+if 1 < 0:
+    testInput1 = [1]*10
+    testInput2 = [1]*9
+    testInput2.append(2)
     
+    LPC_Order = 8
+    FLAC_prediction = FLAC(LPC_Order)
+
+    if LPC_Order > 4:
+        testMemory = [0]*LPC_Order
+    else:
+        testMemory = [0]*4
+
+    
+    Encoded_inputs, k_value, Encoding_choice, mem, LPC_Cofficents = FLAC_prediction.In(testInput2, testMemory)
+
+    
+
+
+
+
 #Test FLAC out
 if 1 < 0:
     LPC_Order = 9
