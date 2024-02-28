@@ -54,27 +54,35 @@ class LPC:
     #How ever it is faster to use this algorithm
     def Coefficents(self, inputs):
 
-        E = self.autocorrelation(inputs, 0)
-        a = []
+        #If all inputs are constant a division by 0 error will occur
+        #To handle this this if statement is created.
+        #Since all values are exactly the same it is enough to predict the next value with the previous value
+        #hence the first cofficent is a 1 and the rest are 0
+        if all(element == inputs[0] for element in inputs):
+            a = [1] + [0] * (self.order - 1)
 
-        for i in range(self.order):
+        else:
+            E = self.autocorrelation(inputs, 0)
+            a = []
 
-            k = self.autocorrelation(inputs, i+1)
-            if i > 0:
-                for j in range(i):
-                    k -= a[j] * self.autocorrelation(inputs, i-j)
+            for i in range(self.order):
 
-            k = k / E
+                k = self.autocorrelation(inputs, i+1)
+                if i > 0:
+                    for j in range(i):
+                        k -= a[j] * self.autocorrelation(inputs, i-j)
+
+                k = k / E
 
 
 
-            a.append(k)
+                a.append(k)
 
-            if i > 0:
-                a_old = a.copy()
-                for j in range(i):
-                    a[j] = a_old[j] - k * a_old[(i-1)-j]
-            E = (1 - pow(k,2)) * E
+                if i > 0:
+                    a_old = a.copy()
+                    for j in range(i):
+                        a[j] = a_old[j] - k * a_old[(i-1)-j]
+                E = (1 - pow(k,2)) * E
 
 
 
@@ -142,6 +150,27 @@ class LPC:
 
 
 #Tests
+
+#Test contant input array for LPC
+    
+if 1 > 0:
+    order = 8
+    input_1 = [2]*32
+    input_2 = input_1.copy()
+    input_1.append(2)
+    input_2.append(1)
+    input_3 = [1, 1, 1, 1, 1, 1, 1, 2]
+
+    LPC_predictor = LPC(order)
+    #Test_output = LPC_predictor.Coefficents(input_2)
+    for i in range(5):
+        Test_output = LPC_predictor.autocorrelation(input_3, i)
+
+        print(Test_output)
+    print("Test done")
+
+
+
 
 #Testing that LPC works correctly
 #It can create residuals that are integers
