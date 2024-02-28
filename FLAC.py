@@ -184,13 +184,7 @@ class FLAC:
         k_value = int(k_value,2)
         code_choose = int(code_choose,2)
         #If code_chosse is 0 the residual is encoded using RLE
-        #Only for test
-        if code_choose < 1:
-            print("RLE")
-        elif code_choose < 6:
-            print("Shorten order ", code_choose-1)
-        else:
-            print("LPC order ", code_choose-6)
+        
 
 
 

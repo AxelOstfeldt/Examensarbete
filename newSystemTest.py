@@ -32,7 +32,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 25
+test = 31
 
 #General tests
 #Test 0. Saves all new input data in an array and return it outside read data loop
@@ -67,6 +67,13 @@ if test == 31:
         testMemory = [0]*LPC_Order
     else:
         testMemory = [0]*4
+
+    Encoded_inputs = [] 
+    k_value = []
+    Encoding_choice = []
+    AllMemorys = []
+    LPC_Cofficents = []
+    AllTestInputs = []
     
     
 
@@ -300,9 +307,17 @@ for itter in range(len(test_data)):
     print("Itteration #", itter)
 
     if test == 31:
-        input = current_data[best_mic,:]#Input data used in test
+        testInput = current_data[best_mic,:]#Input data used in test
 
-
+        
+        Current_Encoded_inputs, Current_k_value, Current_Encoding_choice, testMemory, Current_LPC_Cofficents = FLAC_prediction.In(testInput, testMemory)
+        
+        Encoded_inputs.append(Current_Encoded_inputs)
+        k_value.append(Current_k_value)
+        Encoding_choice.append(Current_Encoding_choice)
+        AllMemorys.append(testMemory)
+        LPC_Cofficents.append(Current_LPC_Cofficents)
+        AllTestInputs.append(testInput)
 
         
     if test == 25:
@@ -874,8 +889,98 @@ print("")
 if test == 31:
     print("Test 31")
     print("")
+    decoded_Inputs = []
+    if LPC_Order > 4:
+        OutMemory = [0]*LPC_Order
+    else:
+        OutMemory = [0]*4
+    OutMemoryArray = []
+    OutMemoryArray.append(OutMemory)
+
+    #Limit 1 shows that all residuals bellow it would be correct if rounded to closest integer
+    round_lim_up_1 = [0.5]*256
+    round_lim_down_1 = [-0.5]*256
+
+    #Limit 2 show that all residuals bellow it would be correct if negative integers are rounded up
+    #and positive integers are rounded down
+    round_lim_up_2 = [1]*256
+    round_lim_down_2 = [-1]*256
+
+    #Loop through all data blocks
+    for i in range(len(Encoding_choice)):
+
+        #Print out what was used to encode each data blcok
+        current_encoding_Value = int(Encoding_choice[i],2)
+        if current_encoding_Value < 1:
+            print("For itteration ", i,"best encoder is RLE")
+            plot_title = "RLE"#Later used for plotting
+        elif current_encoding_Value < 6:
+            print("For itteration ", i,"best encoder is Shorten order ", current_encoding_Value - 1)
+            plot_title = "Shorten order " + str(current_encoding_Value - 1)#Later used for plotting
+        else:
+            print("For itteration ", i,"best encoder is LPC ", current_encoding_Value - 5)
+            plot_title = "Shorten order " + str(current_encoding_Value - 5)#Later used for plotting
 
 
+        #Decompress to get original inputs
+        Current_LPC_Cofficents = LPC_Cofficents[i]
+        Current_decoded_Inputs, OutMemory = FLAC_prediction.Out(Encoded_inputs[i], OutMemory, k_value[i], Encoding_choice[i], Current_LPC_Cofficents[current_encoding_Value - 6])
+        OutMemoryArray.append(OutMemory)
+        decoded_Inputs.append(Current_decoded_Inputs)
+
+        #To plot later
+        plot_zero = []
+
+        #Calculate compression rate for current itteration
+        compressed_length = len(Encoded_inputs[i])
+        current_test_input = AllTestInputs[i]
+        uncoded_inputs = ""
+        for j in range(len(current_test_input)):
+            uncoded_inputs += np.binary_repr(abs(current_test_input[j]), 32)
+            current_zero = current_test_input[j] - Current_decoded_Inputs[j]
+            plot_zero.append(current_zero)
+
+        uncompressed_length = len(uncoded_inputs)
+
+        cr = compressed_length / uncompressed_length
+        print("Compression rate = ", cr)
+
+        
+        if 0 < 1:
+            fig = plt.figure(plot_title)
+
+            ax = fig.add_subplot(311)
+            plt.plot(current_test_input)
+            ax.title.set_text("Original input values")
+
+            ax = fig.add_subplot(312)
+            plt.plot(Current_decoded_Inputs)
+            ax.title.set_text("Decoded input values")
+
+            ax = fig.add_subplot(313)
+            plt.plot(plot_zero)
+            plt.plot(round_lim_up_1, 'r')
+            plt.plot(round_lim_down_1, 'r')
+            plt.plot(round_lim_up_2, 'g')
+            plt.plot(round_lim_down_2, 'g')
+            ax.title.set_text("Original input values - decoded input values")
+
+            plt.show()
+
+
+
+        
+
+    
+
+
+
+    AllTestInputs.append(testInput)
+    Encoded_inputs.append(Current_Encoded_inputs)
+    k_value.append(Current_k_value)
+    Encoding_choice.append(Current_Encoding_choice)
+    AllMemorys.append(testMemory)
+    LPC_Cofficents.append(Current_LPC_Cofficents)
 
 if test == 25:
     print("Test 25")
