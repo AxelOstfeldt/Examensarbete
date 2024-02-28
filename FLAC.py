@@ -233,14 +233,15 @@ class FLAC:
                     ShortenOrder = code_choose -1
 
                     #If shorten order does not match length of memeory array error should be raised
-                    if len(memory) != ShortenOrder:
-                        raise ValueError(f"Memory lenght does not match order, memory = {memory} and order = {ShortenOrder}")
+                    
 
                     #If Shorten order is 0 the prediciton is allways 0
                     if ShortenOrder == 0:
                         current_prediciton = 0
                     #In other cases the current predicition is calculated by multiplying the orders cofficents with the memory array
                     else:
+                        if len(memory) != ShortenOrder:
+                            raise ValueError(f"Memory lenght does not match order, memory = {memory} and order = {ShortenOrder}")
                         current_prediciton = sum( np.array(self.ShortCoff[ShortenOrder]) * np.array(memory) )
 
                 #If the code_choose is larger than 5 LPC have been used by FLAC
@@ -341,8 +342,8 @@ class FLAC:
 #Test FLAC
     
 #Test FLAC out
-if 1 > 0:
-    LPC_Order = 8
+if 1 < 0:
+    LPC_Order = 9
     FLAC_prediction = FLAC(LPC_Order)
 
     testInput = [1,3,5,7,9,8,9,10,9,20,9,21,9,22,9]
@@ -365,12 +366,13 @@ if 1 > 0:
     else:
         mem_out = [0] * (int_choice - 5)
 
-    print("mem_out = ", mem_out)
+    
 
     decodedInputs, mem_out = FLAC_prediction.Out(Encoded_inputs, mem_out, k_value, Encoding_choice, LPC_Cofficents[int_choice - 6])
 
     print("Original input = ",testInput)
     print("Decoded inputs = ", decodedInputs)
+    print("mem_out = ", mem_out)
 
 
 
