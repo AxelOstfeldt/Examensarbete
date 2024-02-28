@@ -6,6 +6,7 @@ from Rice import RiceCoding
 from Golomb import GolombCoding
 from Shorten import Shorten
 from LPC import LPC
+from FLAC import FLAC
 #from Adjacant import Shorten_adjacent
 
 import matplotlib.pyplot as plt
@@ -54,8 +55,23 @@ test = 25
 #Test 24. Test what k-value gives the best compression rate when using LPC and Rice codes for different orders of LPC
 #Test 25. Test what m-value gives the best compression rate when using LPC and Golomb codes for different order of LPC
 
+#FLAC tests
+#Test 31.
+
 
 #Initial values for tests
+if test == 31:
+    LPC_Order = 32
+    FLAC_prediction = FLAC(LPC_Order)
+    if LPC_Order > 4:
+        testMemory = [0]*LPC_Order
+    else:
+        testMemory = [0]*4
+    
+    
+
+
+
 if test == 25:
     uncoded_words = []
     orders = []
@@ -282,6 +298,11 @@ print("")
 for itter in range(len(test_data)):
     current_data = test_data[itter]
     print("Itteration #", itter)
+
+    if test == 31:
+        input = current_data[best_mic,:]#Input data used in test
+
+
 
         
     if test == 25:
@@ -850,6 +871,11 @@ for itter in range(len(test_data)):
 
 
 print("")
+if test == 31:
+    print("Test 31")
+    print("")
+
+
 
 if test == 25:
     print("Test 25")
