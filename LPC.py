@@ -40,7 +40,11 @@ class LPC:
         #This is beceause n will be equal to 0 and this can not be used to dicide t
         #In the case that all values are identical the autocorrelation should be =1 regardless of lag-value
         if n == 0:
-            t = 1
+            if lag == 0:
+                t = 1
+            else:
+                t = 0
+            
             n = 1
             
 
@@ -154,16 +158,16 @@ class LPC:
 #Test contant input array for LPC
     
 if 1 > 0:
-    order = 8
+    order = 3
     input_1 = [2]*32
     input_2 = input_1.copy()
     input_1.append(2)
     input_2.append(1)
-    input_3 = [1, 1, 1, 1, 1, 1, 1, 2]
+    input_3 = [1, 2, 3, 4, 5]
 
     LPC_predictor = LPC(order)
-    #Test_output = LPC_predictor.Coefficents(input_2)
-    for i in range(5):
+    Test_output = LPC_predictor.Coefficents(input_3)
+    for i in range(len(input_3)):
         Test_output = LPC_predictor.autocorrelation(input_3, i)
 
         print(Test_output)

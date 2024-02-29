@@ -32,7 +32,10 @@ class FLAC:
         #This is beceause n will be equal to 0 and this can not be used to dicide t
         #In the case that all values are identical the autocorrelation should be =1 regardless of lag-value
         if n == 0:
-            t = 1
+            if lag == 0:
+                t = 1
+            else:
+                t = 0
             n = 1
                 
         return t/n
