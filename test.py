@@ -7,12 +7,14 @@ from LPC import LPC
 
 
 if 1 > 0:
-    for i in range(1,5):
-        shorten_order = i
-        print("Shorten order ",i)
-        memory = [1,2,3,4,5,6,7,8,9,10]
-        testArray = np.array(memory[:shorten_order])
-        print("TestArray = ",testArray)
+
+    memory = [0]
+    firstInput = 1
+
+    new_memory = [firstInput]
+
+    memory = new_memory + memory[:-1]
+    print(memory)
 
 if 1 < 0:
 
