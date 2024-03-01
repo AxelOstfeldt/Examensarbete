@@ -1,6 +1,6 @@
 import numpy as np
 
-
+#Predcits mic value using value from previous mic
 
 class Adjacant:
 
@@ -22,7 +22,7 @@ class Adjacant:
 
         if self.order > 0:
             memory = [firstInput] + memory[:-1]
-        print("mem = ", memory)
+
 
         return firstResidual, memory, firstPrediction
     

@@ -7,7 +7,7 @@ from Golomb import GolombCoding
 from Shorten import Shorten
 from LPC import LPC
 from FLAC import FLAC
-#from Adjacant import Shorten_adjacent
+from Adjacant import Adjacant
 
 import matplotlib.pyplot as plt
 import time
@@ -32,10 +32,9 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 31
+test = 42
 
 #General tests
-#Test 0. Saves all new input data in an array and return it outside read data loop
 #Test 1. This test plots microphone data
 #Test 2. This test checks average binary len and max length of input data if every data point was written with minimal amount of bits
 #Test 4. Try Rice and Golom codes on original inputs
@@ -60,8 +59,38 @@ test = 31
 #Along with the compression rate and plotting the recreated signal
 #Test 32. Test the performans of RLE. Need to modify the FLAC function to force the choice of RLE
 
+#Adjacant tests
+#Test 41. Plot Residuals using adjacent for some set of mic
+#Test 42. See how well the Original inputs can be recreated usign Adjacant and Rice codes
+
 
 #Initial values for tests
+if test == 42:
+    order = 2
+    memoryIn = [0] * order
+    Adjacant_predictor = Adjacant(order)
+    code_words = []
+    uncoded_words = []
+    mic_start = 64#sugested 64
+    mic_end = 127#Sugested 127
+    k_array = []
+    AllInputs = []
+    sign = True
+
+
+if test == 41:
+    order = 2
+    memoryIn = [0] * order
+    Adjacant_predictor = Adjacant(order)
+    mic_residuals = []
+    mic_predictions = []
+    mic_start = 64#sugested 64
+    mic_end = 127#Sugested 127
+    for i in range(mic_start, mic_end+1):
+        mic_residuals.append([])
+        mic_predictions.append([])
+ 
+
 if test == 32:
     LPC_Order = 1
     FLAC_prediction = FLAC(LPC_Order)
@@ -285,7 +314,7 @@ if test == 1:
 #The data from the while loop is appended in the test_data array
 #It loops recomended_limit amount of time, this depends on the size of the sound file
 #23 was found to be a good number to use
-recomnded_limit = 20
+recomnded_limit = 1
 test_data = []
 data = np.empty((config.N_MICROPHONES, config.N_SAMPLES), dtype=np.float32)
 while w_limit < recomnded_limit:
@@ -323,6 +352,71 @@ print("")
 for itter in range(len(test_data)):
     current_data = test_data[itter]
     print("Itteration #", itter)
+
+    if test == 42:
+        #Crate an loop that determines how many sampels that are going to be looked at
+        for sample in range(256):
+            #print(sample)
+            #create an array to save all mic values for current data sample
+            testInputs = []
+            for microphone in range(mic_start, mic_end+1):
+                testIn = current_data[microphone,sample]
+                testInputs.append(testIn)
+
+            CurrentResiduals, memoryIn, CurrentPredictions = Adjacant_predictor.In(testInputs, memoryIn)
+
+            #Calculates the ideal k-value according to Rice theory
+            abs_res = np.absolute(CurrentResiduals)
+            abs_res_avg = np.mean(abs_res)
+            
+            #if abs_res_avg is less than 4.7 it would give a k value less than 1.
+            #k needs tobe a int > 1 and therefore if abs_res_avg < 5 k is set to 1
+            #OBS. 4.7 < abs_res_avg < 5 would be rounded of to k=1 so setting the limit to 5 works well
+            if abs_res_avg > 5:
+                k = int(round(math.log(math.log(2,10) * abs_res_avg,2)))
+            else:
+                k = 1
+            #Saves the current ideal k value to later use for decoding
+            
+            k_array.append(k)
+
+            #Rice codes the residuals from shorten and saves the code word in code_word
+            code_word = ""
+            uncoded_word = ""
+            for i in range(len(CurrentResiduals)):
+                Rice_coder = RiceCoding(k, sign)
+                n = int(CurrentResiduals[i])
+                kodOrd = Rice_coder.Encode(n)
+                code_word += kodOrd
+                
+                #Saves binary value of input, represented in 32 bits
+                uncoded_word += np.binary_repr(testInputs[i],32)
+
+            #Saves Rice coded residuals and binary input values arrays
+            code_words.append(code_word)
+            uncoded_words.append(uncoded_word)
+            AllInputs.append(testInputs)
+            
+
+
+
+    if test == 41:
+        #Crate an loop that determines how many sampels that are going to be looked at
+        for sample in range(100):
+            #print(sample)
+            #create an array to save all mic values for current data sample
+            testInputs = []
+            for microphone in range(mic_start, mic_end+1):
+                testIn = current_data[microphone,sample]
+                testInputs.append(testIn)
+
+            CurrentResiduals, memoryIn, CurrentPredictions = Adjacant_predictor.In(testInputs, memoryIn)
+
+            for i in range(len(CurrentResiduals)):
+                mic_residuals[i].append(CurrentResiduals[i])
+                mic_predictions[i].append(CurrentPredictions[i])
+
+
 
     if test == 32:
         testInput = current_data[silent_mic_2,:]#Input data used in test
@@ -918,6 +1012,135 @@ for itter in range(len(test_data)):
 
 
 print("")
+if test == 42:
+    print("Test 42")
+    print("")
+    #Just some checks on how k differs
+    if 1 < 0:
+        print("k array length = ", len(k_array))
+        print("Max k value = ", np.max(k_array))
+        print("Min k value = ", np.min(k_array))
+        print("k varriance = ",np.var(k_array))
+
+    compressionRateArray = []
+    recreatedInputs = []
+    
+    memoryOut = [0] * order
+    for i in range(len(code_words)):
+        #Calculate compression rate for current itteration
+        cr = len(code_words[i]) / len(uncoded_words[i])
+        #print("Compression rate for itteration ",i,"is :",cr)#Gives alot of print outs, better to comment out and just look at average
+        compressionRateArray.append(cr)
+        
+        #Decode the Rice coded residual
+        Rice_decoder = RiceCoding(k_array[i], sign)
+        currentResiduals = Rice_decoder.Decode(code_words[i])
+
+        CurrentRecreatedInputs, memoryOut, recreatedPredictions = Adjacant_predictor.Out(currentResiduals, memoryOut)
+        recreatedInputs.append(CurrentRecreatedInputs)
+
+    print("Average compression rate is: ", sum(compressionRateArray)/len(compressionRateArray))
+
+    print("All inputs = ", len(AllInputs[0]))
+    print("recreated inputs =", len(recreatedInputs[0]))
+
+    zero = []
+    og = []
+    re = []
+    for i in range(256):
+        current_re = recreatedInputs[i]
+        current_og = AllInputs[i]
+        og.append(current_og[0])
+        re.append(current_re[0])
+        zero.append(current_og[0] - current_re[0])
+
+    fig = plt.figure("Mic 64")
+            
+    ax = fig.add_subplot(311)
+    plt.plot(og)
+    
+    ax = fig.add_subplot(312)
+    plt.plot(re)
+    
+    ax = fig.add_subplot(313)
+    plt.plot(zero)
+
+    plt.show()
+        
+        
+
+    
+
+
+
+    if 1 < 0:#does not work currently
+
+        original_mic = []
+        recreated_mic = []
+        zero = []
+        for i in range(mic_start, mic_end+1):
+            original_mic.append([])
+            recreated_mic.append([])
+            zero.append([])
+
+        for i in range(len(recreatedInputs)):
+            CurrentRecreatedInput = recreatedInputs[i]
+            CurrentOriginalInput = AllInputs[i]
+            for microphone in range(len(CurrentRecreatedInput)):
+                original_mic[microphone].append(CurrentOriginalInput[microphone])
+                recreated_mic[microphone].append(CurrentRecreatedInput[microphone])
+                current_zero = CurrentOriginalInput[microphone] - CurrentRecreatedInput[microphone]
+                zero[microphone].append(current_zero)
+
+        #plots
+        for i in range(len(zero)):
+            fig_title = "Mic #" + str(i+64)
+            fig = plt.figure(fig_title)
+            
+            ax = fig.add_subplot(311)
+            plt.plot(original_mic[i])
+            
+            ax = fig.add_subplot(312)
+            plt.plot(recreated_mic[i])
+            
+            ax = fig.add_subplot(313)
+            plt.plot(zero[i])
+
+            plt.show()
+        
+        
+        
+
+
+    
+
+
+
+
+
+if test == 41:
+    print("Test 41")
+    print("")
+    plot_nr = 1
+    #loops thorugh the array with mic data, ploting each mic
+    #this is done in subplot so that each figure conatins 4 mic
+    for i in range(64):
+        fig = plt.figure(plot_nr)
+        sub_nr =(i%4 + 1)
+
+        ax = fig.add_subplot(220+sub_nr)
+        plt.plot(mic_residuals[i])
+        mic_title = "Mic #" + str(i+64)
+        ax.title.set_text(mic_title)
+        
+        if i % 4 == 3:
+        
+            plot_nr +=1
+            plt.show()#Each figure is plotted one at a time, to plot all at the same time move this outsie for-loop
+
+    
+
+
 if test == 32:
     print("Test 32")
     print("")
