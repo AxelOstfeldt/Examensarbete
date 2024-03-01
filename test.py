@@ -6,12 +6,49 @@ from Shorten import Shorten
 from LPC import LPC
 
 
-
 if 1 > 0:
+    for i in range(1,5):
+        shorten_order = i
+        print("Shorten order ",i)
+        memory = [1,2,3,4,5,6,7,8,9,10]
+        testArray = np.array(memory[:shorten_order])
+        print("TestArray = ",testArray)
 
-    i = 8
-    for i in range(8):
-        print(i)
+if 1 < 0:
+
+    LPC_order = 2
+
+    if LPC_order > 4:
+        memory = [0] * LPC_order
+    else:
+        memory = [0] * 4
+
+    print("Original memory = ", memory)
+
+    Rle_output = [1,2,3,4]#,5,6,7,8,9,10,12,14,16,17,23,24,27]
+
+    print("RLE values = ", Rle_output)
+
+    copy_RLE = Rle_output.copy()
+
+    if LPC_order > 4:
+        if len(Rle_output) > LPC_order:
+            memory = copy_RLE[len(Rle_output)-LPC_order:]
+        else:
+            memory = copy_RLE
+            while len(memory) < LPC_order:
+                memory.append(0)
+    else:
+        if len(Rle_output) > 4:
+            memory = copy_RLE[len(copy_RLE)-4:]
+        else:
+            memory = copy_RLE
+            while len(memory) < 4:
+                memory.append(0)
+        
+
+
+    print("New memory = ", memory)
 
 
 

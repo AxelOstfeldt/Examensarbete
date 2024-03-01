@@ -157,7 +157,7 @@ class LPC:
 
 #Test contant input array for LPC
     
-if 1 > 0:
+if 1 < 0:
     order = 3
     input_1 = [2]*32
     input_2 = input_1.copy()

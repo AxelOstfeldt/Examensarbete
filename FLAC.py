@@ -173,13 +173,26 @@ class FLAC:
         k_Choice = 0
         valueChoice = AllResidualsBinary[0]
         for i in range(1, len(AllResidualsBinary)):
+            #If specific compression algorithm needs to be tested it can be done with an if statement here
+            #Example, for test RLE only add the if statment "if i < 1:"
             if len(AllResidualsBinary[i]) < len(valueChoice):
                 valueChoice = AllResidualsBinary[i]
                 codeChoice = i
                 k_Choice = k_array[i]
 
+        #Only need to return the relevant LpcCofficents
+        #If RLE or Shorten have been used the cofficents are just an empty array
+        LpcCoffChoosen = []
+        #If LPC have been choosen the relevant cofficents are saved in the LpcCoffChoosen variabel
+        #LPC order 1 is equal to codeChoice = 6 therefore the if statement checks if codeChoice is larger than 6
+        if codeChoice > 5:
+            LpcCoffChoosen = LpcCoff[codeChoice-6]
         
-        return valueChoice, np.binary_repr(k_Choice,5), np.binary_repr(codeChoice,6), memory, LpcCoff
+            
+
+
+        
+        return valueChoice, np.binary_repr(k_Choice,5), np.binary_repr(codeChoice,6), memory, LpcCoffChoosen
 
     
     def Out(self, code_residuals, memory, k_value, code_choose, LpcCoff):
@@ -229,19 +242,40 @@ class FLAC:
                 #a value never was reapeted it occured once
                 for i in range(1 + int(RleCount, 2)):
                     DecodedValues.append(IntRelValue)
+            
+            #Uppdate memory
+            #Copy the decoded values to assign them to the memory array later
+            RleCopy = DecodedValues.copy()
+
+            #Assign the last values of the decoded values to the memory array
+            #Important that the size of the memory array stays the same
+            if len(RleCopy) > len(memory):
+                new_memory = RleCopy[len(RleCopy)-len(memory):]
+            #In the case that there is to few values among the decoded values pad the memory array with 0:s
+            else:
+                new_memory = RleCopy
+                while len(new_memory) < len(memory):
+                    new_memory.append(0)
+
+            #Assign the new_memory to memory
+            memory = new_memory
+         
 
         else:
             #In cases where RLE encoding is not used, the resiudals have been encoded using Rice codes
             #Decodes the Residuals with Rice.Decode
             Rice_decoder = RiceCoding(k_value, True)
             Residuals = Rice_decoder.Decode(code_residuals)
+            #The Shorten order will be 1 less than code_choose since code_choice 0 is for RLE
+            ShortenOrder = code_choose - 1
+            #The LPC order will be 5 less than code_choose since code_choice 0 is for RLE and 1-5 is for Shorten
+            CurrentLpcOrder = code_choose - 5
 
             #loops thorugh all the residuals to calculate the original input value
             for i in range(len(Residuals)):
                 #If code_choose is 1 to 5 Shorten have been used by FLAC
                 if code_choose < 6:
-                    #The Shorten order will be 1 less than code_choose since code_choice 0 is for RLE
-                    ShortenOrder = code_choose -1
+                    
 
                     #If shorten order does not match length of memeory array error should be raised
                     
@@ -251,18 +285,13 @@ class FLAC:
                         current_prediciton = 0
                     #In other cases the current predicition is calculated by multiplying the orders cofficents with the memory array
                     else:
-                        if len(memory) != ShortenOrder:
-                            raise ValueError(f"Memory lenght does not match order, memory = {memory} and order = {ShortenOrder}")
-                        current_prediciton = sum( np.array(self.ShortCoff[ShortenOrder]) * np.array(memory) )
+                        current_prediciton = sum( np.array(self.ShortCoff[ShortenOrder]) * np.array(memory[:ShortenOrder]) )
 
                 #If the code_choose is larger than 5 LPC have been used by FLAC
                 else:
-                     #If length of memeory array and cofficents array does not match an error should be raised
-                    if len(memory) != len(LpcCoff):
-                        raise ValueError(f"Memory and cofficents array lenght does not match, memory = {memory} and LPC cofficents = {LpcCoff}")
-
+                   
                     #Calculated the current_prediciton by multiplying the LpcCoff with the memory
-                    current_prediciton = sum( np.array(LpcCoff) * np.array(memory) )
+                    current_prediciton = sum( np.array(LpcCoff) * np.array(memory[:CurrentLpcOrder]) )
 
                 #Calculating current input by taking the prediciton and adding the current residual
                 current_input = current_prediciton + Residuals[i]
@@ -349,27 +378,6 @@ class FLAC:
         
 
 
-        
-#Test FLAC
-if 1 < 0:
-    testInput1 = [1]*10
-    testInput2 = [1]*9
-    testInput2.append(2)
-    
-    LPC_Order = 8
-    FLAC_prediction = FLAC(LPC_Order)
-
-    if LPC_Order > 4:
-        testMemory = [0]*LPC_Order
-    else:
-        testMemory = [0]*4
-
-    
-    Encoded_inputs, k_value, Encoding_choice, mem, LPC_Cofficents = FLAC_prediction.In(testInput2, testMemory)
-
-    
-
-
 
 
 #Test FLAC out
@@ -390,16 +398,14 @@ if 1 < 0:
     print("Encoding choice: ", Encoding_choice)
 
     int_choice = int(Encoding_choice, 2)
-    if int_choice < 2:
-        mem_out = []
-    elif int(Encoding_choice, 2) < 6:
-        mem_out = [0] * (int_choice - 1)
+    if LPC_Order > 4:
+        mem_out = [0]*LPC_Order
     else:
-        mem_out = [0] * (int_choice - 5)
+        mem_out = [0]*4
 
     
 
-    decodedInputs, mem_out = FLAC_prediction.Out(Encoded_inputs, mem_out, k_value, Encoding_choice, LPC_Cofficents[int_choice - 6])
+    decodedInputs, mem_out = FLAC_prediction.Out(Encoded_inputs, mem_out, k_value, Encoding_choice, LPC_Cofficents)
 
     print("Original input = ",testInput)
     print("Decoded inputs = ", decodedInputs)
