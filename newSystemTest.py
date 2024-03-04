@@ -74,7 +74,11 @@ test = 43
 
 #Initial values for tests
 if test == 51:
-    
+    ShortenOrder = 1
+    LpcOrder = 1
+    AdjacentOrder = 1
+    FlacOrder = 8
+
 
 if test == 46:
     memorysIn = [[],[0],[0,0],[0,0,0],[0,0,0,0]]
