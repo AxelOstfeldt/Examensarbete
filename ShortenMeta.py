@@ -1,12 +1,7 @@
-#Takes data as input
-#order of predicuter as order
-#memory as the last sampels beffore the input data
-#memory should be the length of order
-#if memory is the start of the data stream it should be an array of zeros
-class Shorten:
+class ShortenMeta:
 
     def __init__(self, order: int = 3):
-        #Order can only be between 0 and 3 for Shorten, and have to be an int
+        #Order can only be between 0 and 3 for Shorten, and have to be an in
         if not (0 <= order <= 3) or not isinstance(order, int):
             raise ValueError(f"Order can only have integer values between 0 and 3. Current value of is {order}")
 
@@ -50,7 +45,6 @@ class Shorten:
         if self.order != len(memory):
             raise ValueError(f"Order and memory length should match. Current values are: order = {self.order}, memory length = {len(memory)}")
         
-        predictions = []#only needed for testing?
         residuals = []
         
 
@@ -69,18 +63,17 @@ class Shorten:
                 memory[0] = input[i]
             
             
-            #saves residuals and prediction in their respective array
-            predictions.append(prediction)
+            #saves residuals 
             residuals.append(residual)
 
         #returns residual. memory. and prediction array
         #The memory array can then be used for the next set of data inputs if the come in blocks
-        return residuals, memory, predictions
+        return residuals, memory, self.order
 
 
     def Out(self, residuals, memory: list = [0] * 3):
         
-        predictions = []#only needed for testing?
+
         input = []
         
         #loops through the residuals array 
@@ -96,46 +89,8 @@ class Shorten:
             if self.order > 0:
                 memory[0] = current_input
             
-            #saves residuals and prediction in their respective array
+            #saves residuals 
             input.append(current_input)
-            predictions.append(prediction)
-
-        return input, memory, predictions
 
 
-
-
-#test
-if 1 < 0:
-    order = 3
-    Shorten_predictor = Shorten(order)
-
-    input = [1,2,3,4,5,6,7,8,9,9,9,10,11,12,5,4,3,2,1,0]
-    samples = [0] * 3
-
-    residuals, memory, predictions = Shorten_predictor.In(input, samples)
-
-
-        
-    print("Residuals: ",residuals)
-    print("Memory: ",memory)
-
-    sample_out = [0] * 3
-
-    output, memout, predout = Shorten_predictor.Out(residuals, sample_out)
-    print("Original inputs: ", input)
-    print("Original inputs decoded: ", output)
-    print("Memory of decoding: ", memout)
-    print("Predictions: ",predictions)
-    print("Preditions output: ", predout)
-    tester = 0
-    for i in range(len(input)):
-        if output[i] != input[i]:
-            print("Wrong recreation of input. Original input = ", input[i], "Recreated input = ", output[i])
-            tester = 1
-    if tester == 0:
-        print("All original inputs was succesfully recreated")
-
-
-
-
+        return input, memory
