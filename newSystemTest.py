@@ -32,7 +32,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 43
+test = 44
 
 #General tests
 #Test 1. This test plots microphone data
@@ -63,9 +63,32 @@ test = 43
 #Test 41. Plot Residuals using adjacent for some set of mic
 #Test 42. Recreate the original input, no encoding for residuals
 #Test 43. See how well the Original inputs can be recreated usign Adjacant and Rice codes
-
+#Test 44. Test different k-values to encode residuals. All residuals are encoded with differente k-values
 
 #Initial values for tests
+if test == 44:
+    order = 2
+    memoryIn = [0] * order
+    Adjacant_predictor = Adjacent(order)
+    code_words = []
+    uncoded_words = []
+    mic_start = 64#sugested 64
+    mic_end = 127#Sugested 127
+    k_array = []
+    AllInputs = []
+    sign = True
+    AllResiduals = []
+    k_start = 7
+    k_end = 16
+    k_ideal_array = []
+
+    for i in range(k_start, k_end+1):
+        code_words.append([])
+        k_array.append(i)
+
+
+
+
 if test == 43:
     order = 2
     memoryIn = [0] * order
@@ -87,7 +110,6 @@ if test == 42:
     AllInputs = []
     AllResiduals = []
     AllPredictions = []
-
 
 
 if test == 41:
@@ -364,6 +386,66 @@ print("")
 for itter in range(len(test_data)):
     current_data = test_data[itter]
     print("Itteration #", itter)
+
+
+    if test == 44:
+        #Crate an loop that determines how many sampels that are going to be looked at
+        abs_res = []
+        for sample in range(256):
+            #print(sample)
+            #create an array to save all mic values for current data sample
+            testInputs = []
+            for microphone in range(mic_start, mic_end+1):
+                testIn = current_data[microphone,sample]
+                testInputs.append(testIn)
+
+            CurrentResiduals, memoryIn, CurrentPredictions = Adjacant_predictor.In(testInputs, memoryIn)
+            
+
+            
+            
+
+            #Rice codes the residuals from shorten and saves the code word in code_word
+            code_word = []
+            for j in range(len(k_array)):
+                code_word.append("")
+            uncoded_word = ""
+            for i in range(len(CurrentResiduals)):
+                abs_res.append(abs(CurrentResiduals[i]))
+                n = int(CurrentResiduals[i])
+                for j in range(len(k_array)):
+                    k = k_array[j]
+
+                    Rice_coder = RiceCoding(k, sign)
+                    kodOrd = Rice_coder.Encode(n)
+                    code_word[j] += kodOrd
+                
+                #Saves binary value of input, represented in 32 bits
+                uncoded_word += np.binary_repr(testInputs[i],32)
+
+            #Saves Rice coded residuals and binary input values arrays
+            for j in range(len(k_array)):
+                code_words[j].append(code_word[j])
+
+            uncoded_words.append(uncoded_word)
+            AllInputs.append(testInputs)
+
+        #Calculates the ideal k-value according to Rice theory
+        abs_res_avg = np.mean(abs_res)
+        
+        #if abs_res_avg is less than 4.7 it would give a k value less than 1.
+        #k needs tobe a int > 1 and therefore if abs_res_avg < 5 k is set to 1
+        #OBS. 4.7 < abs_res_avg < 5 would be rounded of to k=1 so setting the limit to 5 works well
+        if abs_res_avg > 5:
+            k_ideal = int(round(math.log(math.log(2,10) * abs_res_avg,2)))
+        else:
+            k_ideal = 1
+        #Saves the current ideal k value
+        k_ideal_array.append(k_ideal)
+        
+ 
+
+
 
     if test == 43:
         #Crate an loop that determines how many sampels that are going to be looked at
@@ -1039,6 +1121,16 @@ for itter in range(len(test_data)):
 
 
 print("")
+if test == 44:
+    print("Test 44")
+    print("")
+    print("Code_words len = ", len(code_words))
+    for i in range(len(code_words)):
+        print("i = ", i)
+        print("Code words[i] len = ", len(code_words[i][0]))
+    print("Uncoded words len= ", len(uncoded_words[0]))
+
+
 if test == 43:
     print("Test 43")
     print("")
@@ -1193,18 +1285,7 @@ if test == 43:
             ax.title.set_text("Original input - recreated input")
 
             plt.show()
-
-
-    
-
-        
-        
-
-    
-
-
-
-   
+  
 
 if test == 42:
     print("Test 42")

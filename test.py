@@ -8,13 +8,10 @@ from LPC import LPC
 
 if 1 > 0:
 
-    memory = [0]
-    firstInput = 1
+    test_val = 5
+    print("test val = ", test_val)
 
-    new_memory = [firstInput]
-
-    memory = new_memory + memory[:-1]
-    print(memory)
+    print("abs test val = ",abs(test_val))
 
 if 1 < 0:
 
