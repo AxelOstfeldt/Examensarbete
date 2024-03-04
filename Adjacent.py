@@ -2,7 +2,7 @@ import numpy as np
 
 #Predcits mic value using value from previous mic
 
-class Adjacant:
+class Adjacent:
 
     def __init__(self, order):
         self.order = order
@@ -88,7 +88,8 @@ class Adjacant:
         if self.order > 0:
             memory = [firstInput] + memory[:-1]
 
-        return firstResidual, memory, firstPrediction
+
+        return firstInput, memory, firstPrediction
     
 
     def Out(self, residuals, memory):
@@ -99,6 +100,7 @@ class Adjacant:
         Inputs = [firstInput]
         Predictions = [firstPrediction]
 
+
         #Save the first value as the previous value and previous row value
         #Previous indicates the value of the previous mice
         #PreviousRow indicates the first value of the previous row
@@ -106,6 +108,7 @@ class Adjacant:
         Previous = firstInput
         PreviousRow = firstInput
         for i in range(1, len(residuals)):
+            
             #When i modulos 8 is equal to 0 it indicates that a new row has started (8 mics per row)
             if i % 8 == 0:
                 #The previous value is then taken from the previous row and not the previous mic
@@ -143,37 +146,56 @@ class Adjacant:
     
 if 1 < 0:
     import random
-    testInput = [1,2,3,4]
+    testInput = []
 
-    for i in range(64):
-        current_value = random.randint(0,3)
-        testInput.append(current_value)
+    for j in range(3):
+        testInput.append([])
+        for i in range(5):
+            current_value = random.randint(0,3)
+            testInput[j].append(current_value)
 
     print("Original inputs: ",testInput)
 
 
-    ShortenOrder = 4
+    ShortenOrder = 2
     memoryIn = [0] * ShortenOrder
-    Adjacant_predictor = Adjacant(ShortenOrder)
-    testResiduals, memoryIn, PredictionsIn = Adjacant_predictor.In(testInput, memoryIn)
-
-    print("memory in ",memoryIn)
-
     memoryOut = [0] * ShortenOrder
-    recreatedInputs, memoryOut, PredictionsOut = Adjacant_predictor.Out(testResiduals, memoryOut)
+    Adjacant_predictor = Adjacent(ShortenOrder)
+    TestResiduals = []
+    recreatedInputs = []
 
-    #print("Recreated inputs: ", recreatedInputs)
-    print("Memory out ", memoryOut)
+    for i in range(len(testInput)):
+        currentInput = testInput[i]
+        currentTestResiduals, memoryIn, currentPredictionsIn = Adjacant_predictor.In(currentInput, memoryIn)
+        TestResiduals.append(currentTestResiduals)
+        print("memory in: ",memoryIn)
 
+    for i in range(len(TestResiduals)):
+        currentResiduals = TestResiduals[i]
+        currentRecreatedInputs, memoryOut, PredictionsOut = Adjacant_predictor.Out(currentResiduals, memoryOut)
+        recreatedInputs.append(currentRecreatedInputs)
+        print("memory out: ",memoryOut)
+
+    
+
+    print("Recreated inputs: ",recreatedInputs)
 
     allCorrect = 0
     for i in range(len(recreatedInputs)):
-        if recreatedInputs[i] != testInput[i]:
-            print("Failed to recreate inputs at ", i,"Original input = ",testInput[i],"Recreted input = ",recreatedInputs[i])
-            allCorrect +=1
+        currentRecreation = recreatedInputs[i]
+        currentOriginal = testInput[i]
+        for j in range(len(currentRecreation)):
+            if currentRecreation[j] != currentOriginal[j]:
+                print("Failed to recreate inputs at sample ", i,"itteration ",j,"Original input = ",currentOriginal[j],"Recreted input = ",currentRecreation[j])
+                allCorrect +=1
 
     if allCorrect == 0:
         print("All inputs recreated correctly")
     else:
         print("Failed recreating ", allCorrect,"inputs")
+
+    
+
+
+
 

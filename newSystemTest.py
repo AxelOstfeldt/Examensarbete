@@ -7,7 +7,7 @@ from Golomb import GolombCoding
 from Shorten import Shorten
 from LPC import LPC
 from FLAC import FLAC
-from Adjacant import Adjacant
+from Adjacent import Adjacent
 
 import matplotlib.pyplot as plt
 import time
@@ -32,7 +32,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 42
+test = 43
 
 #General tests
 #Test 1. This test plots microphone data
@@ -61,14 +61,15 @@ test = 42
 
 #Adjacant tests
 #Test 41. Plot Residuals using adjacent for some set of mic
-#Test 42. See how well the Original inputs can be recreated usign Adjacant and Rice codes
+#Test 42. Recreate the original input, no encoding for residuals
+#Test 43. See how well the Original inputs can be recreated usign Adjacant and Rice codes
 
 
 #Initial values for tests
-if test == 42:
+if test == 43:
     order = 2
     memoryIn = [0] * order
-    Adjacant_predictor = Adjacant(order)
+    Adjacant_predictor = Adjacent(order)
     code_words = []
     uncoded_words = []
     mic_start = 64#sugested 64
@@ -77,11 +78,22 @@ if test == 42:
     AllInputs = []
     sign = True
 
+if test == 42:
+    order = 2
+    memoryIn = [0] * order
+    Adjacant_predictor = Adjacent(order)
+    mic_start = 64#sugested 64
+    mic_end = 127#Sugested 127
+    AllInputs = []
+    AllResiduals = []
+    AllPredictions = []
+
+
 
 if test == 41:
     order = 2
     memoryIn = [0] * order
-    Adjacant_predictor = Adjacant(order)
+    Adjacant_predictor = Adjacent(order)
     mic_residuals = []
     mic_predictions = []
     mic_start = 64#sugested 64
@@ -314,7 +326,7 @@ if test == 1:
 #The data from the while loop is appended in the test_data array
 #It loops recomended_limit amount of time, this depends on the size of the sound file
 #23 was found to be a good number to use
-recomnded_limit = 1
+recomnded_limit = 20
 test_data = []
 data = np.empty((config.N_MICROPHONES, config.N_SAMPLES), dtype=np.float32)
 while w_limit < recomnded_limit:
@@ -353,7 +365,7 @@ for itter in range(len(test_data)):
     current_data = test_data[itter]
     print("Itteration #", itter)
 
-    if test == 42:
+    if test == 43:
         #Crate an loop that determines how many sampels that are going to be looked at
         for sample in range(256):
             #print(sample)
@@ -398,6 +410,21 @@ for itter in range(len(test_data)):
             AllInputs.append(testInputs)
             
 
+    if test == 42:
+        #Crate an loop that determines how many sampels that are going to be looked at
+        for sample in range(256):
+            #print(sample)
+            #create an array to save all mic values for current data sample
+            testInputs = []
+            for microphone in range(mic_start, mic_end+1):
+                testIn = current_data[microphone,sample]
+                testInputs.append(testIn)
+
+            CurrentResiduals, memoryIn, CurrentPredictions = Adjacant_predictor.In(testInputs, memoryIn)
+            AllPredictions.append(CurrentPredictions)
+            AllResiduals.append(CurrentResiduals)
+            AllInputs.append(testInputs)
+            
 
 
     if test == 41:
@@ -1012,11 +1039,11 @@ for itter in range(len(test_data)):
 
 
 print("")
-if test == 42:
-    print("Test 42")
+if test == 43:
+    print("Test 43")
     print("")
     #Just some checks on how k differs
-    if 1 < 0:
+    if 1 > 0:
         print("k array length = ", len(k_array))
         print("Max k value = ", np.max(k_array))
         print("Min k value = ", np.min(k_array))
@@ -1036,87 +1063,205 @@ if test == 42:
         Rice_decoder = RiceCoding(k_array[i], sign)
         currentResiduals = Rice_decoder.Decode(code_words[i])
 
+        #Recreate the original inputs
         CurrentRecreatedInputs, memoryOut, recreatedPredictions = Adjacant_predictor.Out(currentResiduals, memoryOut)
         recreatedInputs.append(CurrentRecreatedInputs)
 
     print("Average compression rate is: ", sum(compressionRateArray)/len(compressionRateArray))
 
-    print("All inputs = ", len(AllInputs[0]))
-    print("recreated inputs =", len(recreatedInputs[0]))
 
-    zero = []
-    og = []
-    re = []
-    for i in range(256):
-        current_re = recreatedInputs[i]
-        current_og = AllInputs[i]
-        og.append(current_og[0])
-        re.append(current_re[0])
-        zero.append(current_og[0] - current_re[0])
+    #Store original and recreated inputs from each mic in an array
+    #Start by creating the arrays
+    mics_og = []#Original inputs
+    mics_re = []#Recreated inputs
+    mics_zero = []#Original inputs - recreated inputs (Hopefully equals 0)
+    for i in range(mic_end+1 - mic_start):
+        mics_og.append([])
+        mics_re.append([])
+        mics_zero.append([])
+    
+    allCorrect = 0#Tacks how many values was failed to be recreated
 
-    fig = plt.figure("Mic 64")
+    #loops thorugh each input/recreated input block
+    for i in range(len(recreatedInputs)):
+        #Loop thorugh each mic for the current block
+        currentRe = recreatedInputs[i]
+        currentOg = AllInputs[i]
+        for microphone in range(len(currentRe)):
+            currentMicOg = currentOg[microphone]
+            currentMicRe = currentRe[microphone]
+            currentMicZero = currentMicOg - currentMicRe
+
+            #While looping throug each recreated value also check if any value was failed to be recreated:
+            if currentMicOg != currentMicRe:
+                #Increament the amount of errors by 1
+                allCorrect +=1
+                #Print out where the failed recreaten where
+                print("Failed recrating value at mic ",microphone,"at data block ",i,"Original value = ",currentMicOg,"Recreated value = ",currentMicRe)
+
+
+            mics_og[microphone].append(currentMicOg)
+            mics_re[microphone].append(currentMicRe)
+            mics_zero[microphone].append(currentMicZero)
+    
+    if allCorrect == 0:
+        print("All values where recreated succesfully")
+    else:
+        print("Failed to recreate ",allCorrect,"values")
+
+    if 1 > 0:#Plots for report only
+
+        plt.figure("Test_43_Original_")
+        plt.plot(mics_og[0])
+
+        plt.figure("Test_43_recreated_")
+        plt.plot(mics_re[0])
+
+        plt.figure("Test_43_zero_")
+        plt.plot(mics_zero[0])
+
+        plt.show()
+
+    elif 1 < 0:#Some silent and blasted mics when looking at all mics
+
+        fig = plt.figure("Mic 19")
             
-    ax = fig.add_subplot(311)
-    plt.plot(og)
-    
-    ax = fig.add_subplot(312)
-    plt.plot(re)
-    
-    ax = fig.add_subplot(313)
-    plt.plot(zero)
-
-    plt.show()
+        ax = fig.add_subplot(311)
+        plt.plot(mics_og[19])
+        ax.title.set_text("Original input")
         
+        ax = fig.add_subplot(312)
+        plt.plot(mics_re[19])
+        ax.title.set_text("Recreated input")
         
+        ax = fig.add_subplot(313)
+        plt.plot(mics_zero[19])
+        ax.title.set_text("Original input - recreated input")
 
-    
+        plt.show()
 
+        fig = plt.figure("Mic 20")
+            
+        ax = fig.add_subplot(311)
+        plt.plot(mics_og[20])
+        ax.title.set_text("Original input")
+        
+        ax = fig.add_subplot(312)
+        plt.plot(mics_re[20])
+        ax.title.set_text("Recreated input")
+        
+        ax = fig.add_subplot(313)
+        plt.plot(mics_zero[20])
+        ax.title.set_text("Original input - recreated input")
 
+        plt.show()
 
-    if 1 < 0:#does not work currently
+        fig = plt.figure("Mic 217")
+            
+        ax = fig.add_subplot(311)
+        plt.plot(mics_og[217])
+        ax.title.set_text("Original input")
+        
+        ax = fig.add_subplot(312)
+        plt.plot(mics_re[217])
+        ax.title.set_text("Recreated input")
+        
+        ax = fig.add_subplot(313)
+        plt.plot(mics_zero[217])
+        ax.title.set_text("Original input - recreated input")
 
-        original_mic = []
-        recreated_mic = []
-        zero = []
-        for i in range(mic_start, mic_end+1):
-            original_mic.append([])
-            recreated_mic.append([])
-            zero.append([])
+        plt.show()
 
-        for i in range(len(recreatedInputs)):
-            CurrentRecreatedInput = recreatedInputs[i]
-            CurrentOriginalInput = AllInputs[i]
-            for microphone in range(len(CurrentRecreatedInput)):
-                original_mic[microphone].append(CurrentOriginalInput[microphone])
-                recreated_mic[microphone].append(CurrentRecreatedInput[microphone])
-                current_zero = CurrentOriginalInput[microphone] - CurrentRecreatedInput[microphone]
-                zero[microphone].append(current_zero)
+    else:
 
-        #plots
-        for i in range(len(zero)):
-            fig_title = "Mic #" + str(i+64)
+        #Loop thorugh each microphone and plots the original input, recreated input and zero (origina - recreated)
+        for i in range(mic_end + 1 - mic_start):
+
+            fig_title = "Mic #" + str(i+mic_start)
             fig = plt.figure(fig_title)
             
             ax = fig.add_subplot(311)
-            plt.plot(original_mic[i])
+            plt.plot(mics_og[i])
+            ax.title.set_text("Original input")
             
             ax = fig.add_subplot(312)
-            plt.plot(recreated_mic[i])
+            plt.plot(mics_re[i])
+            ax.title.set_text("Recreated input")
             
             ax = fig.add_subplot(313)
-            plt.plot(zero[i])
+            plt.plot(mics_zero[i])
+            ax.title.set_text("Original input - recreated input")
 
             plt.show()
-        
-        
-        
 
+
+    
+
+        
+        
 
     
 
 
 
+   
 
+if test == 42:
+    print("Test 42")
+    print("")
+    memoryOut = [0] * order
+    RecreatedInputs = []
+    
+    
+    #Create arrays for all mics
+    mic_og = []#Original inputs
+    mic_re = []#Recreated inputs
+    mic_zero = []#Original - recreated (Hopefully =0)
+    for i in range(mic_start, mic_end+1):
+        mic_og.append([])
+        mic_re.append([])
+        mic_zero.append([])
+
+    #Recreated the original inputs from residuals
+    for i in range(len(AllResiduals)):
+        CurrentRecreatedInputs, memoryOut, CurrentPredictions = Adjacant_predictor.Out(AllResiduals[i], memoryOut)
+        RecreatedInputs.append(CurrentRecreatedInputs)
+
+    #Sort all sampels from origianl and recreated so that each mic gets its own array
+    for i in range(len(AllInputs)):
+        CurrentOg = AllInputs[i]
+        CurrentRe = RecreatedInputs[i]
+
+        for microphone in range(mic_end+1 - mic_start):
+            CurrentMicOg = CurrentOg[microphone]
+            CurrentMicRe = CurrentRe[microphone]
+            CurrentZero = CurrentMicOg - CurrentMicRe
+
+            mic_og[microphone].append(CurrentMicOg)
+            mic_re[microphone].append(CurrentMicRe)
+            mic_zero[microphone].append(CurrentZero)
+
+
+
+    for i in range(mic_end + 1 - mic_start):
+
+        figTitle = "Mic #" + str(i+mic_start)
+
+
+        fig = plt.figure(figTitle)
+        ax = fig.add_subplot(311)
+        plt.plot(mic_og[i])
+        ax.title.set_text("Original inputs")
+
+        ax = fig.add_subplot(312)
+        plt.plot(mic_re[i])
+        ax.title.set_text("Recreated inputs")
+
+        ax = fig.add_subplot(313)
+        plt.plot(mic_zero[i])
+        ax.title.set_text("zero")
+        plt.show()
+    
 
 if test == 41:
     print("Test 41")
