@@ -31,8 +31,10 @@ silent_mic_2 = 19#From looking at the plots in test 1, allways [-1, 0]
 memorys = [[],[0],[0,0],[0,0,0]]
 
 
+
+
 #Choose what test to do:
-test = 44
+test = 43
 
 #General tests
 #Test 1. This test plots microphone data
@@ -63,9 +65,54 @@ test = 44
 #Test 41. Plot Residuals using adjacent for some set of mic
 #Test 42. Recreate the original input, no encoding for residuals
 #Test 43. See how well the Original inputs can be recreated usign Adjacant and Rice codes
-#Test 44. Test different k-values to encode residuals. All residuals are encoded with differente k-values
+#Test 44. Test different k-values to encode residuals from adjacent with Rice codes.
+#Test 45. Test different m-values to encode residuals from adjacent with Golomb codes.
+#Test 46. Test differente orders for Adjacent with Rice codes
+
+#Test that compare all algorithms
+#Test 51. Compare compression rate of all algorithms over 1 array of 64 mics
 
 #Initial values for tests
+if test == 51:
+    
+
+if test == 46:
+    memorysIn = [[],[0],[0,0],[0,0,0],[0,0,0,0]]
+    uncoded_words = []
+    mic_start = 64#sugested 64
+    mic_end = 127#Sugested 127
+    AllInputs = []
+    sign = True
+    AllResiduals = []
+    abs_res = []
+    
+
+    for i in range(5):
+        AllResiduals.append([])
+        abs_res.append([])
+
+
+if test == 45:
+    order = 2
+    memoryIn = [0] * order
+    Adjacant_predictor = Adjacent(order)
+    code_words = []
+    uncoded_words = []
+    mic_start = 64#sugested 64
+    mic_end = 127#Sugested 127
+    m_array = []
+    AllInputs = []
+    sign = True
+    AllResiduals = []
+    m_start = 280
+    m_end = 700
+    magnitude = 100
+
+    for i in range(m_start, m_end+1):
+        code_words.append([])
+        m_array.append(i*magnitude)
+
+
 if test == 44:
     order = 2
     memoryIn = [0] * order
@@ -78,20 +125,20 @@ if test == 44:
     AllInputs = []
     sign = True
     AllResiduals = []
-    k_start = 7
-    k_end = 16
+    k_start = 12
+    k_end = 22
     k_ideal_array = []
+    abs_res = []
 
     for i in range(k_start, k_end+1):
         code_words.append([])
         k_array.append(i)
 
 
-
-
 if test == 43:
     order = 2
-    memoryIn = [0] * order
+    memorysIn = [[],[0],[0,0],[0,0,0],[0,0,0,0]]
+    memoryIn = memorysIn[order]
     Adjacant_predictor = Adjacent(order)
     code_words = []
     uncoded_words = []
@@ -100,6 +147,7 @@ if test == 43:
     k_array = []
     AllInputs = []
     sign = True
+
 
 if test == 42:
     order = 2
@@ -387,10 +435,69 @@ for itter in range(len(test_data)):
     current_data = test_data[itter]
     print("Itteration #", itter)
 
+    if test == 46:
+        #Crate an loop that determines how many sampels that are going to be looked at
+        for sample in range(256):
+            #create an array to save all mic values for current data sample
+            testInputs = []
+            uncoded_word = ""
+            for microphone in range(mic_start, mic_end+1):
+                testIn = current_data[microphone,sample]
+                testInputs.append(testIn)
+                uncoded_word += np.binary_repr(abs(testIn),32)
+            
+            uncoded_words.append(uncoded_word)
+            AllInputs.append(testInputs)
+
+            for order in range(5):
+                Adjacent_predictor = Adjacent(order)
+                CurrentResiduals, memorysIn[order], CurrentPredictions = Adjacent_predictor.In(testInputs, memorysIn[order])
+                AllResiduals[order].append(CurrentResiduals)
+
+                for i in range(len(CurrentResiduals)):
+                    abs_res[order].append(abs(CurrentResiduals[i]))
+
+
+    if test == 45:
+        #Crate an loop that determines how many sampels that are going to be looked at
+        for sample in range(256):
+            #create an array to save all mic values for current data sample
+            testInputs = []
+            for microphone in range(mic_start, mic_end+1):
+                testIn = current_data[microphone,sample]
+                testInputs.append(testIn)
+
+            CurrentResiduals, memoryIn, CurrentPredictions = Adjacant_predictor.In(testInputs, memoryIn)
+            
+
+            #Golomb codes the residuals from shorten and saves the code word in code_word
+            code_word = []
+            for j in range(len(m_array)):
+                code_word.append("")
+            uncoded_word = ""
+
+            for i in range(len(CurrentResiduals)):
+                n = int(CurrentResiduals[i])
+                for j in range(len(m_array)):
+                    m = m_array[j]
+
+                    Golomb_coder = GolombCoding(m, sign)
+                    kodOrd = Golomb_coder.Encode(n)
+                    code_word[j] += kodOrd
+                
+                #Saves binary value of input, represented in 32 bits
+                uncoded_word += np.binary_repr(testInputs[i],32)
+
+            #Saves Rice coded residuals and binary input values arrays
+            for j in range(len(m_array)):
+                code_words[j].append(code_word[j])
+
+            uncoded_words.append(uncoded_word)
+            AllInputs.append(testInputs)
+
 
     if test == 44:
         #Crate an loop that determines how many sampels that are going to be looked at
-        abs_res = []
         for sample in range(256):
             #print(sample)
             #create an array to save all mic values for current data sample
@@ -429,24 +536,8 @@ for itter in range(len(test_data)):
 
             uncoded_words.append(uncoded_word)
             AllInputs.append(testInputs)
-
-        #Calculates the ideal k-value according to Rice theory
-        abs_res_avg = np.mean(abs_res)
-        
-        #if abs_res_avg is less than 4.7 it would give a k value less than 1.
-        #k needs tobe a int > 1 and therefore if abs_res_avg < 5 k is set to 1
-        #OBS. 4.7 < abs_res_avg < 5 would be rounded of to k=1 so setting the limit to 5 works well
-        if abs_res_avg > 5:
-            k_ideal = int(round(math.log(math.log(2,10) * abs_res_avg,2)))
-        else:
-            k_ideal = 1
-        #Saves the current ideal k value
-        k_ideal_array.append(k_ideal)
-        
+     
  
-
-
-
     if test == 43:
         #Crate an loop that determines how many sampels that are going to be looked at
         for sample in range(256):
@@ -508,7 +599,6 @@ for itter in range(len(test_data)):
             AllInputs.append(testInputs)
             
 
-
     if test == 41:
         #Crate an loop that determines how many sampels that are going to be looked at
         for sample in range(100):
@@ -524,7 +614,6 @@ for itter in range(len(test_data)):
             for i in range(len(CurrentResiduals)):
                 mic_residuals[i].append(CurrentResiduals[i])
                 mic_predictions[i].append(CurrentPredictions[i])
-
 
 
     if test == 32:
@@ -1121,14 +1210,206 @@ for itter in range(len(test_data)):
 
 
 print("")
+
+if test == 46:
+    print("Test 46")
+    print("")
+    k_array = []
+    code_words = []
+
+
+    for order in range(5):
+        #Create array to store code words
+        code_words.append([])
+
+        #Calculates the ideal k-value according to Rice theory
+        Current_abs_res = abs_res[order]
+        abs_res_avg = np.mean(abs_res)
+            
+        #if abs_res_avg is less than 4.7 it would give a k value less than 1.
+        #k needs tobe a int > 1 and therefore if abs_res_avg < 5 k is set to 1
+        #OBS. 4.7 < abs_res_avg < 5 would be rounded of to k=1 so setting the limit to 5 works well
+        if abs_res_avg > 5:
+            k = int(round(math.log(math.log(2,10) * abs_res_avg,2)))
+        else:
+            k = 1
+        #Saves the current ideal k value to later use for decoding
+        
+        k_array.append(k)
+
+        #All residuals for current order
+        OrderResiduals = AllResiduals[order]
+        for i in range(len(OrderResiduals)):
+            CurRes = OrderResiduals[i]
+            code_word = ""
+            for j in range(len(CurRes)):
+                Rice_coder = RiceCoding(k, sign)
+                n = int(CurRes[j])
+                kodOrd = Rice_coder.Encode(n)
+                code_word += kodOrd
+            code_words[order].append(code_word)
+
+
+    print("k_array = ",k_array)
+    memorysOut = [[],[0],[0,0],[0,0,0],[0,0,0,0]]
+
+
+
+
+
+    
+    #Calculate average compression rate for all orders
+    cr = []
+    avg_cr = []
+    #loop thorugh all orders
+    for order in range(5):
+        #Calculate cr for each code word in that order
+        cr.append([])
+        current_code_words = code_words[order]
+        for i in range((len(current_code_words))):
+            current_cr = len(current_code_words[i]) / len(uncoded_words[i])
+            cr[order].append(current_cr)
+
+        #Calculate the avg cr for the current order
+        avg_cr.append(sum(cr[order]) / len(cr[order]))
+
+    print("")
+    print("Average cr = ", avg_cr)
+
+
+if test == 45:
+    print("Test 45")
+    print("")
+    #Create array for compression rate for each m value
+    cr = []
+    avg_cr = []
+    for i in range(len(m_array)):
+        cr.append([])
+
+    #Calculate compression rate for each data block and m-value
+    for i in range(len(code_words)):
+        #Take the code words that belong to a specific m-value
+        m_code_words = code_words[i]
+
+        for j in range(len(m_code_words)):
+            #calculate the compression rate for the current code word
+            current_cr = len(m_code_words[j]) / len(uncoded_words[j])
+            #save the cr in the array for the k value
+            cr[i].append(current_cr)
+
+        #calculate average compression rate forthe current k value
+        current_avg_cr = sum(cr[i]) / len(cr[i])
+
+        avg_cr.append(current_avg_cr)
+
+    #print("m-values: ", m_array)
+    print("")
+    #print("Average compression rate: ", avg_cr)
+    print("")
+    print("")
+    
+
+    m_best = m_start
+    cr_best = avg_cr[0]
+
+    for i in range(1, len(m_array)):
+        if avg_cr[i] < cr_best:
+            cr_best = avg_cr[i]
+            m_best = m_array[i]
+    
+    print("")
+    print("Best m-values = ", m_best,"Gives compression rate, cr = ", cr_best)
+
+
+
+    
+    
+    plt.figure("Test_45_")
+
+    plt.plot(m_array, avg_cr, "o")
+
+        
+        
+    plt.xlabel("m-value")
+    plt.ylabel("Average compression ratio")
+    plt.legend()
+
+    plt.show()
+
+
 if test == 44:
     print("Test 44")
     print("")
-    print("Code_words len = ", len(code_words))
+    #calculate ideal k_value
+    #Calculates the ideal k-value according to Rice theory
+    abs_res_avg = np.mean(abs_res)
+    
+    #if abs_res_avg is less than 4.7 it would give a k value less than 1.
+    #k needs tobe a int > 1 and therefore if abs_res_avg < 5 k is set to 1
+    #OBS. 4.7 < abs_res_avg < 5 would be rounded of to k=1 so setting the limit to 5 works well
+    if abs_res_avg > 5:
+        k_ideal = int(round(math.log(math.log(2,10) * abs_res_avg,2)))
+    else:
+        k_ideal = 1
+    
+
+    #Create array for compression rate for each k value
+    cr = []
+    avg_cr = []
+    for i in range(len(k_array)):
+        cr.append([])
+
+    #Calculate compression rate for each data block and k-value
     for i in range(len(code_words)):
-        print("i = ", i)
-        print("Code words[i] len = ", len(code_words[i][0]))
-    print("Uncoded words len= ", len(uncoded_words[0]))
+        #Take the code words that belong to a specific k-value
+        k_code_words = code_words[i]
+
+        for j in range(len(k_code_words)):
+            #calculate the compression rate for the current code word
+            current_cr = len(k_code_words[j]) / len(uncoded_words[j])
+            #save the cr in the array for the k value
+            cr[i].append(current_cr)
+
+        #calculate average compression rate forthe current k value
+        current_avg_cr = sum(cr[i]) / len(cr[i])
+
+        avg_cr.append(current_avg_cr)
+
+    print("k-values: ", k_array)
+    print("")
+    print("Average compression rate: ", avg_cr)
+    print("")
+    print("")
+    
+
+    k_best = k_start
+    cr_best = avg_cr[0]
+
+    for i in range(1, len(k_array)):
+        if avg_cr[i] < cr_best:
+            cr_best = avg_cr[i]
+            k_best = i + k_start
+    
+    print("Ideal k-value = ", k_ideal, "Gives compression rate, cr = ",avg_cr[k_ideal - k_start] )
+    print("")
+    print("Best k-values = ", k_best,"Gives compression rate, cr = ", cr_best)
+
+
+
+    
+    
+
+    plt.figure("Test_44_")
+
+    plt.plot(k_array, avg_cr, "o")
+
+        
+        
+    plt.xlabel("k-value")
+    plt.ylabel("Average compression ratio")
+    plt.legend()
+
+    plt.show()
 
 
 if test == 43:
@@ -1144,7 +1425,8 @@ if test == 43:
     compressionRateArray = []
     recreatedInputs = []
     
-    memoryOut = [0] * order
+    memorysOut = [[],[0],[0,0],[0,0,0],[0,0,0,0]]
+    memoryOut = memorysOut[order]
     for i in range(len(code_words)):
         #Calculate compression rate for current itteration
         cr = len(code_words[i]) / len(uncoded_words[i])
@@ -1363,8 +1645,6 @@ if test == 41:
         
             plot_nr +=1
             plt.show()#Each figure is plotted one at a time, to plot all at the same time move this outsie for-loop
-
-    
 
 
 if test == 32:
