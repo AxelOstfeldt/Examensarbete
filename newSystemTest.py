@@ -34,7 +34,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 43
+test = 51
 
 #General tests
 #Test 1. This test plots microphone data
@@ -46,8 +46,8 @@ test = 43
 #Test 12. Plots results for differente orders of Shorten
 #Test 13. This test tries different k-values in Rice codes for all orders of shorten over several data blocks.
 #Test 14. Test if Shorten using Golomb code can correctly decode the input values
-#Test 15. This test tries different m-values in Golomb codes for all orders of shorten. 
-#Can be done over several data blocks in theory but computer dont seem to manage it 
+#Test 15. This test tries different m-values in Golomb codes for all orders of shorten.
+#Test 16. Test what order of Shorten with Rice codes gives best compression rate over a full array of mics.
 
 #LPC tests
 #Test 21. Test if LPC using Rice code can correctly decode the input values
@@ -55,6 +55,7 @@ test = 43
 #Test 23. Test what order of LPC gives best result, also test how large of an order it is possible to try
 #Test 24. Test what k-value gives the best compression rate when using LPC and Rice codes for different orders of LPC
 #Test 25. Test what m-value gives the best compression rate when using LPC and Golomb codes for different order of LPC
+#Test 26. Test what order of LPC with rice codes gives the best compression rate over a full array of mics
 
 #FLAC tests
 #Test 31. Runs several itteration of FLAC and prints out what gave the best compression rate for that itteration. 
@@ -74,10 +75,65 @@ test = 43
 
 #Initial values for tests
 if test == 51:
+    
+    
+    
+    
+    
+
+    #Shorten initial values
     ShortenOrder = 1
-    LpcOrder = 1
+    Shorten_predictor = Shorten(ShortenOrder)
+    memoryShorten = []
+    CodeWordsShorten = []
+    k_Shorten = []
+
+    #LPC initial values
+    LpcOrder = 5
+    LPC_predictor = LPC(LpcOrder)
+    #Lpc meta data is cofficents represented in 10 bits for each coefficent
+    MetaLpc = np.binary_repr(0,10*LpcOrder)
+    memoryLpc = []
+    CodeWordsLPC = []
+    k_Lpc = []
+
+    #FLAC initial values
+    FlacOrder = 10
+    #Meta data for flac is what type of predictor have benn used, represented in binary values up to 16 (When flac is up to orde 10 LPC),
+    #And cofficents (Represented in binary values of 10 bits for each coefficent)
+    MetaFlac = np.binary_repr(0,16+(FlacOrder*10))
+    FLAC_predictor = FLAC(FlacOrder)
+    memoryFlac = []
+    codeWordsFLAC = []
+    k_Flac = []
+
+    #Adjacent initial values
     AdjacentOrder = 1
-    FlacOrder = 8
+    Adjacent_predictor = Adjacent(AdjacentOrder)
+
+
+
+    AllCodeWords = []
+    UncodedWords = []
+    memorysIn = []
+    sign = True
+    k_array = []
+
+    mic_start = 64
+    mic_end = 127
+    LPC_predictor = LPC(Order)
+
+    #To account for extra length needed with more coefficents as meta data the binary_cofficent variable is created
+    #This assumes that each cofficent can be represented as 10 bits
+    binary_cofficents = np.binary_repr(0,Order*10)
+    for i in range(mic_start, mic_end+1):
+        AllCodeWords.append([])
+        memorysIn.append([0]*Order)
+        k_array.append([])
+        UncodedWords.append([])
+
+
+
 
 
 if test == 46:
@@ -209,6 +265,27 @@ if test == 31:
     AllTestInputs = []
     
     
+if test == 26:
+    Order = 8
+    AllCodeWords = []
+    UncodedWords = []
+    memorysIn = []
+    sign = True
+    k_array = []
+    mic_start = 64
+    mic_end = 127
+    all_k = []
+    LPC_predictor = LPC(Order)
+    #To account for extra length needed with more coefficents as meta data the binary_cofficent variable is created
+    #This assumes that each cofficent can be represented as 10 bits
+    binary_cofficents = np.binary_repr(0,Order*10)
+    for i in range(mic_start, mic_end+1):
+        AllCodeWords.append([])
+        memorysIn.append([0]*Order)
+        k_array.append([])
+        UncodedWords.append([])
+
+
 if test == 25:
     uncoded_words = []
     orders = []
@@ -300,6 +377,27 @@ if test == 21:
     cof_array = []
     k_array = []
     sign = True
+
+
+if test == 16:
+    Order = 1
+    AllCodeWords = []
+    UncodedWords = []
+    memorysIn = []
+    sign = True
+    k_array = []
+    mic_start = 64
+    mic_end = 127
+    all_k = []
+    Shorten_predictor = Shorten(Order)
+    for i in range(mic_start, mic_end+1):
+        AllCodeWords.append([])
+        if Order > 0:
+            memorysIn.append([0]*Order)
+        else:
+            memorysIn.append([])
+        k_array.append([])
+        UncodedWords.append([])
 
    
 if test == 15:
@@ -647,6 +745,60 @@ for itter in range(len(test_data)):
         LPC_Cofficents.append(Current_LPC_Cofficents)
         AllTestInputs.append(testInput)
 
+
+    if test == 26:
+        inputs = []
+        for microphone in range(mic_start, mic_end + 1):
+            inputNow = current_data[microphone,:]
+            #Save the data for all the microphones of the array to be examined
+            inputs.append(inputNow)
+
+            uncoded_word = ""
+            for i in range(len(inputNow)):
+                #Saves binary value of input, represented in 32 bits
+                uncoded_word += np.binary_repr(abs(inputNow[i]),32)
+            #Saves the full binary value of the uncoded word in an array
+            UncodedWords[microphone-mic_start].append(uncoded_word)
+            
+        
+
+        for mic in range(len(inputs)):
+            currentInput = inputs[mic]
+            currentCofficents, currentResidual, memorysIn[mic], currentPrediction = LPC_predictor.In(currentInput, memorysIn[mic])
+
+            #Calculates the ideal k_vaule for the Shorten residuals
+            abs_res = np.absolute(currentResidual)
+            abs_res_avg = np.mean(abs_res)
+            #if abs_res_avg is less than 4.7 it would give a k value less than 1.
+            #k needs tobe a int > 1. All abs_res_avg values bellow 6.64 will be set to 1 to avoid this issue
+            if abs_res_avg > 6.64:
+                k = int(round(math.log(math.log(2,10) * abs_res_avg,2)))
+            else:
+                k = 1
+
+            #from testing it appears that the actual ideal k-value is larger by +1 than theory suggest,
+            #atleast for larger k-value. The exact limit is unknown but it have been true for all test except for when the lowest k, k =1 is best.
+            #Therefore th formula have been modified to increment k by 1 if k is larger than 1.
+            if k > 1:
+                k +=1
+            #Appends the ideal k vaule in the array matching the correct Shorten order
+            k_array[mic].append(k)
+            all_k.append(k)
+
+            #Rice code the residuals using the calculated k-value
+            
+            #Each code word will start with the cofficents
+            #This takes into account that higher order of LPC will need more meta data sent
+            code_word = binary_cofficents
+            for i in range(len(currentResidual)):
+                Rice_coder = RiceCoding(k, sign)
+                n = int(currentResidual[i])
+                kodOrd = Rice_coder.Encode(n)
+                code_word += kodOrd
+                
+            #Saves Rice coded residuals
+            AllCodeWords[mic].append(code_word)
+
         
     if test == 25:
     
@@ -866,6 +1018,58 @@ for itter in range(len(test_data)):
         #Saves Rice coded residuals and binary input values arrays
         code_words.append(code_word)
         uncoded_words.append(uncoded_word)
+
+
+    if test == 16:
+        inputs = []
+        for microphone in range(mic_start, mic_end + 1):
+            inputNow = current_data[microphone,:]
+            #Save the data for all the microphones of the array to be examined
+            inputs.append(inputNow)
+
+            uncoded_word = ""
+            for i in range(len(inputNow)):
+                #Saves binary value of input, represented in 32 bits
+                uncoded_word += np.binary_repr(abs(inputNow[i]),32)
+            #Saves the full binary value of the uncoded word in an array
+            UncodedWords[microphone-mic_start].append(uncoded_word)
+            
+
+
+        for mic in range(len(inputs)):
+            currentInput = inputs[mic]
+            currentResidual, memorysIn[mic], currentPrediction = Shorten_predictor.In(currentInput, memorysIn[mic])
+
+            #Calculates the ideal k_vaule for the Shorten residuals
+            abs_res = np.absolute(currentResidual)
+            abs_res_avg = np.mean(abs_res)
+            #if abs_res_avg is less than 4.7 it would give a k value less than 1.
+            #k needs tobe a int > 1. All abs_res_avg values bellow 6.64 will be set to 1 to avoid this issue
+            if abs_res_avg > 6.64:
+                k = int(round(math.log(math.log(2,10) * abs_res_avg,2)))
+            else:
+                k = 1
+
+            #from testing it appears that the actual ideal k-value is larger by +1 than theory suggest,
+            #atleast for larger k-value. The exact limit is unknown but it have been true for all test except for when the lowest k, k =1 is best.
+            #Therefore th formula have been modified to increment k by 1 if k is larger than 1.
+            if k > 1:
+                k +=1
+            #Appends the ideal k vaule in the array matching the correct Shorten order
+            k_array[mic].append(k)
+            all_k.append(k)
+
+            #Rice code the residuals using the calculated k-value
+
+            code_word = ""
+            for i in range(len(currentResidual)):
+                Rice_coder = RiceCoding(k, sign)
+                n = int(currentResidual[i])
+                kodOrd = Rice_coder.Encode(n)
+                code_word += kodOrd
+                
+            #Saves Rice coded residuals
+            AllCodeWords[mic].append(code_word)
 
 
     #Tries different m-values in Golob codes for all orders of shorten in order to find which gives the best cr
@@ -1816,6 +2020,34 @@ if test == 31:
     LPC_Cofficents.append(Current_LPC_Cofficents)
 
 
+if test == 26:
+    print("Test 26")
+    print("")
+    if 1 < 0:#Some info about k values
+        for i in range(len(k_array)):
+            currentKs = k_array[i]
+            print("Current max k = ", np.max(currentKs))
+            print("Current min k = ", np.min(currentKs))
+            print("Current k varriance = ", np.var(currentKs))
+
+
+    print("all_k max = ", np.max(all_k))
+    print("all_k mix = ", np.min(all_k))
+    print("all_k varraince = ", np.var(all_k))
+
+    all_cr = []
+    #Loops thorugh all mics to get the code_words for the specific mics
+    for mic in range(mic_end + 1 - mic_start):
+        encodedMic = AllCodeWords[mic]
+        uncodedMic = UncodedWords[mic]
+        #loops thorugh all data blocks to get the compression rate of the code word for that data block
+        for itteration in range(len(encodedMic)):
+            cr = len(encodedMic[itteration]) / len(uncodedMic[itteration])
+            all_cr.append(cr)
+
+    print("Average compression rate for LPC order ",Order,"is: cr = ", sum(all_cr) / len(all_cr))
+
+
 if test == 25:
     print("Test 25")
     print("")
@@ -2464,6 +2696,34 @@ if test == 21:
             ax.title.set_text("Original input values - decoded input values")
 
             plt.show()
+
+
+if test == 16:
+    print("Test 16")
+    print("")
+    if 1 > 0:#Some info about k values
+        for i in range(len(k_array)):
+            currentKs = k_array[i]
+            print("Current max k = ", np.max(currentKs))
+            print("Current min k = ", np.min(currentKs))
+            print("Current k varriance = ", np.var(currentKs))
+
+
+        print("all_k max = ", np.max(all_k))
+        print("all_k mix = ", np.min(all_k))
+        print("all_k varraince = ", np.var(all_k))
+
+    all_cr = []
+    #Loops thorugh all mics to get the code_words for the specific mics
+    for mic in range(mic_end + 1 - mic_start):
+        encodedMic = AllCodeWords[mic]
+        uncodedMic = UncodedWords[mic]
+        #loops thorugh all data blocks to get the compression rate of the code word for that data block
+        for itteration in range(len(encodedMic)):
+            cr = len(encodedMic[itteration]) / len(uncodedMic[itteration])
+            all_cr.append(cr)
+
+    print("Average compression rate for Shorten order ",Order,"is: cr = ", sum(all_cr) / len(all_cr))
 
 
 #Test compression ratios for all orders of Shorten using Golomb codes for some m-values
