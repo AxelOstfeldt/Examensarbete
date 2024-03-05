@@ -48,6 +48,7 @@ test = 51
 #Test 14. Test if Shorten using Golomb code can correctly decode the input values
 #Test 15. This test tries different m-values in Golomb codes for all orders of shorten.
 #Test 16. Test what order of Shorten with Rice codes gives best compression rate over a full array of mics.
+#Test 17. Test how long time it takes Shorten to 
 
 #LPC tests
 #Test 21. Test if LPC using Rice code can correctly decode the input values
@@ -685,18 +686,6 @@ for itter in range(len(test_data)):
             #Saves Rice coded residuals
             CodeWordsAdjacent.append(code_word)
             UncodedWordsAdjacent.append(uncoded_word)
-
-
-        
-        
-            
-
-
-
-            
-        
-
-
 
 
     if test == 46:
@@ -1649,11 +1638,6 @@ if test == 51:
     
     print("Average compression rate for Adjacent is: cr = ", sum(Adjacent_cr)/len(Adjacent_cr))
     print("")
-
-
-
-
-
 
 
 if test == 46:
