@@ -110,26 +110,31 @@ if test == 51:
     #Adjacent initial values
     AdjacentOrder = 1
     Adjacent_predictor = Adjacent(AdjacentOrder)
+    memoryAdjacent = []
+    CodeWordsAdjacent = []
+    k_Adjacent = []
 
 
 
-    AllCodeWords = []
+    #Generatl initial values
     UncodedWords = []
-    memorysIn = []
     sign = True
-    k_array = []
-
     mic_start = 64
     mic_end = 127
-    LPC_predictor = LPC(Order)
 
-    #To account for extra length needed with more coefficents as meta data the binary_cofficent variable is created
-    #This assumes that each cofficent can be represented as 10 bits
-    binary_cofficents = np.binary_repr(0,Order*10)
     for i in range(mic_start, mic_end+1):
-        AllCodeWords.append([])
-        memorysIn.append([0]*Order)
-        k_array.append([])
+        k_Shorten.append([])
+        k_Lpc.append([])
+        k_Flac.append([])
+
+        CodeWordsShorten.append([])
+        CodeWordsLPC.append([])
+        codeWordsFLAC.append([])
+
+        memoryShorten.append([0]*ShortenOrder)
+        memoryLpc.append([0]*LpcOrder)
+        memoryFlac.append([0]*FlacOrder)
+
         UncodedWords.append([])
 
 
