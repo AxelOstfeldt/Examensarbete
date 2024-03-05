@@ -75,11 +75,6 @@ test = 51
 
 #Initial values for tests
 if test == 51:
-    
-    
-    
-    
-    
 
     #Shorten initial values
     ShortenOrder = 1
@@ -136,6 +131,7 @@ if test == 51:
         memoryFlac.append([0]*FlacOrder)
 
         UncodedWords.append([])
+
 
 
 
@@ -541,6 +537,24 @@ print("")
 for itter in range(len(test_data)):
     current_data = test_data[itter]
     print("Itteration #", itter)
+
+
+    if test == 51:
+        inputs = []
+        for microphone in range(mic_start, mic_end + 1):
+            inputNow = current_data[microphone,:]
+            #Save the data for all the microphones of the array to be examined
+            inputs.append(inputNow)
+
+            uncoded_word = ""
+            for i in range(len(inputNow)):
+                #Saves binary value of input, represented in 32 bits
+                uncoded_word += np.binary_repr(abs(inputNow[i]),32)
+            #Saves the full binary value of the uncoded word in an array
+            UncodedWords[microphone-mic_start].append(uncoded_word)
+
+
+
 
     if test == 46:
         #Crate an loop that determines how many sampels that are going to be looked at
