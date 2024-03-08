@@ -34,7 +34,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 17
+test = 28
 
 #General tests
 #Test 1. This test plots microphone data
@@ -48,7 +48,8 @@ test = 17
 #Test 14. Test if Shorten using Golomb code can correctly decode the input values
 #Test 15. This test tries different m-values in Golomb codes for all orders of shorten.
 #Test 16. Test what order of Shorten with Rice codes gives best compression rate over a full array of mics.
-#Test 17. Test how long time it takes Shorten to decompress a full array of mics and recreate original inputs
+#Test 17. Test how long time it takes Shorten to decompress a full array of mics and recreate original inputs when using Rice codes
+#Test 18. Test how long time it takes Shorten to decompress a full array of mics and recreate original inputs when using Golomb codes
 
 #LPC tests
 #Test 21. Test if LPC using Rice code can correctly decode the input values
@@ -57,11 +58,14 @@ test = 17
 #Test 24. Test what k-value gives the best compression rate when using LPC and Rice codes for different orders of LPC
 #Test 25. Test what m-value gives the best compression rate when using LPC and Golomb codes for different order of LPC
 #Test 26. Test what order of LPC with rice codes gives the best compression rate over a full array of mics
+#Test 27. Test how long time it takes LPC to decompress a full array of mics and recreate original inputs when using Rice codes
+#Test 28. Test how long time it takes LPC to decompress a full array of mics and recreate original inputs when using Golomb codes
 
 #FLAC tests
 #Test 31. Runs several itteration of FLAC and prints out what gave the best compression rate for that itteration. 
 #Along with the compression rate and plotting the recreated signal
 #Test 32. Test the performans of RLE. Need to modify the FLAC function to force the choice of RLE
+#Test 33. Time how long time it takes for FLAC to recreate a full array off microphone values
 
 #Adjacant tests
 #Test 41. Plot Residuals using adjacent for some set of mic
@@ -70,6 +74,8 @@ test = 17
 #Test 44. Test different k-values to encode residuals from adjacent with Rice codes.
 #Test 45. Test different m-values to encode residuals from adjacent with Golomb codes.
 #Test 46. Test differente orders for Adjacent with Rice codes
+#Test 47. Time how long time it takes for FLAC to recreate a full array off microphone values using Rice codes
+#Test 48. Time how long time it takes for FLAC to recreate a full array off microphone values using Golomb codes
 
 #Test that compare all algorithms
 #Test 51. Compare compression rate of all algorithms over 1 array of 64 mics, adjusted formula for k-value by incrementing it by 1
@@ -408,7 +414,46 @@ if test == 31:
     AllMemorys = []
     LPC_Cofficents = []
     AllTestInputs = []
-    
+
+
+
+if test == 28:
+    Order = 5
+    AllCodeWords = []
+    AllCofficents = []
+    UncodedWords = []
+    OriginalInputs = []
+    memorysIn = []
+    sign = True
+    m_array = []
+    mic_start = 64
+    mic_end = 127
+    LPC_predictor = LPC(Order)
+    for i in range(mic_start, mic_end+1):
+        AllCodeWords.append([])
+        memorysIn.append([0]*Order)
+        m_array.append([])
+        UncodedWords.append([])
+
+
+if test == 27:
+    Order = 5
+    AllCodeWords = []
+    AllCofficents = []
+    UncodedWords = []
+    OriginalInputs = []
+    memorysIn = []
+    sign = True
+    k_array = []
+    mic_start = 64
+    mic_end = 127
+    LPC_predictor = LPC(Order)
+    for i in range(mic_start, mic_end+1):
+        AllCodeWords.append([])
+        memorysIn.append([0]*Order)
+        k_array.append([])
+        UncodedWords.append([])
+
     
 if test == 26:
     Order = 8
@@ -522,6 +567,48 @@ if test == 21:
     cof_array = []
     k_array = []
     sign = True
+
+
+if test == 18:
+    Order = 1
+    AllCodeWords = []
+    UncodedWords = []
+    OriginalInputs = []
+    memorysIn = []
+    sign = True
+    m_array = []
+    mic_start = 64
+    mic_end = 127
+    Shorten_predictor = Shorten(Order)
+    for i in range(mic_start, mic_end+1):
+        AllCodeWords.append([])
+        if Order > 0:
+            memorysIn.append([0]*Order)
+        else:
+            memorysIn.append([])
+        m_array.append([])
+        UncodedWords.append([])
+
+
+if test == 17:
+    Order = 1
+    AllCodeWords = []
+    UncodedWords = []
+    OriginalInputs = []
+    memorysIn = []
+    sign = True
+    k_array = []
+    mic_start = 64
+    mic_end = 127
+    Shorten_predictor = Shorten(Order)
+    for i in range(mic_start, mic_end+1):
+        AllCodeWords.append([])
+        if Order > 0:
+            memorysIn.append([0]*Order)
+        else:
+            memorysIn.append([])
+        k_array.append([])
+        UncodedWords.append([])
 
 
 if test == 16:
@@ -861,8 +948,6 @@ for itter in range(len(test_data)):
             CodeWordsAdjacent.append(code_word)
 
      
-
-
     if test == 52:
         inputs = []
         for microphone in range(mic_start, mic_end + 1):
@@ -1357,6 +1442,116 @@ for itter in range(len(test_data)):
         AllTestInputs.append(testInput)
 
 
+
+    if test == 28:
+        inputs = []
+        OriginalInputs.append([])
+        AllCofficents.append([])
+        for microphone in range(mic_start, mic_end + 1):
+            inputNow = current_data[microphone,:]
+            #Save the data for all the microphones of the array to be examined
+            inputs.append(inputNow)
+            OriginalInputs[itter].append(inputNow)
+            
+
+            uncoded_word = ""
+            for i in range(len(inputNow)):
+                #Saves binary value of input, represented in 32 bits
+                uncoded_word += np.binary_repr(abs(inputNow[i]),32)
+            #Saves the full binary value of the uncoded word in an array
+            UncodedWords[microphone-mic_start].append(uncoded_word)
+            
+
+
+        for mic in range(len(inputs)):
+            currentInput = inputs[mic]
+            currentCofficents, currentResidual, memorysIn[mic], currentPrediction = LPC_predictor.In(currentInput, memorysIn[mic])
+            #Save the cofficents for the current itteration and mic
+            AllCofficents[itter].append(currentCofficents)
+            #Calculates the ideal k_vaule for the LPC residuals
+            abs_res = np.absolute(currentResidual)
+            abs_res_avg = np.mean(abs_res)
+            #if abs_res_avg is less than 4.7 it would give a k value less than 1.
+            #k needs tobe a int > 1. All abs_res_avg values bellow 6.64 will be set to 1 to avoid this issue
+            #(abs_res_avg = 6.64 gives to k = 1)
+            if abs_res_avg > 6.64:
+                k = int(round(math.log(math.log(2,10) * abs_res_avg,2)))
+            else:
+                k = 1
+
+            
+            #Calulcate the ideal m value from the ideal k value
+            m = pow(k,2)
+
+            m_array[mic].append(m)
+
+
+            #Rice code the residuals using the calculated k-value
+            code_word = ""
+            for i in range(len(currentResidual)):
+                Golomb_coder = GolombCoding(m, sign)
+                n = int(currentResidual[i])
+                kodOrd = Golomb_coder.Encode(n)
+                code_word += kodOrd
+                
+            #Saves Rice coded residuals
+            AllCodeWords[mic].append(code_word)
+
+
+    if test == 27:
+        inputs = []
+        OriginalInputs.append([])
+        AllCofficents.append([])
+        for microphone in range(mic_start, mic_end + 1):
+            inputNow = current_data[microphone,:]
+            #Save the data for all the microphones of the array to be examined
+            inputs.append(inputNow)
+            OriginalInputs[itter].append(inputNow)
+            
+
+            uncoded_word = ""
+            for i in range(len(inputNow)):
+                #Saves binary value of input, represented in 32 bits
+                uncoded_word += np.binary_repr(abs(inputNow[i]),32)
+            #Saves the full binary value of the uncoded word in an array
+            UncodedWords[microphone-mic_start].append(uncoded_word)
+            
+
+
+        for mic in range(len(inputs)):
+            currentInput = inputs[mic]
+            currentCofficents, currentResidual, memorysIn[mic], currentPrediction = LPC_predictor.In(currentInput, memorysIn[mic])
+            #Save the cofficents for the current itteration and mic
+            AllCofficents[itter].append(currentCofficents)
+            #Calculates the ideal k_vaule for the LPC residuals
+            abs_res = np.absolute(currentResidual)
+            abs_res_avg = np.mean(abs_res)
+            #if abs_res_avg is less than 4.7 it would give a k value less than 1.
+            #k needs tobe a int > 1. All abs_res_avg values bellow 6.64 will be set to 1 to avoid this issue
+            #(abs_res_avg = 6.64 gives to k = 1)
+            if abs_res_avg > 6.64:
+                k = int(round(math.log(math.log(2,10) * abs_res_avg,2)))
+            else:
+                k = 1
+
+            
+            #Appends the ideal k vaule in the array matching the correct Shorten order
+            k_array[mic].append(k)
+
+
+            #Rice code the residuals using the calculated k-value
+            code_word = ""
+            for i in range(len(currentResidual)):
+                Rice_coder = RiceCoding(k, sign)
+                n = int(currentResidual[i])
+                kodOrd = Rice_coder.Encode(n)
+                code_word += kodOrd
+                
+            #Saves Rice coded residuals
+            AllCodeWords[mic].append(code_word)
+
+
+
     if test == 26:
         inputs = []
         for microphone in range(mic_start, mic_end + 1):
@@ -1630,6 +1825,110 @@ for itter in range(len(test_data)):
         #Saves Rice coded residuals and binary input values arrays
         code_words.append(code_word)
         uncoded_words.append(uncoded_word)
+
+
+    if test == 18:
+        inputs = []
+        OriginalInputs.append([])
+        for microphone in range(mic_start, mic_end + 1):
+            inputNow = current_data[microphone,:]
+            #Save the data for all the microphones of the array to be examined
+            inputs.append(inputNow)
+            OriginalInputs[itter].append(inputNow)
+            
+
+            uncoded_word = ""
+            for i in range(len(inputNow)):
+                #Saves binary value of input, represented in 32 bits
+                uncoded_word += np.binary_repr(abs(inputNow[i]),32)
+            #Saves the full binary value of the uncoded word in an array
+            UncodedWords[microphone-mic_start].append(uncoded_word)
+            
+
+
+        for mic in range(len(inputs)):
+            currentInput = inputs[mic]
+            currentResidual, memorysIn[mic], currentPrediction = Shorten_predictor.In(currentInput, memorysIn[mic])
+
+            #Calculates the ideal k_vaule for the Shorten residuals
+            abs_res = np.absolute(currentResidual)
+            abs_res_avg = np.mean(abs_res)
+            #if abs_res_avg is less than 4.7 it would give a k value less than 1.
+            #k needs tobe a int > 1. All abs_res_avg values bellow 6.64 will be set to 1 to avoid this issue
+            #(abs_res_avg = 6.64 gives to k = 1)
+            if abs_res_avg > 6.64:
+                k = int(round(math.log(math.log(2,10) * abs_res_avg,2)))
+            else:
+                k = 1
+
+            
+            #Calulcate the ideal m value from the ideal k value
+            m = pow(k,2)
+
+            m_array[mic].append(m)
+
+
+            #Rice code the residuals using the calculated k-value
+            code_word = ""
+            for i in range(len(currentResidual)):
+                Golomb_coder = GolombCoding(m, sign)
+                n = int(currentResidual[i])
+                kodOrd = Golomb_coder.Encode(n)
+                code_word += kodOrd
+                
+            #Saves Rice coded residuals
+            AllCodeWords[mic].append(code_word)
+
+
+    if test == 17:
+        inputs = []
+        OriginalInputs.append([])
+        for microphone in range(mic_start, mic_end + 1):
+            inputNow = current_data[microphone,:]
+            #Save the data for all the microphones of the array to be examined
+            inputs.append(inputNow)
+            OriginalInputs[itter].append(inputNow)
+            
+
+            uncoded_word = ""
+            for i in range(len(inputNow)):
+                #Saves binary value of input, represented in 32 bits
+                uncoded_word += np.binary_repr(abs(inputNow[i]),32)
+            #Saves the full binary value of the uncoded word in an array
+            UncodedWords[microphone-mic_start].append(uncoded_word)
+            
+
+
+        for mic in range(len(inputs)):
+            currentInput = inputs[mic]
+            currentResidual, memorysIn[mic], currentPrediction = Shorten_predictor.In(currentInput, memorysIn[mic])
+
+            #Calculates the ideal k_vaule for the Shorten residuals
+            abs_res = np.absolute(currentResidual)
+            abs_res_avg = np.mean(abs_res)
+            #if abs_res_avg is less than 4.7 it would give a k value less than 1.
+            #k needs tobe a int > 1. All abs_res_avg values bellow 6.64 will be set to 1 to avoid this issue
+            #(abs_res_avg = 6.64 gives to k = 1)
+            if abs_res_avg > 6.64:
+                k = int(round(math.log(math.log(2,10) * abs_res_avg,2)))
+            else:
+                k = 1
+
+            
+            #Appends the ideal k vaule in the array matching the correct Shorten order
+            k_array[mic].append(k)
+
+
+            #Rice code the residuals using the calculated k-value
+            code_word = ""
+            for i in range(len(currentResidual)):
+                Rice_coder = RiceCoding(k, sign)
+                n = int(currentResidual[i])
+                kodOrd = Rice_coder.Encode(n)
+                code_word += kodOrd
+                
+            #Saves Rice coded residuals
+            AllCodeWords[mic].append(code_word)
 
 
     if test == 16:
@@ -2845,6 +3144,181 @@ if test == 31:
     LPC_Cofficents.append(Current_LPC_Cofficents)
 
 
+if test == 28:
+    print("Test 28")
+    print("")
+
+
+    time_array = []
+    memorysOut = []
+    InputsRecreated = []
+    for i in range(mic_start, mic_end+1):
+        InputsRecreated.append([])
+        if Order > 0:
+            memorysOut.append([0]*Order)
+        else:
+            memorysOut.append([])
+
+
+    for itteration in range(recomnded_limit):
+        print(itteration)
+        start_time = time.time()
+        ItterationCofficent = AllCofficents[itteration]
+        for mic in range(mic_end + 1 - mic_start):
+            #Grab the current k value and code word for the current itteration and mic
+            m_mic = m_array[mic]
+            CodeWords_mic = AllCodeWords[mic]
+            m = m_mic[itteration]
+            CodeWord = CodeWords_mic[itteration]
+
+            #Calculate the orginal residuals by decodeing the golomb codes
+            Golomb_decoder = GolombCoding(m, sign)
+            CurrentResiduals = Golomb_decoder.Decode(CodeWord)
+
+            #Grab the current cofficents to recreate inputs
+            CurrentCoff = ItterationCofficent[mic]
+
+            #Recreate the original inputs from residuals
+            InputsRecreated[mic], memorysOut[mic], CurrentPrediction = LPC_predictor.Out(CurrentCoff, CurrentResiduals, memorysOut[mic])
+        
+        stop_time = time.time()
+        total_time = stop_time - start_time
+        
+        #Save the time it took to recreate the full array
+        time_array.append(total_time)
+
+
+        if 1 < 0: #only needed when plotting
+            for mic in range(mic_end + 1 - mic_start):
+                CurrentOriginalInputs = OriginalInputs[itteration]
+                figure_title = "Mic #" + str(mic + mic_start) + ", Itteration#" + str(itteration) 
+
+                CurrentOriginalInputs_mic = CurrentOriginalInputs[mic]
+                CurrentRecreatedInput = InputsRecreated[mic]
+                zero_count = 0
+                zero = []
+                for i in range(len(CurrentOriginalInputs_mic)):
+                    current_zero = CurrentOriginalInputs_mic[i] - CurrentRecreatedInput[i]
+                    zero.append(current_zero)
+                    if current_zero != 0:
+                        zero_count += 1
+                        
+                if zero_count != 0:
+                    print("Failed recreating ", zero_count,"inputs for ", figure_title)
+
+                    
+
+                
+
+                    fig = plt.figure(figure_title)
+                    
+                    ax=fig.add_subplot(311)
+                    plt.plot(CurrentOriginalInputs[mic])
+                    ax.title.set_text("Original inputs")
+
+                    ax=fig.add_subplot(312)
+                    plt.plot(InputsRecreated[mic])
+                    ax.title.set_text("Recreated inputs")
+
+                    ax=fig.add_subplot(313)
+                    plt.plot(zero)
+                    ax.title.set_text("Original inputs - Recreated inputs")
+
+                    plt.show()
+                else:
+
+                    print("All inputs recreated succesfully for ", figure_title)
+ 
+    print("Average time to recreate original input is ", sum(time_array) / len(time_array)," seconds")
+
+
+if test == 27:
+    print("Test 27")
+    print("")
+
+
+    time_array = []
+    memorysOut = []
+    InputsRecreated = []
+    for i in range(mic_start, mic_end+1):
+        InputsRecreated.append([])
+        if Order > 0:
+            memorysOut.append([0]*Order)
+        else:
+            memorysOut.append([])
+
+
+    for itteration in range(recomnded_limit):
+        start_time = time.time()
+        ItterationCofficent = AllCofficents[itteration]
+        for mic in range(mic_end + 1 - mic_start):
+            #Grab the current k value and code word for the current itteration and mic
+            k_mic = k_array[mic]
+            CodeWords_mic = AllCodeWords[mic]
+            k = k_mic[itteration]
+            CodeWord = CodeWords_mic[itteration]
+            
+            #Grab the current cofficents to recreate inputs
+            CurrentCoff = ItterationCofficent[mic]
+
+            #Calculate the orginal residuals by decodeing the rice codes
+            Rice_decoder = RiceCoding(k, sign)
+            CurrentResiduals = Rice_decoder.Decode(CodeWord)
+
+            #Recreate the original inputs from residuals
+            InputsRecreated[mic], memorysOut[mic], CurrentPrediction = LPC_predictor.Out(CurrentCoff, CurrentResiduals, memorysOut[mic])
+        
+        stop_time = time.time()
+        total_time = stop_time - start_time
+        
+        #Save the time it took to recreate the full array
+        time_array.append(total_time)
+
+
+        if 1 < 0: #only needed when plotting
+            for mic in range(mic_end + 1 - mic_start):
+                CurrentOriginalInputs = OriginalInputs[itteration]
+                figure_title = "Mic #" + str(mic + mic_start) + ", Itteration#" + str(itteration) 
+
+                CurrentOriginalInputs_mic = CurrentOriginalInputs[mic]
+                CurrentRecreatedInput = InputsRecreated[mic]
+                zero_count = 0
+                zero = []
+                for i in range(len(CurrentOriginalInputs_mic)):
+                    current_zero = CurrentOriginalInputs_mic[i] - CurrentRecreatedInput[i]
+                    zero.append(current_zero)
+                    if current_zero != 0:
+                        zero_count += 1
+                        
+                if zero_count != 0:
+                    print("Failed recreating ", zero_count,"inputs for ", figure_title)
+
+                    
+
+                
+
+                    fig = plt.figure(figure_title)
+                    
+                    ax=fig.add_subplot(311)
+                    plt.plot(CurrentOriginalInputs[mic])
+                    ax.title.set_text("Original inputs")
+
+                    ax=fig.add_subplot(312)
+                    plt.plot(InputsRecreated[mic])
+                    ax.title.set_text("Recreated inputs")
+
+                    ax=fig.add_subplot(313)
+                    plt.plot(zero)
+                    ax.title.set_text("Original inputs - Recreated inputs")
+
+                    plt.show()
+                else:
+
+                    print("All inputs recreated succesfully for ", figure_title)
+ 
+    print("Average time to recreate original input is ", sum(time_array) / len(time_array)," seconds")
+
+
 if test == 26:
     print("Test 26")
     print("")
@@ -3522,6 +3996,172 @@ if test == 21:
             ax.title.set_text("Original input values - decoded input values")
 
             plt.show()
+
+if test == 18:
+    print("Test 18")
+    print("")
+
+
+    time_array = []
+    memorysOut = []
+    InputsRecreated = []
+    for i in range(mic_start, mic_end+1):
+        InputsRecreated.append([])
+        if Order > 0:
+            memorysOut.append([0]*Order)
+        else:
+            memorysOut.append([])
+
+
+    for itteration in range(recomnded_limit):
+        print(itteration)
+        start_time = time.time()
+        for mic in range(mic_end + 1 - mic_start):
+            #Grab the current k value and code word for the current itteration and mic
+            m_mic = m_array[mic]
+            CodeWords_mic = AllCodeWords[mic]
+            m = m_mic[itteration]
+            CodeWord = CodeWords_mic[itteration]
+
+            #Calculate the orginal residuals by decodeing the golomb codes
+            Golomb_decoder = GolombCoding(m, sign)
+            CurrentResiduals = Golomb_decoder.Decode(CodeWord)
+
+            #Recreate the original inputs from residuals
+            InputsRecreated[mic], memorysOut[mic], CurrentPrediction = Shorten_predictor.Out(CurrentResiduals, memorysOut[mic])
+        
+        stop_time = time.time()
+        total_time = stop_time - start_time
+        
+        #Save the time it took to recreate the full array
+        time_array.append(total_time)
+
+
+        if 1 < 0: #only needed when plotting
+            for mic in range(mic_end + 1 - mic_start):
+                CurrentOriginalInputs = OriginalInputs[itteration]
+                figure_title = "Mic #" + str(mic + mic_start) + ", Itteration#" + str(itteration) 
+
+                CurrentOriginalInputs_mic = CurrentOriginalInputs[mic]
+                CurrentRecreatedInput = InputsRecreated[mic]
+                zero_count = 0
+                zero = []
+                for i in range(len(CurrentOriginalInputs_mic)):
+                    current_zero = CurrentOriginalInputs_mic[i] - CurrentRecreatedInput[i]
+                    zero.append(current_zero)
+                    if current_zero != 0:
+                        zero_count += 1
+                        
+                if zero_count != 0:
+                    print("Failed recreating ", zero_count,"inputs for ", figure_title)
+
+                    
+
+                
+
+                    fig = plt.figure(figure_title)
+                    
+                    ax=fig.add_subplot(311)
+                    plt.plot(CurrentOriginalInputs[mic])
+                    ax.title.set_text("Original inputs")
+
+                    ax=fig.add_subplot(312)
+                    plt.plot(InputsRecreated[mic])
+                    ax.title.set_text("Recreated inputs")
+
+                    ax=fig.add_subplot(313)
+                    plt.plot(zero)
+                    ax.title.set_text("Original inputs - Recreated inputs")
+
+                    plt.show()
+                else:
+
+                    print("All inputs recreated succesfully for ", figure_title)
+ 
+    print("Average time to recreate original input is ", sum(time_array) / len(time_array)," seconds")
+
+
+if test == 17:
+    print("Test 17")
+    print("")
+
+
+    time_array = []
+    memorysOut = []
+    InputsRecreated = []
+    for i in range(mic_start, mic_end+1):
+        InputsRecreated.append([])
+        if Order > 0:
+            memorysOut.append([0]*Order)
+        else:
+            memorysOut.append([])
+
+
+    for itteration in range(recomnded_limit):
+        start_time = time.time()
+        for mic in range(mic_end + 1 - mic_start):
+            #Grab the current k value and code word for the current itteration and mic
+            k_mic = k_array[mic]
+            CodeWords_mic = AllCodeWords[mic]
+            k = k_mic[itteration]
+            CodeWord = CodeWords_mic[itteration]
+
+            #Calculate the orginal residuals by decodeing the rice codes
+            Rice_decoder = RiceCoding(k, sign)
+            CurrentResiduals = Rice_decoder.Decode(CodeWord)
+
+            #Recreate the original inputs from residuals
+            InputsRecreated[mic], memorysOut[mic], CurrentPrediction = Shorten_predictor.Out(CurrentResiduals, memorysOut[mic])
+        
+        stop_time = time.time()
+        total_time = stop_time - start_time
+        
+        #Save the time it took to recreate the full array
+        time_array.append(total_time)
+
+
+        if 1 < 0: #only needed when plotting
+            for mic in range(mic_end + 1 - mic_start):
+                CurrentOriginalInputs = OriginalInputs[itteration]
+                figure_title = "Mic #" + str(mic + mic_start) + ", Itteration#" + str(itteration) 
+
+                CurrentOriginalInputs_mic = CurrentOriginalInputs[mic]
+                CurrentRecreatedInput = InputsRecreated[mic]
+                zero_count = 0
+                zero = []
+                for i in range(len(CurrentOriginalInputs_mic)):
+                    current_zero = CurrentOriginalInputs_mic[i] - CurrentRecreatedInput[i]
+                    zero.append(current_zero)
+                    if current_zero != 0:
+                        zero_count += 1
+                        
+                if zero_count != 0:
+                    print("Failed recreating ", zero_count,"inputs for ", figure_title)
+
+                    
+
+                
+
+                    fig = plt.figure(figure_title)
+                    
+                    ax=fig.add_subplot(311)
+                    plt.plot(CurrentOriginalInputs[mic])
+                    ax.title.set_text("Original inputs")
+
+                    ax=fig.add_subplot(312)
+                    plt.plot(InputsRecreated[mic])
+                    ax.title.set_text("Recreated inputs")
+
+                    ax=fig.add_subplot(313)
+                    plt.plot(zero)
+                    ax.title.set_text("Original inputs - Recreated inputs")
+
+                    plt.show()
+                else:
+
+                    print("All inputs recreated succesfully for ", figure_title)
+ 
+    print("Average time to recreate original input is ", sum(time_array) / len(time_array)," seconds")
 
 
 if test == 16:

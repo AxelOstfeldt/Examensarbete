@@ -8,10 +8,9 @@ from LPC import LPC
 
 if 1 > 0:
 
-    test_val = 5
-    print("test val = ", test_val)
+    x = pow(1,2)
 
-    print("abs test val = ",abs(test_val))
+    print(x)
 
 if 1 < 0:
 
