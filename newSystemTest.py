@@ -34,7 +34,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 53
+test = 17
 
 #General tests
 #Test 1. This test plots microphone data
@@ -48,7 +48,7 @@ test = 53
 #Test 14. Test if Shorten using Golomb code can correctly decode the input values
 #Test 15. This test tries different m-values in Golomb codes for all orders of shorten.
 #Test 16. Test what order of Shorten with Rice codes gives best compression rate over a full array of mics.
-#Test 17. Test how long time it takes Shorten to 
+#Test 17. Test how long time it takes Shorten to decompress a full array of mics and recreate original inputs
 
 #LPC tests
 #Test 21. Test if LPC using Rice code can correctly decode the input values
@@ -281,8 +281,6 @@ if test == 51:
         Encoding_choice.append([])
 
     
-
-
 if test == 46:
     memorysIn = [[],[0],[0,0],[0,0,0],[0,0,0,0]]
     uncoded_words = []
