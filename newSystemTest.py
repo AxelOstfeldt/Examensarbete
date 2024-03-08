@@ -34,7 +34,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 51
+test = 53
 
 #General tests
 #Test 1. This test plots microphone data
@@ -72,13 +72,16 @@ test = 51
 #Test 46. Test differente orders for Adjacent with Rice codes
 
 #Test that compare all algorithms
-#Test 51. Compare compression rate of all algorithms over 1 array of 64 mics
+#Test 51. Compare compression rate of all algorithms over 1 array of 64 mics, adjusted formula for k-value by incrementing it by 1
+#Test 52. Compare compression rate of all algorithms over 1 array of 64 mics, (using original formula for k-value)
+#Test 53. Compare compression rate of all algorithms over 1 array but 1 k vale for 256*64 samples
 
 #Initial values for tests
-if test == 51:
+if test == 53:
 
     #Shorten initial values
     ShortenOrder = 1
+    ShortenResiduals = []
     Shorten_predictor = Shorten(ShortenOrder)
     memoryShorten = []
     CodeWordsShorten = []
@@ -87,6 +90,7 @@ if test == 51:
     #LPC initial values
     LpcOrder = 5
     LPC_predictor = LPC(LpcOrder)
+    LpcResiduals = []
     #Lpc meta data is cofficents represented in 10 bits for each coefficent
     MetaLpc = np.binary_repr(0,10*LpcOrder)
     memoryLpc = []
@@ -95,9 +99,80 @@ if test == 51:
 
     #FLAC initial values
     FlacOrder = 10
+    FlacResiduals = []
     #Meta data for flac is what type of predictor have benn used, represented in binary values up to 16 (When flac is up to orde 10 LPC),
     #And cofficents (Represented in binary values of 10 bits for each coefficent)
-    MetaFlac = np.binary_repr(0,16+(FlacOrder*10))
+    #And the k-value for each code words, 5 bits 
+    MetaFlac = np.binary_repr(0,5+16+(FlacOrder*10))
+    FLAC_predictor = FLAC(FlacOrder)
+    memoryFlac = []
+    codeWordsFLAC = []
+    k_Flac = []
+
+
+    #Adjacent initial values
+    AdjacentOrder = 1
+    AdjacentResiduals = [0]*256
+    Adjacent_predictor = Adjacent(AdjacentOrder)
+    memoryAdjacent = []
+    CodeWordsAdjacent = []
+    UncodedWordsAdjacent = []
+    k_Adjacent = []
+    Encoding_choice = []
+
+
+
+    #Generatl initial values
+    UncodedWords = []
+    sign = True
+    mic_start = 64
+    mic_end = 127
+
+    for i in range(mic_start, mic_end+1):
+        ShortenResiduals.append(0)
+        LpcResiduals.append(0)
+        FlacResiduals.append(0)
+
+        k_Flac.append([])
+
+        CodeWordsShorten.append([])
+        CodeWordsLPC.append([])
+        codeWordsFLAC.append([])
+
+        memoryShorten.append([0]*ShortenOrder)
+        memoryLpc.append([0]*LpcOrder)
+        memoryFlac.append([0]*FlacOrder)
+
+        UncodedWords.append([])
+        Encoding_choice.append([])
+
+
+if test == 52:
+
+    #Shorten initial values
+    ShortenOrder = 1
+    Shorten_predictor = Shorten(ShortenOrder)
+    memoryShorten = []
+    CodeWordsShorten = []
+    k_Shorten = []
+    #Shorten meta data is only 5 bits for k-value
+    ShortenMeta = np.binary_repr(0,5)
+
+    #LPC initial values
+    LpcOrder = 5
+    LPC_predictor = LPC(LpcOrder)
+    #Lpc meta data is cofficents represented in 10 bits for each coefficent, and 5 bits for k-value
+    MetaLpc = np.binary_repr(0,5+(10*LpcOrder))
+    memoryLpc = []
+    CodeWordsLPC = []
+    k_Lpc = []
+
+    #FLAC initial values
+    FlacOrder = 10
+    #Meta data for flac is what type of predictor have benn used, represented in binary values up to 16 (When flac is up to orde 10 LPC),
+    #And cofficents (Represented in binary values of 10 bits for each coefficent)
+    #And 5 bits for k-value
+    MetaFlac = np.binary_repr(0,5+16+(FlacOrder*10))
     FLAC_predictor = FLAC(FlacOrder)
     memoryFlac = []
     codeWordsFLAC = []
@@ -111,6 +186,8 @@ if test == 51:
     UncodedWordsAdjacent = []
     k_Adjacent = []
     Encoding_choice = []
+    #Adjacent meta data is only 5 bits for k-value
+    AdjacentMeta = np.binary_repr(0,5)
 
 
 
@@ -137,8 +214,73 @@ if test == 51:
         Encoding_choice.append([])
 
 
+if test == 51:
+
+    #Shorten initial values
+    ShortenOrder = 1
+    Shorten_predictor = Shorten(ShortenOrder)
+    memoryShorten = []
+    CodeWordsShorten = []
+    k_Shorten = []
+    #Shorten meta data is only 5 bits for k-value
+    ShortenMeta = np.binary_repr(0,5)
+
+    #LPC initial values
+    LpcOrder = 5
+    LPC_predictor = LPC(LpcOrder)
+    #Lpc meta data is cofficents represented in 10 bits for each coefficent, and 5 bits for k-value
+    MetaLpc = np.binary_repr(0,5+(10*LpcOrder))
+    memoryLpc = []
+    CodeWordsLPC = []
+    k_Lpc = []
+
+    #FLAC initial values
+    FlacOrder = 10
+    #Meta data for flac is what type of predictor have benn used, represented in binary values up to 16 (When flac is up to orde 10 LPC),
+    #And cofficents (Represented in binary values of 10 bits for each coefficent)
+    #And 5 bits for k-value
+    MetaFlac = np.binary_repr(0,5+16+(FlacOrder*10))
+    FLAC_predictor = FLAC(FlacOrder)
+    memoryFlac = []
+    codeWordsFLAC = []
+    k_Flac = []
+
+    #Adjacent initial values
+    AdjacentOrder = 1
+    Adjacent_predictor = Adjacent(AdjacentOrder)
+    memoryAdjacent = []
+    CodeWordsAdjacent = []
+    UncodedWordsAdjacent = []
+    k_Adjacent = []
+    Encoding_choice = []
+    #Adjacent meta data is only 5 bits for k-value
+    AdjacentMeta = np.binary_repr(0,5)
 
 
+
+    #Generatl initial values
+    UncodedWords = []
+    sign = True
+    mic_start = 64
+    mic_end = 127
+
+    for i in range(mic_start, mic_end+1):
+        k_Shorten.append([])
+        k_Lpc.append([])
+        k_Flac.append([])
+
+        CodeWordsShorten.append([])
+        CodeWordsLPC.append([])
+        codeWordsFLAC.append([])
+
+        memoryShorten.append([0]*ShortenOrder)
+        memoryLpc.append([0]*LpcOrder)
+        memoryFlac.append([0]*FlacOrder)
+
+        UncodedWords.append([])
+        Encoding_choice.append([])
+
+    
 
 
 if test == 46:
@@ -543,6 +685,326 @@ for itter in range(len(test_data)):
     print("Itteration #", itter)
 
 
+    if test == 53:
+        inputs = []
+        for microphone in range(mic_start, mic_end + 1):
+            inputNow = current_data[microphone,:]
+            #Save the data for all the microphones of the array to be examined
+            inputs.append(inputNow)
+
+            uncoded_word = ""
+            for i in range(len(inputNow)):
+                #Saves binary value of input, represented in 32 bits
+                uncoded_word += np.binary_repr(abs(inputNow[i]),32)
+            #Saves the full binary value of the uncoded word in an array
+            UncodedWords[microphone-mic_start].append(uncoded_word)
+
+        
+        #Shorten calculations:
+        abs_res = []
+        for mic in range(len(inputs)):
+            currentInput = inputs[mic]
+            currentResidual, memoryShorten[mic], currentPrediction = Shorten_predictor.In(currentInput, memoryShorten[mic])
+            ShortenResiduals[mic] = currentResidual
+            #Calculate the sum of the absolute values of all residuals for the current mic and datablock
+            total_abs_res = 0
+            for i in range(len(currentResidual)):
+                total_abs_res += abs(currentResidual[i])
+            #Save the current sum of the absolute residuals for the current mic and datablock
+            abs_res.append(total_abs_res)
+            
+
+        #Calculates the ideal k_vaule for the Shorten residuals off all mics from one data block of 256 samples
+        abs_res_avg = np.mean(abs_res)
+        #if abs_res_avg is less than 4.7 it would give a k value less than 1.
+        #k needs tobe a int > 1. All abs_res_avg values bellow 6.64 will be set to 1 to avoid this issue
+        #(the ideal k equation gives k = 1 when abs_res_avg is 6.64)
+        if abs_res_avg > 6.64:
+            #from testing it appears that the actual ideal k-value is larger by +1 than theory suggest,
+        #atleast for larger k-value. The exact limit is unknown but it have been true for all test except for when the lowest k, k =1 is best.
+        #Therefore th formula have been modified to increment k by 1 if k is larger than 1.
+            k = int(round(math.log(math.log(2,10) * abs_res_avg,2))) + 1
+        else:
+            k = 1
+
+        #Appends the ideal k vaule in the array matching the correct Shorten order
+        k_Shorten.append(k)
+
+        #calculate the rice codes for all mics of a data block of 256 samples
+        for mic in range(len(ShortenResiduals)):
+            currentResidual = ShortenResiduals[mic]
+            #Rice code the residuals using the calculated k-value
+            code_word = ""
+            for i in range(len(currentResidual)):
+                Rice_coder = RiceCoding(k, sign)
+                n = int(currentResidual[i])
+                kodOrd = Rice_coder.Encode(n)
+                code_word += kodOrd
+                
+            #Saves Rice coded residuals
+            CodeWordsShorten[mic].append(code_word)
+
+        
+
+        #LPC calculations
+        abs_res = []
+        for mic in range(len(inputs)):
+            currentInput = inputs[mic]
+            currentCofficents, currentResidual, memoryLpc[mic], currentPrediction = LPC_predictor.In(currentInput, memoryLpc[mic])
+            #Save the current residual to later encode
+            LpcResiduals[mic] = currentResidual
+            #Calculate the sum of the absolute values of all residuals for the current mic and datablock
+            total_abs_res = 0
+            for i in range(len(currentResidual)):
+                total_abs_res += abs(currentResidual[i])
+            #Save the current sum of the absolute residuals for the current mic and datablock
+            abs_res.append(total_abs_res)
+
+        #Calculates the ideal k_vaule for the Shorten residuals off all mics from one data block of 256 samples
+        abs_res_avg = np.mean(abs_res)
+        #if abs_res_avg is less than 4.7 it would give a k value less than 1.
+        #k needs to be a int > 1. All abs_res_avg values bellow 6.64 will be set to 1 to avoid this issue
+        #(the ideal k equation gives k = 1 when abs_res_avg is 6.64)
+        if abs_res_avg > 6.64:
+            #from testing it appears that the actual ideal k-value is larger by +1 than theory suggest,
+        #atleast for larger k-value. The exact limit is unknown but it have been true for all test except for when the lowest k, k =1 is best.
+        #Therefore th formula have been modified to increment k by 1 if k is larger than 1.
+            k = int(round(math.log(math.log(2,10) * abs_res_avg,2)))# + 1
+        else:
+            k = 1
+
+        #Appends the ideal k vaule in the array matching the correct Shorten order
+        k_Lpc.append(k)
+
+        #calculate the rice codes for all mics of a data block of 256 samples
+        for mic in range(len(LpcResiduals)):
+            currentResidual = LpcResiduals[mic]
+            #Rice code the residuals using the calculated k-value
+            code_word = MetaLpc
+            for i in range(len(currentResidual)):
+                Rice_coder = RiceCoding(k, sign)
+                n = int(currentResidual[i])
+                kodOrd = Rice_coder.Encode(n)
+                code_word += kodOrd
+                
+            #Saves Rice coded residuals
+            CodeWordsLPC[mic].append(code_word)
+            
+
+
+        #FLAC calculations
+        for mic in range(len(inputs)):
+            currentInput = inputs[mic]
+            
+            Current_Encoded_inputs, Current_k_value, Current_Encoding_choice, memoryFlac[mic], Current_LPC_Cofficents = FLAC_predictor.In(currentInput, memoryFlac[mic])
+            code_word = MetaFlac + Current_Encoded_inputs
+            
+            codeWordsFLAC[mic].append(code_word)
+            k_Flac[mic].append(Current_k_value)
+            Encoding_choice[mic].append(Current_Encoding_choice)
+
+
+
+
+        #Adjacent calculations
+        abs_res = []
+        for sample in range(256):
+            #print(sample)
+            #create an array to save all mic values for current data sample
+            testInputs = []
+            for microphone in range(mic_start, mic_end+1):
+                testIn = current_data[microphone,sample]
+                testInputs.append(testIn)
+
+            CurrentResidual, memoryAdjacent, CurrentPredictions = Adjacent_predictor.In(testInputs, memoryAdjacent)
+            #Save the current residual to later encode
+            AdjacentResiduals[sample] = CurrentResidual
+            #Calculate the sum of the absolute values of all residuals for the current mic and datablock
+            total_abs_res = 0
+            #Calculate the length of uncoded word
+            uncoded_word = ""
+            for i in range(len(CurrentResidual)):
+                total_abs_res += abs(CurrentResidual[i])
+
+                #Saves binary value of input, represented in 32 bits
+                uncoded_word += np.binary_repr(abs(testInputs[i]),32)
+
+            #Save the current sum of the absolute residuals for the current mic and datablock
+            abs_res.append(total_abs_res)
+            #Save the uncoded_word
+            UncodedWordsAdjacent.append(uncoded_word)
+
+        
+        #Calculates the ideal k-value according to Rice theory
+        abs_res_avg = np.mean(abs_res)
+        
+        #if abs_res_avg is less than 4.7 it would give a k value less than 1.
+        #k needs tobe a int > 1. All abs_res_avg values bellow 6.64 will be set to 1 to avoid this issue
+        #(the ideal k equation gives k = 1 when abs_res_avg is 6.64)
+        if abs_res_avg > 6.64:
+            k = int(round(math.log(math.log(2,10) * abs_res_avg,2)))# + 1
+        else:
+            k = 1
+        #Saves the current ideal k value to later use for decoding
+        
+        k_Adjacent.append(k)
+
+        for sample in range(len(AdjacentResiduals)):
+            #Rice codes the residuals from Adjacent and saves the code word in code_word
+            code_word = ""
+            CurrentResidual = AdjacentResiduals[sample]
+            for i in range(len(CurrentResidual)):
+                Rice_coder = RiceCoding(k, sign)
+                n = int(CurrentResidual[i])
+                kodOrd = Rice_coder.Encode(n)
+                code_word += kodOrd
+
+            #Saves Rice coded residuals
+            CodeWordsAdjacent.append(code_word)
+
+     
+
+
+    if test == 52:
+        inputs = []
+        for microphone in range(mic_start, mic_end + 1):
+            inputNow = current_data[microphone,:]
+            #Save the data for all the microphones of the array to be examined
+            inputs.append(inputNow)
+
+            uncoded_word = ""
+            for i in range(len(inputNow)):
+                #Saves binary value of input, represented in 32 bits
+                uncoded_word += np.binary_repr(abs(inputNow[i]),32)
+            #Saves the full binary value of the uncoded word in an array
+            UncodedWords[microphone-mic_start].append(uncoded_word)
+
+        #Shorten calculations:
+        for mic in range(len(inputs)):
+            currentInput = inputs[mic]
+            currentResidual, memoryShorten[mic], currentPrediction = Shorten_predictor.In(currentInput, memoryShorten[mic])
+
+            #Calculates the ideal k_vaule for the Shorten residuals
+            abs_res = np.absolute(currentResidual)
+            abs_res_avg = np.mean(abs_res)
+            #if abs_res_avg is less than 4.7 it would give a k value less than 1.
+            #k needs tobe a int > 1. All abs_res_avg values bellow 6.64 will be set to 1 to avoid this issue
+            if abs_res_avg > 6.64:
+          
+                k = int(round(math.log(math.log(2,10) * abs_res_avg,2)))
+            else:
+                k = 1
+
+        
+            #Appends the ideal k vaule in the array matching the correct Shorten order
+            k_Shorten[mic].append(k)
+
+            #Rice code the residuals using the calculated k-value
+            code_word = ShortenMeta
+            for i in range(len(currentResidual)):
+                Rice_coder = RiceCoding(k, sign)
+                n = int(currentResidual[i])
+                kodOrd = Rice_coder.Encode(n)
+                code_word += kodOrd
+                
+            #Saves Rice coded residuals
+            CodeWordsShorten[mic].append(code_word)
+
+        #LPC calculations
+        for mic in range(len(inputs)):
+            currentInput = inputs[mic]
+            currentCofficents, currentResidual, memoryLpc[mic], currentPrediction = LPC_predictor.In(currentInput, memoryLpc[mic])
+
+            #Calculates the ideal k_vaule for the LPC residuals
+            abs_res = np.absolute(currentResidual)
+            abs_res_avg = np.mean(abs_res)
+            #if abs_res_avg is less than 4.7 it would give a k value less than 1.
+            #k needs tobe a int > 1. All abs_res_avg values bellow 6.64 will be set to 1 to avoid this issue
+            if abs_res_avg > 6.64:
+                k = int(round(math.log(math.log(2,10) * abs_res_avg,2)))
+            else:
+                k = 1
+
+            
+            
+
+            #Appends the ideal k vaule in the array matching the correct LPC order
+            k_Lpc[mic].append(k)
+            
+
+            #Rice code the residuals using the calculated k-value
+            
+            #Each code word will start with the cofficents
+            #This takes into account that higher order of LPC will need more meta data sent
+            code_word = MetaLpc
+            
+            for i in range(len(currentResidual)):
+                Rice_coder = RiceCoding(k, sign)
+                n = int(currentResidual[i])
+                kodOrd = Rice_coder.Encode(n)
+                code_word += kodOrd
+                
+            #Saves Rice coded residuals
+            CodeWordsLPC[mic].append(code_word)
+
+        #FLAC calculations
+        for mic in range(len(inputs)):
+            currentInput = inputs[mic]
+            
+            Current_Encoded_inputs, Current_k_value, Current_Encoding_choice, memoryFlac[mic], Current_LPC_Cofficents = FLAC_predictor.In(currentInput, memoryFlac[mic])
+
+            code_word = MetaFlac + Current_Encoded_inputs
+            
+            codeWordsFLAC[mic].append(code_word)
+            k_Flac[mic].append(Current_k_value)
+            Encoding_choice[mic].append(Current_Encoding_choice)
+
+        #Adjacent calculations
+            
+        for sample in range(256):
+            #print(sample)
+            #create an array to save all mic values for current data sample
+            testInputs = []
+            for microphone in range(mic_start, mic_end+1):
+                testIn = current_data[microphone,sample]
+                testInputs.append(testIn)
+
+            CurrentResiduals, memoryAdjacent, CurrentPredictions = Adjacent_predictor.In(testInputs, memoryAdjacent)
+
+            #Calculates the ideal k-value according to Rice theory
+            abs_res = np.absolute(CurrentResiduals)
+            abs_res_avg = np.mean(abs_res)
+            
+            #if abs_res_avg is less than 4.7 it would give a k value less than 1.
+            #k needs tobe a int > 1 and therefore if abs_res_avg < 5 k is set to 1
+            #OBS. 4.7 < abs_res_avg < 5 would be rounded of to k=1 so setting the limit to 5 works well
+            if abs_res_avg > 6.64:
+                k = int(round(math.log(math.log(2,10) * abs_res_avg,2)))
+            else:
+                k = 1
+            #Saves the current ideal k value to later use for decoding
+            
+            k_Adjacent.append(k)
+
+            #Rice codes the residuals from Adjacent and saves the code word in code_word
+            code_word = AdjacentMeta
+            uncoded_word = ""
+            for i in range(len(CurrentResiduals)):
+                Rice_coder = RiceCoding(k, sign)
+                n = int(CurrentResiduals[i])
+                kodOrd = Rice_coder.Encode(n)
+                code_word += kodOrd
+
+                #Saves binary value of input, represented in 32 bits
+                uncoded_word += np.binary_repr(abs(testInputs[i]),32)
+                
+
+
+            #Saves Rice coded residuals
+            CodeWordsAdjacent.append(code_word)
+            UncodedWordsAdjacent.append(uncoded_word)
+
+   
     if test == 51:
         inputs = []
         for microphone in range(mic_start, mic_end + 1):
@@ -580,7 +1042,7 @@ for itter in range(len(test_data)):
             k_Shorten[mic].append(k)
 
             #Rice code the residuals using the calculated k-value
-            code_word = ""
+            code_word = ShortenMeta
             for i in range(len(currentResidual)):
                 Rice_coder = RiceCoding(k, sign)
                 n = int(currentResidual[i])
@@ -670,7 +1132,7 @@ for itter in range(len(test_data)):
             k_Adjacent.append(k)
 
             #Rice codes the residuals from Adjacent and saves the code word in code_word
-            code_word = ""
+            code_word = AdjacentMeta
             uncoded_word = ""
             for i in range(len(CurrentResiduals)):
                 Rice_coder = RiceCoding(k, sign)
@@ -1076,6 +1538,7 @@ for itter in range(len(test_data)):
                 #Input singla only needs sot be saved once
                 if i == 0:
                     plot_sig.append(plot_sig_temp[j])
+
 
     #Test LPC and Golomb coding if it can recreate the input data on the decompressed side
     #It saves all input data in inputs array, all coded words in coded_words array and the inputs as binary values in 32 bits
@@ -1570,6 +2033,149 @@ for itter in range(len(test_data)):
 
 print("")
 
+if test == 53:
+    print("Test 53")
+    print("")
+
+    print("Shorten k-array = ", k_Shorten,"have lenght ", len(k_Shorten))
+    print("LPC k-array = ", k_Lpc,"have lenght ", len(k_Lpc))
+    #print("FLAC k-array = ", k_Flac)
+    print("Adjacent k-array = ", k_Adjacent,"have lenght ", len(k_Adjacent))
+
+    #Shorten calculations:
+    Shorten_cr = []
+    len1 = len(CodeWordsShorten)
+    #Loops thorugh all mics to get the code_words for the specific mics
+    for mic in range(mic_end + 1 - mic_start):
+        encodedMic = CodeWordsShorten[mic]
+        uncodedMic = UncodedWords[mic]
+        len2 = len(encodedMic)
+        #loops thorugh all data blocks to get the compression rate of the code word for that data block
+        for itteration in range(len(encodedMic)):
+            cr = len(encodedMic[itteration]) / len(uncodedMic[itteration])
+            Shorten_cr.append(cr)
+
+    print("Average compression rate for Shorten order ",ShortenOrder,"is: cr = ", sum(Shorten_cr) / len(Shorten_cr))
+    #print("len shorten: ", len1, "* ", len2,"= ",len1 * len2)#only for a test
+    print("")
+
+    #LPC calculations:
+    LPC_cr = []
+    #Loops thorugh all mics to get the code_words for the specific mics
+    for mic in range(mic_end + 1 - mic_start):
+        encodedMic = CodeWordsLPC[mic]
+        uncodedMic = UncodedWords[mic]
+        #loops thorugh all data blocks to get the compression rate of the code word for that data block
+        for itteration in range(len(encodedMic)):
+            cr = len(encodedMic[itteration]) / len(uncodedMic[itteration])
+            LPC_cr.append(cr)
+
+    print("Average compression rate for LPC order ",LpcOrder,"is: cr = ", sum(LPC_cr) / len(LPC_cr))
+    
+    print("")
+
+    #FLAC calculations:
+    FLAC_cr = []
+    Choices = ["RLE", "Shorten order 0", "Shorten order 1", "Shorten order 2", "Shorten order 3", "Shorten order 4", "LPC order 1", "LPC order 2", "LPC order 3", "LPC order 4", "LPC order 5", "LPC order 6", "LPC order 7", "LPC order 8", "LPC order 9", "LPC order 10"]
+    #Loops thorugh all mics to get the code_words for the specific mics
+    for mic in range(mic_end + 1 - mic_start):
+        encodedMic = codeWordsFLAC[mic]
+        uncodedMic = UncodedWords[mic]
+        currentEncoders = Encoding_choice[mic]
+        #loops thorugh all data blocks to get the compression rate of the code word for that data block
+        for itteration in range(len(encodedMic)):
+            currentChoice = int(currentEncoders[itteration],2)
+            #print("Current encoding choice is: ", Choices[currentChoice])#Can print out what choice was made to get the current cr
+            cr = len(encodedMic[itteration]) / len(uncodedMic[itteration])
+            FLAC_cr.append(cr)
+
+    print("Average compression rate for FLAC is: cr = ", sum(FLAC_cr) / len(FLAC_cr))
+    print("")
+
+    #Adjacent calculations
+    Adjacent_cr = []
+
+    for i in range(len(CodeWordsAdjacent)):
+        #Calculate compression rate for current itteration
+        cr = len(CodeWordsAdjacent[i]) / len(UncodedWordsAdjacent[i])
+        #print("Compression rate for itteration ",i,"is :",cr)#Gives alot of print outs, better to comment out and just look at average
+        Adjacent_cr.append(cr)
+        
+    
+    print("Average compression rate for Adjacent is: cr = ", sum(Adjacent_cr)/len(Adjacent_cr))
+    print("")
+
+
+if test == 52:
+    print("Test 51")
+    print("")
+
+    
+
+    #Shorten calculations:
+    Shorten_cr = []
+    len1 = len(CodeWordsShorten)
+    #Loops thorugh all mics to get the code_words for the specific mics
+    for mic in range(mic_end + 1 - mic_start):
+        encodedMic = CodeWordsShorten[mic]
+        uncodedMic = UncodedWords[mic]
+        len2 = len(encodedMic)
+        #loops thorugh all data blocks to get the compression rate of the code word for that data block
+        for itteration in range(len(encodedMic)):
+            cr = len(encodedMic[itteration]) / len(uncodedMic[itteration])
+            Shorten_cr.append(cr)
+
+    print("Average compression rate for Shorten order ",ShortenOrder,"is: cr = ", sum(Shorten_cr) / len(Shorten_cr))
+    #print("len shorten: ", len1, "* ", len2,"= ",len1 * len2)#only for a test
+    print("")
+
+    #LPC calculations:
+    LPC_cr = []
+    #Loops thorugh all mics to get the code_words for the specific mics
+    for mic in range(mic_end + 1 - mic_start):
+        encodedMic = CodeWordsLPC[mic]
+        uncodedMic = UncodedWords[mic]
+        #loops thorugh all data blocks to get the compression rate of the code word for that data block
+        for itteration in range(len(encodedMic)):
+            cr = len(encodedMic[itteration]) / len(uncodedMic[itteration])
+            LPC_cr.append(cr)
+
+    print("Average compression rate for LPC order ",LpcOrder,"is: cr = ", sum(LPC_cr) / len(LPC_cr))
+    
+    print("")
+
+    #FLAC calculations:
+    FLAC_cr = []
+    Choices = ["RLE", "Shorten order 0", "Shorten order 1", "Shorten order 2", "Shorten order 3", "Shorten order 4", "LPC order 1", "LPC order 2", "LPC order 3", "LPC order 4", "LPC order 5", "LPC order 6", "LPC order 7", "LPC order 8", "LPC order 9", "LPC order 10"]
+    #Loops thorugh all mics to get the code_words for the specific mics
+    for mic in range(mic_end + 1 - mic_start):
+        encodedMic = codeWordsFLAC[mic]
+        uncodedMic = UncodedWords[mic]
+        currentEncoders = Encoding_choice[mic]
+        #loops thorugh all data blocks to get the compression rate of the code word for that data block
+        for itteration in range(len(encodedMic)):
+            currentChoice = int(currentEncoders[itteration],2)
+            #print("Current encoding choice is: ", Choices[currentChoice])#Can print out what choice was made to get the current cr
+            cr = len(encodedMic[itteration]) / len(uncodedMic[itteration])
+            FLAC_cr.append(cr)
+
+    print("Average compression rate for FLAC is: cr = ", sum(FLAC_cr) / len(FLAC_cr))
+    print("")
+
+    #Adjacent calculations
+    Adjacent_cr = []
+
+    for i in range(len(CodeWordsAdjacent)):
+        #Calculate compression rate for current itteration
+        cr = len(CodeWordsAdjacent[i]) / len(UncodedWordsAdjacent[i])
+        #print("Compression rate for itteration ",i,"is :",cr)#Gives alot of print outs, better to comment out and just look at average
+        Adjacent_cr.append(cr)
+        
+    
+    print("Average compression rate for Adjacent is: cr = ", sum(Adjacent_cr)/len(Adjacent_cr))
+    print("")
+
+
 if test == 51:
     print("Test 51")
     print("")
@@ -1590,7 +2196,7 @@ if test == 51:
             Shorten_cr.append(cr)
 
     print("Average compression rate for Shorten order ",ShortenOrder,"is: cr = ", sum(Shorten_cr) / len(Shorten_cr))
-    print("len shorten: ", len1, "* ", len2,"= ",len1 * len2)
+    #print("len shorten: ", len1, "* ", len2,"= ",len1 * len2)#only for a test
     print("")
 
     #LPC calculations:
@@ -2427,6 +3033,7 @@ if test == 25:
             plt.legend()
 
             plt.show()
+
 
 #Test compression rate for different k-values and orders
 #using LPC and Rice codes                       
