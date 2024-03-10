@@ -8,9 +8,8 @@ from LPC import LPC
 
 if 1 > 0:
 
-    x = pow(1,2)
-
-    print(x)
+    for order in range(5):
+        print(order)
 
 if 1 < 0:
 

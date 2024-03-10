@@ -4,19 +4,30 @@ from Rice import RiceCoding
 
 class FlacModified:
 
-    def __init__(self, mics, samples):
-        self.ShortCoff = [[0],[1],[2, -1],[3, -3, 1],[4,-6,4,-1]]
+    def __init__(self, mics, samples, AdjacentOrder):
+        self.ShortenCofficents = [[0],[1],[2, -1],[3, -3, 1],[4,-6,4,-1]]
         self.mics = mics
         self.samples = samples
+        self.AdjacentOrder = AdjacentOrder
+        
 
     def In(self, Inputs, memorysIn):
-        
-        for sample in range(self.samples):
-            for microphone in range(self.mics):
+
+        for microphone in range(self.mics):
+            currentInputs = Inputs[microphone,:]
+            ShortenResiduals = [[],[],[],[],[]]
+            for sample in range(self.samples):
+                ShortenPredictions, memorysIn[microphone] = self.PredictIn(memorysIn[microphone])
+
+                for order in range(5):
+
+
+            
                 if sample == 0:
                     memoryIn = memorysIn[microphone]
                     currentInputs = Inputs[microphone,:]
-                    AdjacentResidual, ShortenResiduals = (currentInputs, memoryIn)
+                    AdjacentResidual, ShortenResiduals = (memoryIn)
+
 
 
                 #Pick a micrphone by giving left argument, and sample by giving right arbument
@@ -25,7 +36,22 @@ class FlacModified:
                 
 
 
-    def PredictIn(self, currentInputs, memoryIn):
+    def PredictIn(self, memoryIn):
+
+        
+        #Predict shorten for order 0-4
+        ShortenPredictions = [0]
+        for i in range(1,5):
+            ShortenPredictions.append(sum( np.array(memoryIn[:i]) * np.array(self.ShortenCofficents[i]) ))
+
+        #All memory slots are stepped one step back and the oldest memory is dropped
+        new_memory = []
+        new_memory += memoryIn[:-1]
+
+        return ShortenPredictions, new_memory
+
+
+
         prediction = 0
 
         if self.order > 1:
