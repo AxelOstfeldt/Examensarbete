@@ -7,10 +7,11 @@ from LPC import LPC
 
 
 if 1 > 0:
-    memory = [[0,1,2,3],[4,5,6,7],[8,9,10,11]]
+    
+    RleCopy = [1,2,3,4,5]
 
-    for i in range(len(memory)):
-        print(memory[i][0])
+    print(RleCopy[:2])
+    
 
 if 1 < 0:
 

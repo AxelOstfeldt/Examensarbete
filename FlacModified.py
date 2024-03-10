@@ -1,6 +1,5 @@
 import numpy as np
 import math
-from Rice import RiceCoding
 
 class FlacModified:
 
@@ -207,14 +206,70 @@ class FlacModified:
 
             
 
+    def Out(self, CodeWords, MemorysOut):
+        AdjacentMics = self.CheckFirst(CodeWords[0])
+        DecodedValues = []
+        for microphone in range(self.mics):
+            DecodedValues.append([])
+
+        for i in range(len(CodeWords)):
+            CodeWord = CodeWords[i]
+            
+
+            if AdjacentMics:
+                print("Adjacent Mics")
+
+            else:
+                ChoosenEncoder, CodeWord = self.FindEncoder(CodeWord)
+
+                if ChoosenEncoder == 0:
+                    #Decode the values when RLE is used to encode
+                    DecodedValues[i], MemorysOut[i] = self.RleDecoder(CodeWord)
+
+                else:
+                    #Decode the residuals from Rice codes
+                    RecreatedResiduals = self.RiceDecode(CodeWord)
+
+                    if ChoosenEncoder == 6:
+                        AdjacentSample
+
+                    else:
+                        order = ChoosenEncoder - 1
+
+                        DecodedValues[i], MemorysOut[i] = self.ShortenDecoder(RecreatedResiduals, order, MemorysOut[i])
 
 
 
 
 
 
+    def CheckFirst(self, CodeWord):
+        #The first 3 binary value
+        BinaryEncoder = CodeWord[:3]
+        #Change their binary value to int
+        ChoosenEncoder = int(BinaryEncoder,2)
 
-                    
+        #Checks if the encoder used is adjacent mics
+        if ChoosenEncoder == 7:
+            AdjacentMicsUsed = True
+        
+        else:
+            AdjacentMicsUsed = False
+    
+        return AdjacentMicsUsed
+
+
+    def FindEncoder(self, CodeWord):
+        #The first 3 binary value
+        BinaryEncoder = CodeWord[:3]
+        #Change their binary value to int
+        ChoosenEncoder = int(BinaryEncoder,2)
+
+        #Return the CodeWord without the binary digits representing the Choosene encoder
+        RemainingCodeWord = CodeWord[3:]
+
+        return ChoosenEncoder, RemainingCodeWord
+
 
     #Calculates the ideal k-value according to modified Rice theory
     #Take the Rice Theory value and if it is larger than 1 increment it by 1 (Best from test results)
@@ -234,7 +289,69 @@ class FlacModified:
 
         return k
             
+    
+    def RiceDecode(self, CodeWord):
+        #The 5 first binary digits in the codeword represnt the k value used to Rice code the residuals
+        kBinary = CodeWord[:5]
+        k = int(kBinary,2)
+        CodeWord = CodeWord[5:]
         
+        decoded_values = []
+
+        #Loops trough the code word to get all values in the code word
+        while len(code) > 0:
+            A = 0
+            #If S is true the output should be negative
+            S = False
+            value = ""
+            
+            #Checks if the data is signed
+            if self.sign:
+                #Checks if the MSB is "1", indicating that the value should be negative.
+                if code[0] == "1":
+                    #Sets S to True if the output should be negative
+                    S = True
+                #Removes the MSB, signed bit, from the code word.
+                #This way the rest of the code word can be handled as if it was unsigned
+                code = code[1:]
+
+            
+            #Decodes the unary code.
+            #Unary code represents a interger value as a set of "1":s followed by a "0".
+            #By incrementing A by 1 if the MSB is a one then moving the codeword one step and checking again
+            #all "1" will increment A until a "0" is MSB indicating that the unary code have been decoded. 
+            while code[0] == "1":
+                A += 1
+                code = code[1:]
+
+            
+            #After the unary code have been uncoded the remaining code will be
+            #a "0" as MSB followed by the last k-bits from the original binary value as LSB
+            #By looping thorugh the codeword and removing k bits to the current value being decoded
+            #The last bits in the code word for the current value can be decoded
+            for j in range(k):
+                code = code[1:]
+                value += code[0]
+            #Since there is a 0 separating the MSB with the LSB 1 more bit needs to be removed for the current value in the codeword
+            code = code[1:]
+
+            value = bin(A)[2:] + value
+
+            #The original binary value is converted to an int
+            value = int(value, 2)
+
+            #In if the original value was negative sign and S will be true,
+            #code will then be converted to a negative value
+            if self.sign and S:
+                value = -value
+
+            #appends the decoded value in an array
+            decoded_values.append(value)
+
+        #Returns array with decoded int values
+        return decoded_values
+
+
     #n is the value to encode in Rice code
     def RiceEncode(self, n, k):
         #If the input data is signed the signed bit needs to be saved.
@@ -294,6 +411,62 @@ class FlacModified:
         return r
 
     
+    def RleDecoder(self, CodeWord):
+        
+        DecodedValues = []
+        #Loops trough all the enocded binary values with a while llop
+        while len(CodeWord) > 0:
+            #Raise error if there is not enough length left of code_residuals for 1 code_word
+            if len(CodeWord) < 33:
+                raise ValueError(f"Code_word length is {len(CodeWord)}, should  never be lower than 33")
+
+
+            #The first bit in each code word is the sign bit
+            #This is saved as s and then the code_residuals is stepped one step
+            s = CodeWord[0]
+            CodeWord = CodeWord[1:]
+
+            #The next 24 bits represents the value that have been encoded
+            #Once they been saved 24 steps trough the code_residuals are taken
+            RleValue = CodeWord[:24]
+            CodeWord = CodeWord[24:]
+
+            #The next 8 bits represent how many times the value was repeated
+            #Once it been saved 8 steps is taken in the code_residuals
+            RleCount = CodeWord[:8]
+            CodeWord = CodeWord[8:]
+
+            #The value that have been encoded is converted to int
+            IntRelValue = int(RleValue, 2)
+
+            #If the sign bit is "1" the value is converted to negative
+            if s == "1":
+                IntRelValue = -IntRelValue
+
+            #A for loop is used to append as many values as needed
+            #The RleCount value is increased by 1 because even though
+            #a value never was reapeted it occured once
+            for reapeats in range(1 + int(RleCount, 2)):
+                DecodedValues.append(IntRelValue)
+        
+        #Uppdate memory
+        #Copy the decoded values to assign them to the memory array later
+        RleCopy = DecodedValues.copy()
+        #The last for values will be the memory array in reverse order
+        
+        new_memory = []
+        if len(RleCopy) > 3:
+            reversed_memory = RleCopy[len(RleCopy)-4:]
+        #In the case that there is to few values among the decoded values pad the memory array with 0:s
+        else:
+            reversed_memory = RleCopy
+            while len(new_memory) < len(memory):
+                reversed_memory.insert(0,0)
+        for i in reversed(reversed_memory):
+            new_memory.append(i)
+
+        #Assign the new_memory to memory
+        return DecodedValues, new_memory
 
 
     def RleEnconder(self, RleValue, RleCounter):
@@ -321,6 +494,35 @@ class FlacModified:
 
         #Return the binary representation of the RLE
         return RleBinary                
+
+
+    def ShortenDecoder(self, Residuals, Order, memoryOut):
+        RecreatedValues = []
+        for residual in Residuals:
+            if Order == 0:
+                #If order = 0 preditiction is allways 0
+                prediciton = 0
+
+            else:
+                #Calculate the prediciton from memory and cofficents
+                prediciton = sum( np.array(memoryOut[:Order]) * np.array(self.ShortenCofficents[Order]) )
+
+                #Recreate the original value by adding prediciton and residual value
+                RecreatedValue = prediciton + residual
+
+                #Update the memory by stepping all values one step and setting the first memory slot to the recreated value
+                new_memory = [RecreatedValue]
+                memoryOut = new_memory + memoryOut[:-1]
+
+                #Save the recreated value
+                RecreatedValues.append(RecreatedValue)
+
+        return RecreatedValues, memoryOut
+
+
+                
+
+
 
 
     def ShortenPredictIn(self, memoryIn):
