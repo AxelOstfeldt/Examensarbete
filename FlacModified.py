@@ -212,14 +212,19 @@ class FlacModified:
         for microphone in range(self.mics):
             DecodedValues.append([])
 
-        for i in range(len(CodeWords)):
-            CodeWord = CodeWords[i]
+        
             
 
-            if AdjacentMics:
-                print("Adjacent Mics")
+        if AdjacentMics:
+            print("Adjacent Mics")
+            for i in range(1, len(CodeWords)):
+                
 
-            else:
+
+
+        else:
+            for i in range(len(CodeWords)):
+                CodeWord = CodeWords[i]
                 ChoosenEncoder, CodeWord = self.FindEncoder(CodeWord)
 
                 if ChoosenEncoder == 0:
