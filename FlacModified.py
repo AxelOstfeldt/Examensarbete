@@ -231,7 +231,8 @@ class FlacModified:
                     RecreatedResiduals = self.RiceDecode(CodeWord)
 
                     if ChoosenEncoder == 6:
-                        AdjacentSample
+                        self.AdjacentDecoder()
+
 
                     else:
                         order = ChoosenEncoder - 1
@@ -520,11 +521,6 @@ class FlacModified:
         return RecreatedValues, memoryOut
 
 
-                
-
-
-
-
     def ShortenPredictIn(self, memoryIn):
         #Predict shorten for order 0-4
         ShortenPredictions = [0]
@@ -537,6 +533,7 @@ class FlacModified:
 
         return ShortenPredictions, new_memory
     
+
     def AdjacentPredictIn(self, CurrentInput, CurrentPrediction):
         #Calculate the residual by taking the current input and subtracting the residual
         CurrentResidual = CurrentInput - CurrentPrediction
