@@ -231,7 +231,15 @@ class FlacModified:
                     RecreatedResiduals = self.RiceDecode(CodeWord)
 
                     if ChoosenEncoder == 6:
-                        self.AdjacentDecoder()
+                        if i == 0:
+                            DecodedValues[i], MemorysOut[i] = self.ShortenDecoder(RecreatedResiduals, self.AdjacentOrder, MemorysOut[i])
+                        
+                        elif i % 8 == 0:
+                            prediction = DecodedValues[i-8].copy()
+
+                        else:
+                            prediction = DecodedValues[i-1].copy()
+
 
 
                     else:
