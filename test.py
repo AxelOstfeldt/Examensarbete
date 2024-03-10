@@ -7,9 +7,10 @@ from LPC import LPC
 
 
 if 1 > 0:
+    memory = [[0,1,2,3],[4,5,6,7],[8,9,10,11]]
 
-    for order in range(5):
-        print(order)
+    for i in range(len(memory)):
+        print(memory[i][0])
 
 if 1 < 0:
 
