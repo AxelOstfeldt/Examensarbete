@@ -230,6 +230,7 @@ class FlacModified:
                     #Decode the residuals from Rice codes
                     RecreatedResiduals = self.RiceDecode(CodeWord)
 
+                    #If ChossenEncoder is 6 Adjacent grouped by sampels have been encoded
                     if ChoosenEncoder == 6:
                         if i == 0:
                             DecodedValues[i], MemorysOut[i] = self.ShortenDecoder(RecreatedResiduals, self.AdjacentOrder, MemorysOut[i])
@@ -240,9 +241,11 @@ class FlacModified:
                         else:
                             prediction = DecodedValues[i-1].copy()
 
+                        DecodedValues[i], MemorysOut[i] = self.AdjacentDecoder(prediction, RecreatedResiduals, MemorysOut[i])
 
-
+                    #In other cases Shorten have been used
                     else:
+                        #The shorten order that have been used is ChoosenEncoder - 1
                         order = ChoosenEncoder - 1
 
                         DecodedValues[i], MemorysOut[i] = self.ShortenDecoder(RecreatedResiduals, order, MemorysOut[i])
@@ -552,7 +555,17 @@ class FlacModified:
         return CurrentResidual, NewPrediction
     
 
+    def AdjacentDecoder(self, predictions, residuals, memory):
+        DecodedValues = []
 
+        for j in range(len(residuals)):
+            DecodedValue = predictions[j] + residuals[j]
+
+            #Update memory
+            new_memory = [DecodedValue] + memory[:-1]
+            DecodedValues.append(DecodedValue)
+
+        return DecodedValues, new_memory
 
        
 
