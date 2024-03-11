@@ -161,7 +161,7 @@ class FlacModified:
             currentResidual = []
             for microphone in range(self.mics):
                 AdjacentMicResiduals = AdjacentResiduals[microphone]
-                currentResidual.append(AdjacentResiduals[sample])
+                currentResidual.append(AdjacentMicResiduals[sample])#Not sure about this line?
 
             #Calculate k-value for the currentResidual array
             k = self.kCalculator(currentResidual)
@@ -212,21 +212,40 @@ class FlacModified:
         for microphone in range(self.mics):
             DecodedValues.append([])
 
-        
-            
-
         if AdjacentMics:
             print("Adjacent Mics")
-            for i in range(1, len(CodeWords)):
-                
 
+            
+            #For Adjacent Mics the first 
+            for sample in range(1, len(CodeWords)):
+                #Recreate the residuals from the Rice codes
+                CodeWord = CodeWords[sample]
+                RecreatedResiduals = self.RiceDecode(CodeWord)
+                
+                for i in range(len(RecreatedResiduals)):
+                    CurrentRecreatedResidual = RecreatedResiduals[i]
+                    #Recreate the first mic value from Shorten
+                    if i == 0:
+                        FirstInRowValue, MemorysOut[i] =  self.FirstAdjacentDecoder(CurrentRecreatedResidual, MemorysOut[i])
+                        AdjacentValue = FirstInRowValue
+                    #If i%8 == 0 then a new row have been started
+                    #The mic value will be predicted from the previous row and the decoded value will be saved as the new FirstInRowValue
+                    elif i % 8 == 0:
+                        FirstInRowValue, MemorysOut[i] = self.AdjacentDecoder(FirstInRowValue, CurrentRecreatedResidual, MemorysOut[i])
+                        AdjacentValue = FirstInRowValue
+                    #The value is predicted from the previous mic value
+                    else:
+                        AdjacentValue, MemorysOut[i] = self.AdjacentDecoder(AdjacentValue, CurrentRecreatedResidual, MemorysOut[i])
+                        
+                    DecodedValues[i].append(AdjacentValue)
 
 
         else:
             for i in range(len(CodeWords)):
                 CodeWord = CodeWords[i]
+                #Check what encoder was used to encode the resiudals
                 ChoosenEncoder, CodeWord = self.FindEncoder(CodeWord)
-
+                #If ChoosenEncoder is 0 RLE have been used to encode the resiudals
                 if ChoosenEncoder == 0:
                     #Decode the values when RLE is used to encode
                     DecodedValues[i], MemorysOut[i] = self.RleDecoder(CodeWord)
@@ -240,13 +259,22 @@ class FlacModified:
                         if i == 0:
                             DecodedValues[i], MemorysOut[i] = self.ShortenDecoder(RecreatedResiduals, self.AdjacentOrder, MemorysOut[i])
                         
-                        elif i % 8 == 0:
-                            prediction = DecodedValues[i-8].copy()
-
                         else:
-                            prediction = DecodedValues[i-1].copy()
+                            CurrentMicDecodedValues = []
+                            if i % 8 == 0:
+                                prediction = DecodedValues[i-8].copy()
 
-                        DecodedValues[i], MemorysOut[i] = self.AdjacentDecoder(prediction, RecreatedResiduals, MemorysOut[i])
+                            else:
+                                prediction = DecodedValues[i-1].copy()
+
+                            for j in range(len(prediction)):
+                                CurrentPrediction = prediction[j]
+                                CurrentResidual = RecreatedResiduals[j]
+
+                                CurrentDecodedValue, MemorysOut[i] = self.AdjacentDecoder(CurrentPrediction, CurrentResidual, MemorysOut[i])
+                                CurrentMicDecodedValues.append(CurrentDecodedValue)
+
+                            DecodedValues[i] = CurrentMicDecodedValues
 
                     #In other cases Shorten have been used
                     else:
@@ -255,6 +283,16 @@ class FlacModified:
 
                         DecodedValues[i], MemorysOut[i] = self.ShortenDecoder(RecreatedResiduals, order, MemorysOut[i])
 
+        #Length of DecodedValues should match number of mics
+        if len(DecodedValues) != self.mics:
+            raise ValueError(f"DecodedValues length does not match number of mics, current length is: {len(DecodedValues)}")
+        
+        #Each saved slot in decodedValues should have a length that matches number of samples
+        for microphone in range(len(DecodedValues)):
+            if len(DecodedValues[microphone]) != self.samples:
+                raise ValueError(f"Only {len(DecodedValues[microphone])} samples decoded for microphone #{microphone}")
+            
+        return DecodedValues, MemorysOut
 
 
 
@@ -310,7 +348,13 @@ class FlacModified:
     def RiceDecode(self, CodeWord):
         #The 5 first binary digits in the codeword represnt the k value used to Rice code the residuals
         kBinary = CodeWord[:5]
-        k = int(kBinary,2)
+        #When encoding k value it is decremented by 1 so when deocing k it have to be incremented by 1
+        k = int(kBinary,2) + 1
+        #k should only be able to be in value between 1 and 33
+        if not (1 <= k <= 33) or not isinstance(k, int):
+            raise ValueError(f"Order can only have integer values between 1 and 33. Current value of is {k}")
+
+
         CodeWord = CodeWord[5:]
         
         decoded_values = []
@@ -560,20 +604,25 @@ class FlacModified:
         return CurrentResidual, NewPrediction
     
 
-    def AdjacentDecoder(self, predictions, residuals, memory):
-        DecodedValues = []
+    def AdjacentDecoder(self, prediction, residual, memory):
+        
 
-        for j in range(len(residuals)):
-            DecodedValue = predictions[j] + residuals[j]
+        #Recreate the original input value by adding prediciton and residual
+        DecodedValue = prediction + residual
 
-            #Update memory
-            new_memory = [DecodedValue] + memory[:-1]
-            DecodedValues.append(DecodedValue)
+        #Update memory
+        new_memory = [DecodedValue] + memory[:-1]
+            
 
-        return DecodedValues, new_memory
+        return DecodedValue, new_memory
 
        
+    def FirstAdjacentDecoder(self, residual, memory):
+        Firstpredict = (sum( np.array(memory[:self.AdjacentOrder]) * np.array(self.ShortenCofficents[self.AdjacentOrder]) ))
+        FirstDecodedValue = Firstpredict + residual
+        new_memory = [FirstDecodedValue] + memory[:-1]
 
+        return FirstDecodedValue, new_memory
 
 
 
