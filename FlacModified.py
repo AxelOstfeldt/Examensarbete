@@ -3,13 +3,20 @@ import math
 
 class FlacModified:
 
-    def __init__(self, sign, mics, samples, AdjacentOrder):
+    def __init__(self, sign = True, mics: int = 64, samples: int = 256, AdjacentOrder: int = 2, ForceEncoder = "None"):
         self.ShortenCofficents = [[0],[1],[2, -1],[3, -3, 1],[4,-6,4,-1]]
         self.mics = mics
         self.samples = samples
         self.AdjacentOrder = AdjacentOrder
         self.sign = sign
-        
+        EncoderForced = -1
+        Encoders = ["RLE", "Shorten0", "Shorten1", "Shorten2", "Shorten3", "Shorten4", "AdjacentSamples", "AdjacentMics"]
+        for i in range(len(Encoders)):
+            encoder = Encoders[i]
+            if encoder == ForceEncoder:
+                EncoderForced = i
+
+        self.EncoderForced = EncoderForced
         
 
     def In(self, Inputs, memorysIn):
@@ -123,18 +130,23 @@ class FlacModified:
             for i in range(len(CurrentAdjacentSampleResidual)):
                 AdjacentSampleCodeWords += self.RiceEncode(CurrentAdjacentSampleResidual[i], k)
 
+            #If EncoderForced is: 0 <= EncoderForced <= 6, 
+            if 0 <= self.EncoderForced <= 6:
+                ChoosenEncoder = self.EncoderForced
 
-            #Find wich code word is shortest of RLE and the orders of shorten
-            ChoosenEncoder = 0
-            EncoderLength = len(RleCode)
-            for order in range(5):
-                if EncoderLength > len(ShortenCodeWords[order]):
-                    EncoderLength = len(ShortenCodeWords[order])
-                    ChoosenEncoder = order + 1
-            
-            #Compare the shortest code word of RLE or SHorten to adjacent codeword
-            if EncoderLength > len(AdjacentSampleCodeWords):
-                ChoosenEncoder = 6
+            #Else the shortest codeword is calculated and choosen as encoder
+            else:
+                #Find wich code word is shortest of RLE and the orders of shorten
+                ChoosenEncoder = 0
+                EncoderLength = len(RleCode)
+                for order in range(5):
+                    if EncoderLength > len(ShortenCodeWords[order]):
+                        EncoderLength = len(ShortenCodeWords[order])
+                        ChoosenEncoder = order + 1
+                
+                #Compare the shortest code word of RLE or SHorten to adjacent codeword
+                if EncoderLength > len(AdjacentSampleCodeWords):
+                    ChoosenEncoder = 6
             
             #Binary represent the choosen code word, this will be the first bits in the code word
             CurrentCodeWord = np.binary_repr(ChoosenEncoder,3)
@@ -180,18 +192,28 @@ class FlacModified:
 
             AdjacentCodeWords.append(CurrentAdjacentCodeWord)
 
-        #Compare the total length of the adjacent codewords based on sorting residuals by mics to the other codewords
-        samplesLen = 0
-        micsLen = 0
-        for i in range(len(CodeWords)):
-            samplesLen += len(CodeWords[i])
+        #if EncoderForced is less than 0 the shortest code words will be choosen
+        if self.EncoderForced < 0:
 
-        for i in range(len(AdjacentCodeWords)):
-            micsLen += len(AdjacentCodeWords[i])
+            #Compare the total length of the adjacent codewords based on sorting residuals by mics to the other codewords
+            samplesLen = 0
+            micsLen = 0
+            for i in range(len(CodeWords)):
+                samplesLen += len(CodeWords[i])
 
-        if samplesLen < micsLen:
+            for i in range(len(AdjacentCodeWords)):
+                micsLen += len(AdjacentCodeWords[i])
+
+            if samplesLen < micsLen:
+                ChoosenCodeWords = CodeWords
+            
+            else:
+                ChoosenCodeWords = AdjacentCodeWords
+        #If 0 <= EncoderForced < 7 the codeword is forced to take a value previously calculated and Choosen codewords is set to CodeWords
+        elif self.EncoderForced < 7:
             ChoosenCodeWords = CodeWords
-        
+
+        #In other cases for EncoderForced the ChoosenCodeWords will be for Adjacent when residuals are grouped by samples
         else:
             ChoosenCodeWords = AdjacentCodeWords
 
