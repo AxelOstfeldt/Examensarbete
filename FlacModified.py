@@ -17,6 +17,10 @@ class FlacModified:
                 EncoderForced = i
 
         self.EncoderForced = EncoderForced
+        #An encoder that is not in the list cant be choosen
+        if self.EncoderForced < 0 and ForceEncoder != "None":
+            raise ValueError(ForceEncoder," is not a possible choice of encoder, options are: ", Encoders)
+        
         
 
     def In(self, Inputs, memorysIn):
@@ -34,6 +38,7 @@ class FlacModified:
             AdjacentSampleCodeWords = ""
             #ShortenK = [0,0,0,0,0]#Not needed?
             AdjacentResiduals.append([])
+            
 
             for sample in range(self.samples):
                 #RLE calculations:
@@ -72,25 +77,27 @@ class FlacModified:
                 #First prediction for adjacent is saved as the first value in the begining of a new row
                 #First residual for adjacent in the residual given by tge choosen order of shorten prediction 
                 if microphone == 0:
+                    #CurrentAdjacentResidual = currentInputs[sample] - ShortenPredictions[order]
                     AdjacentResiduals[microphone].append(currentInputs[sample] - ShortenPredictions[order])
                     AdjacentFirstPredictions.append(currentInputs[sample])
                     AdjacentPredictions.append(currentInputs[sample])
-
-                #If microphone % 8 == 0 a new row for microphones have begun
-                elif microphone % 8 == 0:
-                    #the first value in the row is predicted using the previous row first value
-                    CurrentAdjacentResidual, NewAdjacentPrediction = self.AdjacentPredictIn(currentInputs[sample], AdjacentFirstPredictions[sample])
-                    #The first value in the row is then updated to the value of the first mic in the new row
-                    AdjacentFirstPredictions[sample] = NewAdjacentPrediction
-
+                
                 else:
-                    #Predict the current mic value with the previous mic value
-                    CurrentAdjacentResidual, NewAdjacentPrediction = self.AdjacentPredictIn(currentInputs[sample], AdjacentPredictions[sample])
+                    #If microphone % 8 == 0 a new row for microphones have begun
+                    if microphone % 8 == 0:
+                        #the first value in the row is predicted using the previous row first value
+                        CurrentAdjacentResidual, NewAdjacentPrediction = self.AdjacentPredictIn(currentInputs[sample], AdjacentFirstPredictions[sample])
+                        #The first value in the row is then updated to the value of the first mic in the new row
+                        AdjacentFirstPredictions[sample] = NewAdjacentPrediction
 
-                #Save the resiudla
-                AdjacentResiduals[microphone].append(CurrentAdjacentResidual)
-                #Update the prediciton for the next mic
-                AdjacentPredictions[sample] = NewAdjacentPrediction
+                    else:
+                        #Predict the current mic value with the previous mic value
+                        CurrentAdjacentResidual, NewAdjacentPrediction = self.AdjacentPredictIn(currentInputs[sample], AdjacentPredictions[sample])
+
+                    #Save the resiudla
+                    AdjacentResiduals[microphone].append(CurrentAdjacentResidual)
+                    #Update the prediciton for the next mic
+                    AdjacentPredictions[sample] = NewAdjacentPrediction
 
             #Encode the residuals for shorten using RiceCodes
             for order in range(5):
@@ -160,6 +167,8 @@ class FlacModified:
             else:
                 CurrentCodeWord += ShortenCodeWords[ChoosenEncoder-1]
 
+            
+
             CodeWords.append(CurrentCodeWord)
 
         #Encode the adjacent residuals by sorting the resiudals based on mic
@@ -217,7 +226,8 @@ class FlacModified:
         else:
             ChoosenCodeWords = AdjacentCodeWords
 
-        return ChoosenCodeWords
+        
+        return ChoosenCodeWords, memorysIn
         
 
 
@@ -235,7 +245,6 @@ class FlacModified:
             DecodedValues.append([])
 
         if AdjacentMics:
-            print("Adjacent Mics")
 
             
             #For Adjacent Mics the first 
@@ -382,7 +391,7 @@ class FlacModified:
         decoded_values = []
 
         #Loops trough the code word to get all values in the code word
-        while len(code) > 0:
+        while len(CodeWord) > 0:
             A = 0
             #If S is true the output should be negative
             S = False
@@ -391,21 +400,21 @@ class FlacModified:
             #Checks if the data is signed
             if self.sign:
                 #Checks if the MSB is "1", indicating that the value should be negative.
-                if code[0] == "1":
+                if CodeWord[0] == "1":
                     #Sets S to True if the output should be negative
                     S = True
                 #Removes the MSB, signed bit, from the code word.
                 #This way the rest of the code word can be handled as if it was unsigned
-                code = code[1:]
+                CodeWord = CodeWord[1:]
 
             
             #Decodes the unary code.
             #Unary code represents a interger value as a set of "1":s followed by a "0".
             #By incrementing A by 1 if the MSB is a one then moving the codeword one step and checking again
             #all "1" will increment A until a "0" is MSB indicating that the unary code have been decoded. 
-            while code[0] == "1":
+            while CodeWord[0] == "1":
                 A += 1
-                code = code[1:]
+                CodeWord = CodeWord[1:]
 
             
             #After the unary code have been uncoded the remaining code will be
@@ -413,10 +422,10 @@ class FlacModified:
             #By looping thorugh the codeword and removing k bits to the current value being decoded
             #The last bits in the code word for the current value can be decoded
             for j in range(k):
-                code = code[1:]
-                value += code[0]
+                CodeWord = CodeWord[1:]
+                value += CodeWord[0]
             #Since there is a 0 separating the MSB with the LSB 1 more bit needs to be removed for the current value in the codeword
-            code = code[1:]
+            CodeWord = CodeWord[1:]
 
             value = bin(A)[2:] + value
 
@@ -607,10 +616,11 @@ class FlacModified:
         #Predict shorten for order 0-4
         ShortenPredictions = [0]
         for i in range(1,5):
+
             ShortenPredictions.append(sum( np.array(memoryIn[:i]) * np.array(self.ShortenCofficents[i]) ))
 
         #All memory slots are stepped one step back and the oldest memory is dropped
-        new_memory = []
+        new_memory = [0]
         new_memory += memoryIn[:-1]
 
         return ShortenPredictions, new_memory

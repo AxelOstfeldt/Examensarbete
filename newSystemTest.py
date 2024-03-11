@@ -8,6 +8,7 @@ from Shorten import Shorten
 from LPC import LPC
 from FLAC import FLAC
 from Adjacent import Adjacent
+from FlacModified import FlacModified
 
 import matplotlib.pyplot as plt
 import time
@@ -34,7 +35,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 28
+test = 61
 
 #General tests
 #Test 1. This test plots microphone data
@@ -77,12 +78,33 @@ test = 28
 #Test 47. Time how long time it takes for FLAC to recreate a full array off microphone values using Rice codes
 #Test 48. Time how long time it takes for FLAC to recreate a full array off microphone values using Golomb codes
 
-#Test that compare all algorithms
+#Test that compare all algorithms(Shorten, LPC, FLAC, Adjacent)
 #Test 51. Compare compression rate of all algorithms over 1 array of 64 mics, adjusted formula for k-value by incrementing it by 1
 #Test 52. Compare compression rate of all algorithms over 1 array of 64 mics, (using original formula for k-value)
 #Test 53. Compare compression rate of all algorithms over 1 array but 1 k vale for 256*64 samples
 
+#FlacModified tests
+#Test 61.
+
+
+
+
 #Initial values for tests
+
+if test == 61:
+    mic_start = 64
+    mic_end = 127
+    FlacMod_predictor = FlacModified(mics = mic_end+1-mic_start, ForceEncoder="RLE")
+    memorysIn = []
+    AllCodeWords = []
+    OriginalInputs = []
+    for i in range(mic_end + 1 - mic_start):
+        memorysIn.append([0]*4)
+        OriginalInputs.append([])
+
+    
+
+    
 if test == 53:
 
     #Shorten initial values
@@ -414,7 +436,6 @@ if test == 31:
     AllMemorys = []
     LPC_Cofficents = []
     AllTestInputs = []
-
 
 
 if test == 28:
@@ -768,6 +789,24 @@ print("")
 for itter in range(len(test_data)):
     current_data = test_data[itter]
     print("Itteration #", itter)
+
+    if test == 61:
+        input_data = current_data[mic_start:mic_end+1,:].copy()
+
+        #Encode the residuals
+        CodeWords, memorysIn = FlacMod_predictor.In(input_data, memorysIn)
+        #Store the encoded residuals
+        AllCodeWords.append(CodeWords)
+
+        #Save the original mic values to later plot
+        for mic in range(mic_start, mic_end+1):
+            OgData = current_data[mic,:].copy()
+            for CurrentData in OgData:
+               OriginalInputs[mic-mic_start].append(CurrentData)
+        
+
+        
+
 
 
     if test == 53:
@@ -1551,7 +1590,6 @@ for itter in range(len(test_data)):
             AllCodeWords[mic].append(code_word)
 
 
-
     if test == 26:
         inputs = []
         for microphone in range(mic_start, mic_end + 1):
@@ -2329,6 +2367,76 @@ for itter in range(len(test_data)):
 
 
 print("")
+
+if test == 61:
+    print("Test 61")
+    print("")
+    RecreatedValues = []
+    MemorysOut = []
+    for mics in range(mic_end + 1 - mic_start):
+        MemorysOut.append([0]*4)
+        RecreatedValues.append([])
+
+    for i in range(len(AllCodeWords)):
+        #Recreate the input values
+        CodeWords = AllCodeWords[i]
+        CurrentRecreatedValues, MemorysOut =  FlacMod_predictor.Out(CodeWords, MemorysOut)
+        
+        #Store the recreated input values by sorting after mics
+        for mic in range(len(CurrentRecreatedValues)):
+            CurrentMicRecreatedValues = CurrentRecreatedValues[mic]
+            for CurrentMicValue in CurrentMicRecreatedValues:
+                RecreatedValues[mic].append(CurrentMicValue)
+
+    for mic in range(len(RecreatedValues)):
+        CurrentReVal = RecreatedValues[mic]
+        CurrentOgVal = OriginalInputs[mic]
+        #Check if all values have been recreated correctly by taking original value - recreated value
+        #This should be equal to zero if everything is done correctly
+        zero = []
+        all_correct = 0
+        for sample in range(len(CurrentReVal)):
+            current_zero = CurrentOgVal[sample] - CurrentReVal[sample]
+            if current_zero != 0:
+                all_correct +=1
+            zero.append(current_zero)
+
+        if all_correct != 0:
+            print("For mic#",mic," ", all_correct,"values was not decoded correctly")
+            
+        #else:
+         #   print("All values for microphone #",mic,"was recreated correctly")
+
+
+        #Plot original values, recreated values, and zero array
+        if 1 < 0:
+            figure_title = "mic #" + str(mic + mic_start)
+
+            fig = plt.figure(figure_title)
+            ax = fig.add_subplot(311)
+            plt.plot(CurrentOgVal)
+            ax.title.set_text("Original input")
+            
+            ax = fig.add_subplot(312)
+            plt.plot(CurrentReVal)
+            ax.title.set_text("Recreated input")
+            
+            ax = fig.add_subplot(313)
+            plt.plot(zero)
+            ax.title.set_text("Original input - recreated input")
+
+            plt.show()
+
+
+            
+
+    
+
+    
+
+
+    
+
 
 if test == 53:
     print("Test 53")
