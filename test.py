@@ -8,9 +8,9 @@ from LPC import LPC
 
 if 1 > 0:
     
-    RleCopy = [1,2,3,4,5]
-
-    print(RleCopy[:2])
+    
+    k_plot = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+    print(k_plot[8-1:15])
     
 
 if 1 < 0:

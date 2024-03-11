@@ -35,7 +35,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 62
+test = 13
 
 #General tests
 #Test 1. This test plots microphone data
@@ -91,6 +91,16 @@ test = 62
 
 
 #Initial values for tests
+if test == 63:
+    mic_start = 64
+    mic_end = 127
+    FlacMod_predictor = FlacModified(mics = mic_end+1-mic_start)
+    memorysIn = []
+    AllCodeWords = []
+    for i in range(mic_end + 1 - mic_start):
+        memorysIn.append([0]*4)
+
+
 if test == 62:
     mic_start = 64
     mic_end = 127
@@ -622,7 +632,7 @@ if test == 18:
 
 
 if test == 17:
-    Order = 1
+    Order = 3
     AllCodeWords = []
     UncodedWords = []
     OriginalInputs = []
@@ -694,8 +704,8 @@ if test == 14:
 if test == 13:
     uncoded_words = []
     k_ideal_array = [[],[],[],[]]
-    k_start = 8
-    k_stop = 16
+    k_start = 9
+    k_stop = 10
     k_array = []
     order_0_array = []
     order_1_array = []
@@ -735,7 +745,7 @@ if test == 4:
     sign = True
     code_words_r = []
     code_words_g = []
-    uncoded_words_32 = []
+    uncoded_words_24 = []
     uncoded_words_smal = []
     uncoded_smal_max_array = []
 
@@ -761,7 +771,7 @@ if test == 1:
 #The data from the while loop is appended in the test_data array
 #It loops recomended_limit amount of time, this depends on the size of the sound file
 #23 was found to be a good number to use
-recomnded_limit = 20
+recomnded_limit = 1
 test_data = []
 data = np.empty((config.N_MICROPHONES, config.N_SAMPLES), dtype=np.float32)
 while w_limit < recomnded_limit:
@@ -800,6 +810,14 @@ for itter in range(len(test_data)):
     current_data = test_data[itter]
     print("Itteration #", itter)
 
+    if test == 63:
+        input_data = current_data[mic_start:mic_end+1,:].copy()
+
+        #Encode the residuals
+        CodeWords, memorysIn = FlacMod_predictor.In(input_data, memorysIn)
+        #Store the encoded residuals
+        AllCodeWords.append(CodeWords)
+
 
     if test == 62:
         input_data = current_data[mic_start:mic_end+1,:].copy()
@@ -819,8 +837,6 @@ for itter in range(len(test_data)):
                UncodedWord += np.binary_repr(abs(CurrentData),24)
             
             OriginalInputsBinary[mic-mic_start].append(UncodedWord)
-
-            
 
 
     if test == 61:
@@ -2149,7 +2165,7 @@ for itter in range(len(test_data)):
     #2. What k-value for each order give best cr result.
     #3. How well does the ideal k-value in Rice theory match the practical ideal k-value
     if test == 13:
-        input = current_data[best_mic,:]#Input data used in test
+        input = current_data[silent_mic_1,:]#Input data used in test
 
             
         #loops though all k values in k_array.
@@ -2200,10 +2216,10 @@ for itter in range(len(test_data)):
                     order_3_array[j].append(code_word)
         
         #Calculates size of uncoded input.
-        #Assuming each vaule is repsented in 32 bits.
+        #Assuming each vaule is repsented in 24 bits.
         uncoded_word = ""              
         for j in range(len(input)):
-            uncoded_word += np.binary_repr(input[j],32)
+            uncoded_word += np.binary_repr(abs(input[j]),24)
 
         #Saves uncoded binary input in array
         uncoded_words.append(uncoded_word)
@@ -2285,7 +2301,7 @@ for itter in range(len(test_data)):
         input = current_data[best_mic,:]#This mic choice is the mic that will be sent over channel
         code_word_r =""
         code_word_g =""
-        uncoded_word_32 = ""
+        uncoded_word_24 = ""
         uncoded_word_smal = ""
         
 
@@ -2318,7 +2334,7 @@ for itter in range(len(test_data)):
             code_word_g += kodOrd_g
             
             #Saves binary value of input, represented in 32 bits
-            uncoded_word_32 += np.binary_repr(input[i],32)
+            uncoded_word_24 += np.binary_repr(abs(input[i]),24)
 
             #Have to manualy assign sign bit, since the data is signed
             s = "0"
@@ -2340,7 +2356,7 @@ for itter in range(len(test_data)):
         #Saves Rice coded input values, Golomb coded input values, and binary input values arrays (both as 32 bits and smalest possible bit value)
         code_words_r.append(code_word_r)
         code_words_g.append(code_word_g)
-        uncoded_words_32.append(uncoded_word_32)
+        uncoded_words_24.append(uncoded_word_24)
         uncoded_words_smal.append(uncoded_word_smal)
         uncoded_smal_max_array.append(uncoded_smal_max)
 
@@ -2397,6 +2413,31 @@ for itter in range(len(test_data)):
 
 print("")
 
+
+if test == 63:
+    print("Test 63")
+    print("")
+    RecreationTime = []
+    MemorysOut = []
+    
+    for mics in range(mic_end + 1 - mic_start):
+        MemorysOut.append([0]*4)
+
+    for i in range(len(AllCodeWords)):
+        #Recreate the input values
+        CodeWords = AllCodeWords[i]
+        start_time = time.time()
+        CurrentRecreatedValues, MemorysOut =  FlacMod_predictor.Out(CodeWords, MemorysOut)
+        stop_time = time.time()
+        total_time = stop_time - start_time
+        RecreationTime.append(total_time)
+
+    avg_time = sum(RecreationTime) / len(RecreationTime)
+
+    print("Average decompression time is ", avg_time,"seconds")
+    
+
+
 if test == 62:
     print("Test 62")
     print("")
@@ -2425,12 +2466,6 @@ if test == 62:
 
     print("Average compression rate = ", avg_cr)
         
-
-
-    
-
-
-
 
 if test == 61:
     print("Test 61")
@@ -4816,6 +4851,70 @@ if test == 13:
 
     plt.show()
 
+    #These are values saved from test and plotted for report
+    if 1 > 0:
+        print("plot report")
+        k_plot = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+        #Values from testing sine sound, k= 11-15 for order 0, k=8-15 order 1, k = 8-15 for order 2, k = 8-15 order 3
+        Sine_order0 = [0.88515625, 0.7446940104166666, 0.6957600911458334, 0.691748046875, 0.7091064453125]
+        Sine_order1 = [0.7937744140625, 0.6391438802083333, 0.5803059895833333, 0.5723795572916666, 0.58974609375, 0.6253743489583334, 0.6668212890625002, 0.7083577473958335]
+        Sine_order2 = [0.6918619791666667, 0.5924886067708333, 0.5577067057291667, 0.5619140624999999, 0.5873860677083333, 0.6258138020833334, 0.6670003255208333, 0.7083984375000002]
+        Sine_order3 = [0.9262125651041668, 0.7160400390625001, 0.6189046223958334, 0.5917643229166667, 0.6001627604166668, 0.6279134114583333, 0.6674235026041667, 0.7085693359375]
+        #Values from testing silent (mic 20), k = 1-8
+        Silent_order0 =  [0.125, 0.16666666666666663, 0.20833333333333334, 0.25, 0.29166666666666674, 0.33333333333333326, 0.375, 0.4166666666666667]
+        Silent_order1 = [0.125, 0.16666666666666663, 0.20833333333333334, 0.25, 0.29166666666666674, 0.33333333333333326, 0.375, 0.4166666666666667]
+        Silent_order2 =  [0.125, 0.16666666666666663, 0.20833333333333334, 0.25, 0.29166666666666674, 0.33333333333333326, 0.375, 0.4166666666666667]
+        Silent_order3 = [0.125, 0.16666666666666663, 0.20833333333333334, 0.25, 0.29166666666666674, 0.33333333333333326, 0.375, 0.4166666666666667]
+        #Values from testing Drone, k = 13-20 for all orders but 3 wich is k= 14-20
+        Drone_order0 =  [0.9572916666666667, 0.8228434244791666, 0.7768636067708334, 0.77548828125, 0.7971842447916666, 0.8335286458333334, 0.875, 0.9166666666666667]
+        Drone_order1 = [0.9583170572916666, 0.8236083984375, 0.7773030598958333, 0.7756266276041667, 0.7973714192708334, 0.8336018880208333, 0.875, 0.9166666666666667]
+        Drone_order2 =  [1.0740071614583333, 0.8810791015625001, 0.8058430989583334, 0.7895426432291667, 0.8037353515625, 0.8348551432291668, 0.875048828125, 0.9166666666666667]
+        Drone_order3 =[0.9959472656250001, 0.8629313151041668, 0.8175862630208334, 0.8169677734375, 0.8393717447916668, 0.8754964192708332, 0.9166666666666667]
+        #Values from testing static noise, k = 13-20 order 0, k= 14-20 for order 1 and order 2, k= 15-20 for order 3
+        Static_order0 = [1.0679524739583335, 0.8781494140625, 0.8041178385416666, 0.7887207031250001, 0.8031575520833332, 0.8342936197916666, 0.875, 0.9166666666666667]
+        Static_order1 = [0.9243652343750002, 0.827392578125, 0.800244140625, 0.8084879557291668, 0.8358154296875, 0.8750162760416667, 0.9166666666666667]
+        Static_order2 = [1.0432942708333335, 0.8866048177083332, 0.8293619791666667, 0.8226725260416667, 0.8415852864583332, 0.8756266276041667, 0.9166666666666667]
+        Static_order3 = [0.9977783203125001, 0.8848958333333332, 0.8495035807291667, 0.853662109375, 0.8788574218749998, 0.9167724609375]
+        
+        plt.figure("Test13_fixed_values")
+
+        #Plot sine
+        plt.plot(k_plot[10:15], Sine_order0, 'yo', label='1k Hz sine soundwave, Shorten order 0')
+        plt.plot(k_plot[7:15], Sine_order1, 'yv', label='1k Hz sine soundwave, Shorten order 1')
+        plt.plot(k_plot[7:15], Sine_order2, 'ys', label='1k Hz sine soundwave, Shorten order 2')
+        plt.plot(k_plot[7:15], Sine_order3, 'y*', label='1k Hz sine soundwave, Shorten order 3')
+
+        #plot silent
+        plt.plot(k_plot[0:8], Silent_order0, 'ro', label='Silent mic, Shorten order 0')
+        plt.plot(k_plot[0:8], Silent_order1, 'rv', label='Silent mic, Shorten order 1')
+        plt.plot(k_plot[0:8], Silent_order2, 'rs', label='Silent mic, Shorten order 2')
+        plt.plot(k_plot[0:8], Silent_order2, 'r*', label='Silent mic, Shorten order 3')
+
+        #plot drone
+        plt.plot(k_plot[12:20], Drone_order0, 'bo', label='Drone sound, Shorten order 0')
+        plt.plot(k_plot[12:20], Drone_order1, 'bv', label='Drone sound, Shorten order 1')
+        plt.plot(k_plot[12:20], Drone_order2, 'bs', label='Drone sound, Shorten order 2')
+        plt.plot(k_plot[13:20], Drone_order3, 'b*', label='Drone sound, Shorten order 3')
+
+        #plot Static oise
+        plt.plot(k_plot[12:20], Static_order0, 'go', label='Static noise, Shorten order 0')
+        plt.plot(k_plot[13:20], Static_order1, 'gv', label='Static noise, Shorten order 1')
+        plt.plot(k_plot[13:20], Static_order2, 'gs', label='Static noise, Shorten order 2')
+        plt.plot(k_plot[14:20], Static_order3, 'g*', label='Static noise, Shorten order 3')
+
+        #plt.plot(k_array, cr_2, 'bo', label='Order 2')
+        #plt.plot(k_array, cr_3, 'go', label='Order 3')
+        #plt.title("Comparison of comression ratio for differente orders")
+        plt.yticks(fontsize=20)
+        plt.xticks(fontsize=20)
+        plt.xlabel("k-value", fontsize=25)
+        plt.ylabel("Average compression ratio", fontsize=25)
+        plt.legend(fontsize=15)
+
+        plt.show()
+
+
+
 
 #Plot input signal, residual, predicted value to see how good the result of shorten is
 if test == 12:
@@ -4976,14 +5075,14 @@ if test == 4:
     print("Array lengths:")
     print("Rice: ", len(code_words_r[0]))
     print("Golomb: ", len(code_words_g[0]))
-    print("32 bit: ", len(uncoded_words_32[0]))
+    print("32 bit: ", len(uncoded_words_24[0]))
     print("Smal bit: ", len(uncoded_words_smal[0]))
 
     
 
     for i in range(len(code_words_r)):
-        cr_r.append(len(code_words_r[i])/len(uncoded_words_32[i]))
-        cr_g.append(len(code_words_g[i])/len(uncoded_words_32[i]))
+        cr_r.append(len(code_words_r[i])/len(uncoded_words_24[i]))
+        cr_g.append(len(code_words_g[i])/len(uncoded_words_24[i]))
 
         avg_len_r.append(len(code_words_r[i])/256)
         avg_len_g.append(len(code_words_g[i])/256)
