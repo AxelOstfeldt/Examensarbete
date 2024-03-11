@@ -35,7 +35,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 61
+test = 62
 
 #General tests
 #Test 1. This test plots microphone data
@@ -84,12 +84,23 @@ test = 61
 #Test 53. Compare compression rate of all algorithms over 1 array but 1 k vale for 256*64 samples
 
 #FlacModified tests
-#Test 61.
-
+#Test 61. Test if FlacModifed can recreate inputs correctly, with options to plot original inputs, recreated input, and orgiginal input - recreated input
+#Test 62. Test Compression rate for FlacModified. Compare with orignal input values as binary 24 bit
+#Test 63. Test Decoding speed for FlacModified
 
 
 
 #Initial values for tests
+if test == 62:
+    mic_start = 64
+    mic_end = 127
+    FlacMod_predictor = FlacModified(mics = mic_end+1-mic_start)
+    memorysIn = []
+    AllCodeWords = []
+    OriginalInputsLen = []
+    for i in range(mic_end + 1 - mic_start):
+        memorysIn.append([0]*4)
+        OriginalInputsLen.append([])
 
 if test == 61:
     mic_start = 64
@@ -101,8 +112,6 @@ if test == 61:
     for i in range(mic_end + 1 - mic_start):
         memorysIn.append([0]*4)
         OriginalInputs.append([])
-
-    
 
     
 if test == 53:
@@ -751,7 +760,7 @@ if test == 1:
 #The data from the while loop is appended in the test_data array
 #It loops recomended_limit amount of time, this depends on the size of the sound file
 #23 was found to be a good number to use
-recomnded_limit = 20
+recomnded_limit = 2
 test_data = []
 data = np.empty((config.N_MICROPHONES, config.N_SAMPLES), dtype=np.float32)
 while w_limit < recomnded_limit:
@@ -790,6 +799,23 @@ for itter in range(len(test_data)):
     current_data = test_data[itter]
     print("Itteration #", itter)
 
+
+    if test == 62:
+        input_data = current_data[mic_start:mic_end+1,:].copy()
+
+        #Encode the residuals
+        CodeWords, memorysIn = FlacMod_predictor.In(input_data, memorysIn)
+        #Store the encoded residuals
+        AllCodeWords.append(CodeWords)
+
+        #Save the original mic values to later plot
+        for mic in range(mic_start, mic_end+1):
+            OgData = current_data[mic,:].copy()
+            for CurrentData in OgData:
+               CurrentDataBinary = np.binary_repr(abs(CurrentData),24)
+               OriginalInputsLen[mic-mic_start].append(CurrentDataBinary)
+
+
     if test == 61:
         input_data = current_data[mic_start:mic_end+1,:].copy()
 
@@ -804,10 +830,6 @@ for itter in range(len(test_data)):
             for CurrentData in OgData:
                OriginalInputs[mic-mic_start].append(CurrentData)
         
-
-        
-
-
 
     if test == 53:
         inputs = []
@@ -2368,6 +2390,27 @@ for itter in range(len(test_data)):
 
 print("")
 
+if test == 62:
+    print("Test 62")
+    print("")
+    MemorysOut = []
+    all_correct = 0
+    for mics in range(mic_end + 1 - mic_start):
+        MemorysOut.append([0]*4)
+
+
+    print("all code words len = ", len(AllCodeWords))
+    for i in range(len(AllCodeWords)):
+        CodeWords = AllCodeWords[i]
+        print("CodeWords len = ", len(CodeWords))
+
+        print("CodeWords[1] len = ", len(CodeWords[1]))
+
+    
+
+
+
+
 if test == 61:
     print("Test 61")
     print("")
@@ -2432,15 +2475,6 @@ if test == 61:
     if all_correct == 0:
         print("All values was recreated correctly")
             
- 
-            
-    
-
-    
-
-
-    
-
 
 if test == 53:
     print("Test 53")
