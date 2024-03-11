@@ -94,7 +94,7 @@ test = 61
 if test == 61:
     mic_start = 64
     mic_end = 127
-    FlacMod_predictor = FlacModified(mics = mic_end+1-mic_start, ForceEncoder="RLE")
+    FlacMod_predictor = FlacModified(mics = mic_end+1-mic_start)
     memorysIn = []
     AllCodeWords = []
     OriginalInputs = []
@@ -2373,6 +2373,7 @@ if test == 61:
     print("")
     RecreatedValues = []
     MemorysOut = []
+    all_correct = 0
     for mics in range(mic_end + 1 - mic_start):
         MemorysOut.append([0]*4)
         RecreatedValues.append([])
@@ -2394,18 +2395,17 @@ if test == 61:
         #Check if all values have been recreated correctly by taking original value - recreated value
         #This should be equal to zero if everything is done correctly
         zero = []
-        all_correct = 0
+        all_correct_mic = 0
         for sample in range(len(CurrentReVal)):
             current_zero = CurrentOgVal[sample] - CurrentReVal[sample]
             if current_zero != 0:
-                all_correct +=1
+                all_correct_mic +=1
             zero.append(current_zero)
 
-        if all_correct != 0:
-            print("For mic#",mic," ", all_correct,"values was not decoded correctly")
+        if all_correct_mic != 0:
+            print("For mic#",mic," ", all_correct_mic,"values was not decoded correctly")
             
-        #else:
-         #   print("All values for microphone #",mic,"was recreated correctly")
+        all_correct += all_correct_mic
 
 
         #Plot original values, recreated values, and zero array
@@ -2429,7 +2429,11 @@ if test == 61:
 
 
             
-
+    if all_correct == 0:
+        print("All values was recreated correctly")
+            
+ 
+            
     
 
     

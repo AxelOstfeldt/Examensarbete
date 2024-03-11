@@ -55,6 +55,10 @@ class FlacModified:
                         RleCode += self.RleEnconder(memorysIn[microphone][0], RleCount)
                         #Reset the Rle Counter
                         RleCount = 0
+
+                #For the last sample in the datablock the RLE value needs to be encoded
+                if sample == self.samples - 1:
+                    RleCode += self.RleEnconder(currentInputs[sample], RleCount)
                     
 
 
@@ -78,7 +82,7 @@ class FlacModified:
                 #First residual for adjacent in the residual given by tge choosen order of shorten prediction 
                 if microphone == 0:
                     #CurrentAdjacentResidual = currentInputs[sample] - ShortenPredictions[order]
-                    AdjacentResiduals[microphone].append(currentInputs[sample] - ShortenPredictions[order])
+                    AdjacentResiduals[microphone].append(currentInputs[sample] - ShortenPredictions[self.AdjacentOrder])
                     AdjacentFirstPredictions.append(currentInputs[sample])
                     AdjacentPredictions.append(currentInputs[sample])
                 
@@ -313,6 +317,7 @@ class FlacModified:
                         order = ChoosenEncoder - 1
 
                         DecodedValues[i], MemorysOut[i] = self.ShortenDecoder(RecreatedResiduals, order, MemorysOut[i])
+                        
 
         #Length of DecodedValues should match number of mics
         if len(DecodedValues) != self.mics:
@@ -538,6 +543,7 @@ class FlacModified:
             #A for loop is used to append as many values as needed
             #The RleCount value is increased by 1 because even though
             #a value never was reapeted it occured once
+            
             for reapeats in range(1 + int(RleCount, 2)):
                 DecodedValues.append(IntRelValue)
         
@@ -552,10 +558,11 @@ class FlacModified:
         #In the case that there is to few values among the decoded values pad the memory array with 0:s
         else:
             reversed_memory = RleCopy
-            while len(new_memory) < len(memory):
+            while len(new_memory) < 3:
                 reversed_memory.insert(0,0)
         for i in reversed(reversed_memory):
             new_memory.append(i)
+
 
         #Assign the new_memory to memory
         return DecodedValues, new_memory
@@ -599,15 +606,15 @@ class FlacModified:
                 #Calculate the prediciton from memory and cofficents
                 prediciton = sum( np.array(memoryOut[:Order]) * np.array(self.ShortenCofficents[Order]) )
 
-                #Recreate the original value by adding prediciton and residual value
-                RecreatedValue = prediciton + residual
+            #Recreate the original value by adding prediciton and residual value
+            RecreatedValue = prediciton + residual
 
-                #Update the memory by stepping all values one step and setting the first memory slot to the recreated value
-                new_memory = [RecreatedValue]
-                memoryOut = new_memory + memoryOut[:-1]
+            #Update the memory by stepping all values one step and setting the first memory slot to the recreated value
+            new_memory = [RecreatedValue]
+            memoryOut = new_memory + memoryOut[:-1]
 
-                #Save the recreated value
-                RecreatedValues.append(RecreatedValue)
+            #Save the recreated value
+            RecreatedValues.append(RecreatedValue)
 
         return RecreatedValues, memoryOut
 
