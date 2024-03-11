@@ -97,10 +97,11 @@ if test == 62:
     FlacMod_predictor = FlacModified(mics = mic_end+1-mic_start)
     memorysIn = []
     AllCodeWords = []
-    OriginalInputsLen = []
+    OriginalInputsBinary = []
     for i in range(mic_end + 1 - mic_start):
         memorysIn.append([0]*4)
-        OriginalInputsLen.append([])
+        OriginalInputsBinary.append([])
+        
 
 if test == 61:
     mic_start = 64
@@ -760,7 +761,7 @@ if test == 1:
 #The data from the while loop is appended in the test_data array
 #It loops recomended_limit amount of time, this depends on the size of the sound file
 #23 was found to be a good number to use
-recomnded_limit = 2
+recomnded_limit = 20
 test_data = []
 data = np.empty((config.N_MICROPHONES, config.N_SAMPLES), dtype=np.float32)
 while w_limit < recomnded_limit:
@@ -808,12 +809,18 @@ for itter in range(len(test_data)):
         #Store the encoded residuals
         AllCodeWords.append(CodeWords)
 
+
+
         #Save the original mic values to later plot
         for mic in range(mic_start, mic_end+1):
+            UncodedWord = ""
             OgData = current_data[mic,:].copy()
             for CurrentData in OgData:
-               CurrentDataBinary = np.binary_repr(abs(CurrentData),24)
-               OriginalInputsLen[mic-mic_start].append(CurrentDataBinary)
+               UncodedWord += np.binary_repr(abs(CurrentData),24)
+            
+            OriginalInputsBinary[mic-mic_start].append(UncodedWord)
+
+            
 
 
     if test == 61:
@@ -2393,18 +2400,32 @@ print("")
 if test == 62:
     print("Test 62")
     print("")
-    MemorysOut = []
-    all_correct = 0
-    for mics in range(mic_end + 1 - mic_start):
-        MemorysOut.append([0]*4)
+    
+    #Calculate compression rate
+    cr_array = []
 
+    for itteration in range(len(AllCodeWords)):
+        #Grabb CodeWords for all mics for one datablock
+        CodeWords = AllCodeWords[itteration]
 
-    print("all code words len = ", len(AllCodeWords))
-    for i in range(len(AllCodeWords)):
-        CodeWords = AllCodeWords[i]
-        print("CodeWords len = ", len(CodeWords))
+        for mic in range(len(CodeWords)):
+            #Grab one codeword from one mic in current datablock, this coresponds to microphone = mic, datablock =itteration
+            CurrentCodeWord = CodeWords[mic]
 
-        print("CodeWords[1] len = ", len(CodeWords[1]))
+            #Grab uncoded binary value for all datablocks for one mic
+            UncodedWordsMic = OriginalInputsBinary[mic]
+            #Grab uncoded binary value for one data block for selected mic, thus corresponds to microphone = mic, datablock = itteartion
+            CurrentUncodedWord = UncodedWordsMic[itteration]
+
+            cr = len(CurrentCodeWord) / len(CurrentUncodedWord)
+
+            cr_array.append(cr)
+
+    avg_cr = sum(cr_array) / len(cr_array)
+
+    print("Average compression rate = ", avg_cr)
+        
+
 
     
 
@@ -4142,6 +4163,7 @@ if test == 21:
             ax.title.set_text("Original input values - decoded input values")
 
             plt.show()
+
 
 if test == 18:
     print("Test 18")
