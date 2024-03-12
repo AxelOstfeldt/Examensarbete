@@ -9,6 +9,7 @@ from LPC import LPC
 from FLAC import FLAC
 from Adjacent import Adjacent
 from FlacModified import FlacModified
+from AdjacentAndShorten import DoubleCompression
 
 import matplotlib.pyplot as plt
 import time
@@ -35,7 +36,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 13
+test = 71
 
 #General tests
 #Test 1. This test plots microphone data
@@ -88,9 +89,24 @@ test = 13
 #Test 62. Test Compression rate for FlacModified. Compare with orignal input values as binary 24 bit
 #Test 63. Test Decoding speed for FlacModified
 
+#DoubleCompression test
+#Test 71. Test if DoubleCompression can ecreate inputs correctly, with options to plot original inputs, recreated input, and orgiginal input - recreated input
+
 
 
 #Initial values for tests
+if test == 71:
+    mic_start = 64
+    mic_end = 127
+
+    Order = 1
+    DoubleCompression_predictor = DoubleCompression(ShortenOrder = Order, mics = (mic_end + 1 - mic_start))
+
+    AdjacentMemoryIn = [0]*4
+    ShortenMemoryIn = []
+    for i in range(mic_end + 1 - mic_start):
+        ShortenMemoryIn.append([0]*4)
+
 if test == 63:
     mic_start = 64
     mic_end = 127
@@ -771,7 +787,7 @@ if test == 1:
 #The data from the while loop is appended in the test_data array
 #It loops recomended_limit amount of time, this depends on the size of the sound file
 #23 was found to be a good number to use
-recomnded_limit = 1
+recomnded_limit = 2
 test_data = []
 data = np.empty((config.N_MICROPHONES, config.N_SAMPLES), dtype=np.float32)
 while w_limit < recomnded_limit:
@@ -809,6 +825,12 @@ print("")
 for itter in range(len(test_data)):
     current_data = test_data[itter]
     print("Itteration #", itter)
+
+    if test == 71:
+        input_data = current_data[mic_start:mic_end+1,:].copy()
+        CodeWords, ShortenMemoryIn, AdjacentMemoryIn = DoubleCompression_predictor.In(input_data, ShortenMemoryIn, AdjacentMemoryIn)
+        print("len codewords = ", len(CodeWords))
+
 
     if test == 63:
         input_data = current_data[mic_start:mic_end+1,:].copy()
@@ -2412,6 +2434,9 @@ for itter in range(len(test_data)):
 
 
 print("")
+if test == 71:
+    print("Test 71")
+    print("")
 
 
 if test == 63:
@@ -2436,7 +2461,6 @@ if test == 63:
 
     print("Average decompression time is ", avg_time,"seconds")
     
-
 
 if test == 62:
     print("Test 62")
