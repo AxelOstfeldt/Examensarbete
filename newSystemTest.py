@@ -36,7 +36,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 71
+test = 73
 
 #General tests
 #Test 1. This test plots microphone data
@@ -91,6 +91,8 @@ test = 71
 
 #DoubleCompression test
 #Test 71. Test if DoubleCompression can ecreate inputs correctly, with options to plot original inputs, recreated input, and orgiginal input - recreated input
+#Test 62. Test Compression rate for DoubleCompression. Compare with orignal input values as binary 24 bit
+#Test 63. Test Decoding speed for DoubleCompression
 
 
 
@@ -98,6 +100,8 @@ test = 71
 if test == 71:
     mic_start = 64
     mic_end = 127
+    AllCodeWords = []
+    OriginalInputs = []
 
     Order = 1
     DoubleCompression_predictor = DoubleCompression(ShortenOrder = Order, mics = (mic_end + 1 - mic_start))
@@ -106,6 +110,7 @@ if test == 71:
     ShortenMemoryIn = []
     for i in range(mic_end + 1 - mic_start):
         ShortenMemoryIn.append([0]*4)
+        OriginalInputs.append([])
 
 if test == 63:
     mic_start = 64
@@ -787,7 +792,7 @@ if test == 1:
 #The data from the while loop is appended in the test_data array
 #It loops recomended_limit amount of time, this depends on the size of the sound file
 #23 was found to be a good number to use
-recomnded_limit = 2
+recomnded_limit = 20
 test_data = []
 data = np.empty((config.N_MICROPHONES, config.N_SAMPLES), dtype=np.float32)
 while w_limit < recomnded_limit:
@@ -828,8 +833,19 @@ for itter in range(len(test_data)):
 
     if test == 71:
         input_data = current_data[mic_start:mic_end+1,:].copy()
+
+        #Encode the input data for the datablock
         CodeWords, ShortenMemoryIn, AdjacentMemoryIn = DoubleCompression_predictor.In(input_data, ShortenMemoryIn, AdjacentMemoryIn)
-        print("len codewords = ", len(CodeWords))
+        AllCodeWords.append(CodeWords)
+
+        #Save the original data to later compare against the decoded data
+        for mic in range(mic_start, mic_end+1):
+            mic_data = current_data[mic,:]
+            for value in mic_data:
+                OriginalInputs[mic-mic_start].append(value)
+
+
+
 
 
     if test == 63:
@@ -2434,9 +2450,186 @@ for itter in range(len(test_data)):
 
 
 print("")
+if test == 73:
+    print("Test 73")
+    print("")
+
+    DecodingTime = []
+
+    AdjacentMemoryOut = [0]*4
+    ShortenMemoryOut = []
+    AllRecreatedValues = []
+    AllCorrect = 0
+    for mic in range(mic_end + 1 - mic_start):
+        ShortenMemoryOut.append([0]*4)
+        AllRecreatedValues.append([])
+
+    #recrete the orginal input values for each datablock
+    for CodeWords in AllCodeWords:
+        start_time = time.time()
+        Decodedvalues, ShortenMemoryOut, AdjacentMemoryOut = DoubleCompression_predictor.Out(CodeWords, ShortenMemoryOut, AdjacentMemoryOut)
+        stop_time = time.time()
+        total_time = stop_time - start_time
+        DecodingTime.append(total_time)
+        
+
+    
+
+        #Append the decoded values to the correct array depending on mic
+        for mic in range(mic_end + 1 - mic_start):
+            CurrentDecodedValues = Decodedvalues[mic]
+            for value in CurrentDecodedValues:
+                AllRecreatedValues[mic].append(value)
+
+    avg_time = sum(DecodingTime) / len(DecodingTime)
+
+    print("Average time to recreate values is ",avg_time,"seconds. Using Shorten order ", Order)
+
+    #Check if all values was reacreated correctly by checking if the original values are equal to the reacreated values
+    for mic in range(mic_end + 1 - mic_start):
+        mic_correct = 0
+        zero = []
+        OriginalMicValues = OriginalInputs[mic]
+        RecreatedMicValues = AllRecreatedValues[mic]
+        for i in range(len(RecreatedMicValues)):
+            current_zero = OriginalMicValues[i] - RecreatedMicValues[i]
+
+            if current_zero != 0:
+                mic_correct += 1
+
+            zero.append(current_zero)
+
+        if mic_correct != 0:
+            print("For mic #",mic+mic_start," ",mic_correct,"values was not recreated succesfully")
+
+        AllCorrect += mic_correct
+
+        
+
+    if AllCorrect == 0:
+        print("All values have been recreated succesfully")
+
+if test == 72:
+    print("Test 72")
+    print("")
+
+
+
+
+
+
+    AdjacentMemoryOut = [0]*4
+    ShortenMemoryOut = []
+    AllRecreatedValues = []
+    AllCorrect = 0
+    for mic in range(mic_end + 1 - mic_start):
+        ShortenMemoryOut.append([0]*4)
+        AllRecreatedValues.append([])
+
+    #recrete the orginal input values for each datablock
+    for CodeWords in AllCodeWords:
+        Decodedvalues, ShortenMemoryOut, AdjacentMemoryOut = DoubleCompression_predictor.Out(CodeWords, ShortenMemoryOut, AdjacentMemoryOut)
+        
+
+    
+
+        #Append the decoded values to the correct array depending on mic
+        for mic in range(mic_end + 1 - mic_start):
+            CurrentDecodedValues = Decodedvalues[mic]
+            for value in CurrentDecodedValues:
+                AllRecreatedValues[mic].append(value)
+
+    #Check if all values was reacreated correctly by checking if the original values are equal to the reacreated values
+    for mic in range(mic_end + 1 - mic_start):
+        mic_correct = 0
+        zero = []
+        OriginalMicValues = OriginalInputs[mic]
+        RecreatedMicValues = AllRecreatedValues[mic]
+        for i in range(len(RecreatedMicValues)):
+            current_zero = OriginalMicValues[i] - RecreatedMicValues[i]
+
+            if current_zero != 0:
+                mic_correct += 1
+
+            zero.append(current_zero)
+
+        if mic_correct != 0:
+            print("For mic #",mic+mic_start," ",mic_correct,"values was not recreated succesfully")
+
+        AllCorrect += mic_correct
+
+    
+
+    if AllCorrect == 0:
+        print("All values have been recreated succesfully")
+
+
 if test == 71:
     print("Test 71")
     print("")
+
+    AdjacentMemoryOut = [0]*4
+    ShortenMemoryOut = []
+    AllRecreatedValues = []
+    AllCorrect = 0
+    for mic in range(mic_end + 1 - mic_start):
+        ShortenMemoryOut.append([0]*4)
+        AllRecreatedValues.append([])
+
+    #recrete the orginal input values for each datablock
+    for CodeWords in AllCodeWords:
+        Decodedvalues, ShortenMemoryOut, AdjacentMemoryOut = DoubleCompression_predictor.Out(CodeWords, ShortenMemoryOut, AdjacentMemoryOut)
+        
+
+    
+
+        #Append the decoded values to the correct array depending on mic
+        for mic in range(mic_end + 1 - mic_start):
+            CurrentDecodedValues = Decodedvalues[mic]
+            for value in CurrentDecodedValues:
+                AllRecreatedValues[mic].append(value)
+
+    #Check if all values was reacreated correctly by checking if the original values are equal to the reacreated values
+    for mic in range(mic_end + 1 - mic_start):
+        mic_correct = 0
+        zero = []
+        OriginalMicValues = OriginalInputs[mic]
+        RecreatedMicValues = AllRecreatedValues[mic]
+        for i in range(len(RecreatedMicValues)):
+            current_zero = OriginalMicValues[i] - RecreatedMicValues[i]
+
+            if current_zero != 0:
+                mic_correct += 1
+
+            zero.append(current_zero)
+
+        if mic_correct != 0:
+            print("For mic #",mic+mic_start," ",mic_correct,"values was not recreated succesfully")
+
+        AllCorrect += mic_correct
+
+        #Plot the original input, recreated input, and zero (original - recreated)
+        if 1 < 0:
+
+            figure_title = "mic #" + str(mic + mic_start)
+
+            fig = plt.figure(figure_title)
+            ax = fig.add_subplot(311)
+            plt.plot(OriginalMicValues)
+            ax.title.set_text("Original input")
+            
+            ax = fig.add_subplot(312)
+            plt.plot(RecreatedMicValues)
+            ax.title.set_text("Recreated input")
+            
+            ax = fig.add_subplot(313)
+            plt.plot(zero)
+            ax.title.set_text("Original input - recreated input")
+
+            plt.show()
+
+    if AllCorrect == 0:
+        print("All values have been recreated succesfully")
 
 
 if test == 63:

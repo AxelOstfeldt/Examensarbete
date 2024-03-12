@@ -61,11 +61,11 @@ class DoubleCompression:
             ShortenResiduals = self.RiceDecode(CodeWords)
 
             #Recreated the adjacent residual from the shorten residuals
-            AdjacentResiduals, MemoryShorten[mic] = self.ShortenRecreate(ShortenResiduals, MemoryShorten[mic])
+            AdjacentResiduals, MemoryShorten[mic] = self.ShortenRecreate(ShortenResiduals, MemoryShorten[mic], self.ShortenOrder)
 
             #If it is the first mic the Adjacent residuals have been created using Shorten
             if mic == 0:
-                DecodedValues, MemoryAdjcent = self.ShortenRecreate(AdjacentResiduals, MemoryAdjcent)
+                DecodedValues, MemoryAdjcent = self.ShortenRecreate(AdjacentResiduals, MemoryAdjcent, self.AdjacentOrder)
             #If it is any of the other mics they have been created using an adjacent mic
             #If mic % 8 == 0 they have been predicted using the first mic in the previous row
             elif mic % 8 == 0:
@@ -294,10 +294,10 @@ class DoubleCompression:
         #Return the residual
         return Residual
     
-    def ShortenRecreate(self, ShortenResiduals, memory):
+    def ShortenRecreate(self, ShortenResiduals, memory, order):
         RecreatedValues = []
         for residual in ShortenResiduals:
-            prediction = self.ShortenPredictor(memory, self.ShortenOrder)
+            prediction = self.ShortenPredictor(memory, order)
 
             recreatedValue = residual + prediction
             memory = [recreatedValue] + memory[:-1]
