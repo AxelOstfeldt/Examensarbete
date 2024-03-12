@@ -97,6 +97,37 @@ test = 73
 
 
 #Initial values for tests
+if test == 73:
+    mic_start = 64
+    mic_end = 127
+    AllCodeWords = []
+    OriginalInputs = []
+
+    Order = 1
+    DoubleCompression_predictor = DoubleCompression(ShortenOrder = Order, mics = (mic_end + 1 - mic_start))
+
+    AdjacentMemoryIn = [0]*4
+    ShortenMemoryIn = []
+    for i in range(mic_end + 1 - mic_start):
+        ShortenMemoryIn.append([0]*4)
+        OriginalInputs.append([])
+
+if test == 72:
+    mic_start = 64
+    mic_end = 127
+    AllCodeWords = []
+    OriginalInputsBinary = []
+
+    Order = 1
+    DoubleCompression_predictor = DoubleCompression(ShortenOrder = Order, mics = (mic_end + 1 - mic_start))
+
+    AdjacentMemoryIn = [0]*4
+    ShortenMemoryIn = []
+    for i in range(mic_end + 1 - mic_start):
+        ShortenMemoryIn.append([0]*4)
+        
+
+
 if test == 71:
     mic_start = 64
     mic_end = 127
@@ -830,6 +861,23 @@ print("")
 for itter in range(len(test_data)):
     current_data = test_data[itter]
     print("Itteration #", itter)
+
+    if test == 73:
+        input_data = current_data[mic_start:mic_end+1,:].copy()
+        #Encode the input data for the datablock
+        CodeWords, ShortenMemoryIn, AdjacentMemoryIn = DoubleCompression_predictor.In(input_data, ShortenMemoryIn, AdjacentMemoryIn)
+        AllCodeWords.append(CodeWords)
+
+        #Save the original data to later compare against the decoded data
+        for mic in range(mic_start, mic_end+1):
+            mic_data = current_data[mic,:]
+            for value in mic_data:
+                OriginalInputs[mic-mic_start].append(value)
+
+
+    if test == 72:
+            input_data = current_data[mic_start:mic_end+1,:].copy()
+
 
     if test == 71:
         input_data = current_data[mic_start:mic_end+1,:].copy()
