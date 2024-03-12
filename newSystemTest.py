@@ -36,7 +36,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 1
+test = 15
 
 #General tests
 #Test 1. This test plots microphone data
@@ -46,9 +46,9 @@ test = 1
 #Shorten tests
 #Test 11. Test if Shorten using Rice code can correctly decode the input values
 #Test 12. Plots results for differente orders of Shorten
-#Test 13. This test tries different k-values in Rice codes for all orders of shorten over several data blocks.
+#Test 13. This test tries different k-values in Rice codes for all orders of shorten over several data blocks. (Fixed to compare to original as 24bit)
 #Test 14. Test if Shorten using Golomb code can correctly decode the input values
-#Test 15. This test tries different m-values in Golomb codes for all orders of shorten.
+#Test 15. This test tries different m-values in Golomb codes for all orders of shorten. (Fixed to compare to original as 24bit)
 #Test 16. Test what order of Shorten with Rice codes gives best compression rate over a full array of mics.
 #Test 17. Test how long time it takes Shorten to decompress a full array of mics and recreate original inputs when using Rice codes
 #Test 18. Test how long time it takes Shorten to decompress a full array of mics and recreate original inputs when using Golomb codes
@@ -127,7 +127,6 @@ if test == 72:
         ShortenMemoryIn.append([0]*4)
         
 
-
 if test == 71:
     mic_start = 64
     mic_end = 127
@@ -142,6 +141,7 @@ if test == 71:
     for i in range(mic_end + 1 - mic_start):
         ShortenMemoryIn.append([0]*4)
         OriginalInputs.append([])
+
 
 if test == 63:
     mic_start = 64
@@ -727,15 +727,15 @@ if test == 16:
    
 if test == 15:
     uncoded_words = []
-    m_start = 30
-    m_stop = 70
+    m_start = 155000
+    m_stop = 175000
     m_array = []
     order_0_array = []
     order_1_array = []
     order_2_array = []
     order_3_array = []
     for i in range(m_start, m_stop+1):
-        m_array.append(i*1000)
+        m_array.append(i)
         order_0_array.append([])
         order_1_array.append([])
         order_2_array.append([])
@@ -823,7 +823,7 @@ if test == 1:
 #The data from the while loop is appended in the test_data array
 #It loops recomended_limit amount of time, this depends on the size of the sound file
 #23 was found to be a good number to use
-recomnded_limit = 2
+recomnded_limit = 20
 
 test_data = []
 data = np.empty((config.N_MICROPHONES, config.N_SAMPLES), dtype=np.float32)
@@ -2199,10 +2199,10 @@ for itter in range(len(test_data)):
                     order_3_array[j].append(code_word)
         
         #Calculates size of uncoded input.
-        #Assuming each vaule is repsented in 32 bits.
+        #Assuming each vaule is repsented in 24 bits.
         uncoded_word = ""              
         for j in range(len(input)):
-            uncoded_word += np.binary_repr(input[j],32)
+            uncoded_word += np.binary_repr(abs(input[j]),24)
 
 
 
@@ -4619,7 +4619,7 @@ if test == 15:
     cr_2 = []
     cr_3 = []
     
-
+   
     #loop thorugh all m-values
     for i in range(len(m_array)):
         #loops thorugh all orders of shorten
@@ -4663,7 +4663,7 @@ if test == 15:
                 cr_3.append(np.sum(temp_cr_array) / len(temp_cr_array))
 
     #Print result of all average compression ratios for given order and m value
-    if 1 > 0:
+    if 1 < 0:
         print("For a given value: m = ", m_array)
         print("Average compression rate for order 0 = ", cr_0)
 
@@ -4687,77 +4687,82 @@ if test == 15:
     all_cr.append(cr_2)
     all_cr.append(cr_3)
 
+
     for i in range(4):
         #looks thorugh one order at a time to find the m that gives the best cr for that order
         temp_min_cr_array = all_cr[i]
         temp_m_min = 0
-        for j in range(len(temp_min_cr_array)-1):
+        for j in range(1, len(temp_min_cr_array)):
             
-            #if the next k gives a better cr that k-value is saved
-            if temp_min_cr_array[j+1] < temp_min_cr_array[temp_m_min]:
-                
-                temp_m_min = j+1
+            if temp_min_cr_array[temp_m_min] > temp_min_cr_array[j]:
+                #print(j)
+                temp_m_min = j
+
+            #if the next m gives a better cr that k-value is saved
+            #if temp_min_cr_array[j+1] < temp_min_cr_array[temp_m_min]:
+             #   print(j)
+              #  temp_m_min = j+1
                 
         #prints out the shorten order and its ideal k with the corresponding cr
         print("Shorten order ",i," and m = ", m_array[temp_m_min]," gives best result with cr = ", temp_min_cr_array[temp_m_min])
 
     print("")
 
-    
+    if 1 < 0:
 
 
-    #calculate ideal choice of order and m-value
+        #calculate ideal choice of order and m-value
 
-    #Finds the array with the lowest CR value
-    o = 0
-    for i in range(len(all_cr)-1):
-        if np.min(all_cr[i+1]) < np.min(all_cr[i]):
-            o = i+1
+        #Finds the array with the lowest CR value
+        o = 0
+        for i in range(len(all_cr)-1):
+            if np.min(all_cr[i+1]) < np.min(all_cr[i]):
+                o = i+1
 
-    #Saves the array with the lowest cr value into its own varaible
-    min_cr_array = all_cr[o]
+        #Saves the array with the lowest cr value into its own varaible
+        min_cr_array = all_cr[o]
 
-    
-    #Loops trough the array with the lowest cr value to find the lowest cr value.
-    #Save the index of the lowest cr value
-    m_min = 0
-    for i in range(len(min_cr_array)-1):
-        if min_cr_array[i+1] < min_cr_array[i]:
-            m_min = i+1
-    #To find which m value corresponds to the index, take the index and add m_array[0]
-    print("The best compression ratio is given by Shorten order ",o," with m-value ", m_min+m_array[0], ": cr = ", min_cr_array[m_min])
-    print("")
+        
+        #Loops trough the array with the lowest cr value to find the lowest cr value.
+        #Save the index of the lowest cr value
+        m_min = 0
+        for i in range(len(min_cr_array)-1):
+            if min_cr_array[i+1] < min_cr_array[i]:
+                m_min = i+1
+        #To find which m value corresponds to the index, take the index and add m_array[0]
+        print("The best compression ratio is given by Shorten order ",o," with m-value ", m_min+m_array[0], ": cr = ", min_cr_array[m_min])
+        print("")
 
-    
+        
 
 
-    #Plots sub plots with each subplot being a specific order of Shorten
-    #y-axis is compression ratio and x-axis is m value
-    fig = plt.figure(1)
+        #Plots sub plots with each subplot being a specific order of Shorten
+        #y-axis is compression ratio and x-axis is m value
+        fig = plt.figure(1)
 
-    ax=fig.add_subplot(221)
-    plt.plot(m_array, cr_0, 'ro')
-    ax.title.set_text("Shorten Order 0")
-    plt.xlabel("m-value")
-    plt.ylabel("Compression ratio")
+        ax=fig.add_subplot(221)
+        plt.plot(m_array, cr_0, 'ro')
+        ax.title.set_text("Shorten Order 0")
+        plt.xlabel("m-value")
+        plt.ylabel("Compression ratio")
 
-    ax=fig.add_subplot(222)
-    plt.plot(m_array, cr_1, 'ro')
-    ax.title.set_text("Shorten Order 1")
-    plt.xlabel("m-value")
-    plt.ylabel("Compression ratio")
+        ax=fig.add_subplot(222)
+        plt.plot(m_array, cr_1, 'ro')
+        ax.title.set_text("Shorten Order 1")
+        plt.xlabel("m-value")
+        plt.ylabel("Compression ratio")
 
-    ax=fig.add_subplot(223)
-    plt.plot(m_array, cr_2, 'ro')
-    ax.title.set_text("Shorten Order 2")
-    plt.xlabel("m-value")
-    plt.ylabel("Compression ratio")
+        ax=fig.add_subplot(223)
+        plt.plot(m_array, cr_2, 'ro')
+        ax.title.set_text("Shorten Order 2")
+        plt.xlabel("m-value")
+        plt.ylabel("Compression ratio")
 
-    ax=fig.add_subplot(224)
-    plt.plot(m_array, cr_3, 'ro')
-    ax.title.set_text("Shorten Order 3")
-    plt.xlabel("m-value")
-    plt.ylabel("Compression ratio")
+        ax=fig.add_subplot(224)
+        plt.plot(m_array, cr_3, 'ro')
+        ax.title.set_text("Shorten Order 3")
+        plt.xlabel("m-value")
+        plt.ylabel("Compression ratio")
     
 
 
