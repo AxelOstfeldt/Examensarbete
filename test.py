@@ -9,8 +9,10 @@ from LPC import LPC
 if 1 > 0:
     
     
-    k_plot = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
-    print(k_plot[8-1:15])
+    memory = [0,1,3,4]
+    order = [7,8,9,10]
+    new_memory = [order[0]] + memory[:-1].copy()
+    print(new_memory)
     
 
 if 1 < 0:
