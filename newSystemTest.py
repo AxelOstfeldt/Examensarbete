@@ -36,7 +36,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 71
+test = 1
 
 #General tests
 #Test 1. This test plots microphone data
@@ -101,16 +101,16 @@ if test == 73:
     mic_start = 64
     mic_end = 127
     AllCodeWords = []
-    OriginalInputs = []
 
-    Order = 1
+
+    Order = 4
     DoubleCompression_predictor = DoubleCompression(ShortenOrder = Order, mics = (mic_end + 1 - mic_start))
 
     AdjacentMemoryIn = [0]*4
     ShortenMemoryIn = []
     for i in range(mic_end + 1 - mic_start):
         ShortenMemoryIn.append([0]*4)
-        OriginalInputs.append([])
+
 
 if test == 72:
     mic_start = 64
@@ -823,7 +823,7 @@ if test == 1:
 #The data from the while loop is appended in the test_data array
 #It loops recomended_limit amount of time, this depends on the size of the sound file
 #23 was found to be a good number to use
-recomnded_limit = 20
+recomnded_limit = 2
 
 test_data = []
 data = np.empty((config.N_MICROPHONES, config.N_SAMPLES), dtype=np.float32)
@@ -870,12 +870,6 @@ for itter in range(len(test_data)):
         CodeWords, ShortenMemoryIn, AdjacentMemoryIn = DoubleCompression_predictor.In(input_data, ShortenMemoryIn, AdjacentMemoryIn)
         AllCodeWords.append(CodeWords)
 
-        #Save the original data to later compare against the decoded data
-        for mic in range(mic_start, mic_end+1):
-            mic_data = current_data[mic,:]
-            for value in mic_data:
-                OriginalInputs[mic-mic_start].append(value)
-
 
     if test == 72:
         input_data = current_data[mic_start:mic_end+1,:].copy()
@@ -895,9 +889,6 @@ for itter in range(len(test_data)):
         OriginalInputsBinary.append(UncodedWords)
 
 
-
-
-
     if test == 71:
         input_data = current_data[mic_start:mic_end+1,:].copy()
 
@@ -910,9 +901,6 @@ for itter in range(len(test_data)):
             mic_data = current_data[mic,:]
             for value in mic_data:
                 OriginalInputs[mic-mic_start].append(value)
-
-
-
 
 
     if test == 63:
@@ -2525,11 +2513,10 @@ if test == 73:
 
     AdjacentMemoryOut = [0]*4
     ShortenMemoryOut = []
-    AllRecreatedValues = []
-    AllCorrect = 0
+
     for mic in range(mic_end + 1 - mic_start):
         ShortenMemoryOut.append([0]*4)
-        AllRecreatedValues.append([])
+
 
     #recrete the orginal input values for each datablock
     for CodeWords in AllCodeWords:
@@ -2540,41 +2527,11 @@ if test == 73:
         DecodingTime.append(total_time)
         
 
-    
-
-        #Append the decoded values to the correct array depending on mic
-        for mic in range(mic_end + 1 - mic_start):
-            CurrentDecodedValues = Decodedvalues[mic]
-            for value in CurrentDecodedValues:
-                AllRecreatedValues[mic].append(value)
-
     avg_time = sum(DecodingTime) / len(DecodingTime)
 
     print("Average time to recreate values is ",avg_time,"seconds. Using Shorten order ", Order)
 
-    #Check if all values was reacreated correctly by checking if the original values are equal to the reacreated values
-    for mic in range(mic_end + 1 - mic_start):
-        mic_correct = 0
-        zero = []
-        OriginalMicValues = OriginalInputs[mic]
-        RecreatedMicValues = AllRecreatedValues[mic]
-        for i in range(len(RecreatedMicValues)):
-            current_zero = OriginalMicValues[i] - RecreatedMicValues[i]
-
-            if current_zero != 0:
-                mic_correct += 1
-
-            zero.append(current_zero)
-
-        if mic_correct != 0:
-            print("For mic #",mic+mic_start," ",mic_correct,"values was not recreated succesfully")
-
-        AllCorrect += mic_correct
-
-        
-
-    if AllCorrect == 0:
-        print("All values have been recreated succesfully")
+    
 
 if test == 72:
     print("Test 72")
@@ -5170,7 +5127,6 @@ if test == 13:
 
 
 
-
 #Plot input signal, residual, predicted value to see how good the result of shorten is
 if test == 12:
     print("Test 12")
@@ -5380,8 +5336,131 @@ if test == 1:
     print("Test 1")
     print("")
 
-    #This if statment only plots some graphs deemed interesting in the report
+    
     if 1 < 0:
+        
+        
+        plt.figure("Test_1_Mic_79_136_233")
+        plt.plot(plot_sig[233], 'g', label = 'Mic #233')
+        
+        plt.plot(plot_sig[136], 'r', label = 'Mic #136')
+        plt.plot(plot_sig[79], 'b', label = 'Mic #79')
+        
+        plt.yticks(fontsize=20)
+        plt.xticks(fontsize=20)
+        plt.legend(fontsize=25)
+
+
+        plt.show()
+
+    
+
+        plt.figure("Test_1_Mic_233")
+        plt.plot(plot_sig[233], 'b', label = 'Mic #233')
+        
+        
+        
+        plt.yticks(fontsize=20)
+        plt.xticks(fontsize=20)
+        #plt.legend(fontsize=25)
+
+
+        plt.show()
+
+        plt.figure("Test_1_Mic_136")
+        plt.plot(plot_sig[136], 'b', label = 'Mic #136')
+        
+        
+        
+        plt.yticks(fontsize=20)
+        plt.xticks(fontsize=20)
+        #plt.legend(fontsize=25)
+
+
+        plt.show()
+
+        plt.figure("Test_1_Mic_79")
+        plt.plot(plot_sig[79], 'b', label = 'Mic #79')
+        
+        
+        
+        plt.yticks(fontsize=20)
+        plt.xticks(fontsize=20)
+        #plt.legend(fontsize=25)
+
+
+        plt.show()
+
+        plt.figure("Test_1_Mic_19_20")
+        plt.plot([0,1],[-3,3],'w')
+        plt.plot(plot_sig[19], 'r', label = 'Mic #19')
+        plt.plot(plot_sig[20], 'b', label = 'Mic #20')
+        
+        
+        plt.yticks(fontsize=20)
+        plt.xticks(fontsize=20)
+        plt.legend(fontsize=25)
+
+
+        plt.show()
+
+        plt.figure("Test_1_Mic_19")
+        plt.plot([0,1],[-3,3],'w')
+        plt.plot(plot_sig[19], label = 'Mic #19')
+        
+        
+        
+        plt.yticks(fontsize=20)
+        plt.xticks(fontsize=20)
+        #plt.legend(fontsize=25)
+
+
+        plt.show()
+
+        plt.figure("Test_1_Mic_20")
+        plt.plot([0,1],[-3,3],'w')
+        plt.plot(plot_sig[19], label = 'Mic #20')
+        
+        
+        
+        plt.yticks(fontsize=20)
+        plt.xticks(fontsize=20)
+        #plt.legend(fontsize=25)
+
+    
+        plt.show()
+
+        plt.figure("Test_1_Mic_217")
+
+        plt.rc('font', **{'size':'30'})
+        plt.plot(plot_sig[217], 'b', label = 'Mic #217')
+        
+        plt.yticks(fontsize=30)
+        plt.xticks(fontsize=30)
+        plt.legend(fontsize=25)
+
+
+        plt.show()
+
+
+        plt.figure("Test_1_Mic_217_no_label")
+
+        plt.rc('font', **{'size':'30'})
+        plt.plot(plot_sig[217], label = 'Mic #217')
+        
+        plt.yticks(fontsize=30)
+        plt.xticks(fontsize=30)
+        #plt.legend(fontsize=25)
+
+
+        plt.show()
+
+
+
+
+
+    #This if statment only plots some graphs deemed interesting in the report
+    elif 1 < 0:
 
         fig = plt.figure(0)
 
