@@ -9,10 +9,9 @@ from LPC import LPC
 if 1 > 0:
     
     
-    memory = [0,1,3,4]
-    order = [7,8,9,10]
-    new_memory = [order[0]] + memory[:-1].copy()
-    print(new_memory)
+    memory = list(range(1,4))
+
+    print(memory)
     
 
 if 1 < 0:

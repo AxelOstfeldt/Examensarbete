@@ -36,7 +36,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 15
+test = 18
 
 #General tests
 #Test 1. This test plots microphone data
@@ -46,10 +46,10 @@ test = 15
 #Shorten tests
 #Test 11. Test if Shorten using Rice code can correctly decode the input values
 #Test 12. Plots results for differente orders of Shorten
-#Test 13. This test tries different k-values in Rice codes for all orders of shorten over several data blocks. (Fixed to compare to original as 24bit)
+#Test 13. This test tries different k-values in Rice codes for all orders of shorten over several data blocks. (Fixed to compare to original as 24bit)(no meta data taken into acount)
 #Test 14. Test if Shorten using Golomb code can correctly decode the input values
-#Test 15. This test tries different m-values in Golomb codes for all orders of shorten. (Fixed to compare to original as 24bit)
-#Test 16. Test what order of Shorten with Rice codes gives best compression rate over a full array of mics.
+#Test 15. This test tries different m-values in Golomb codes for all orders of shorten. (Fixed to compare to original as 24bit)(No meta data taken into acount)
+#Test 16. Test what order of Shorten with Rice codes gives best compression rate over a full array of mics.(Fixed to compare to original as 24bit)(added meta data if needed)
 #Test 17. Test how long time it takes Shorten to decompress a full array of mics and recreate original inputs when using Rice codes
 #Test 18. Test how long time it takes Shorten to decompress a full array of mics and recreate original inputs when using Golomb codes
 
@@ -57,9 +57,9 @@ test = 15
 #Test 21. Test if LPC using Rice code can correctly decode the input values
 #Test 22. Test if LPC using Golomb code can correctly decode the input values
 #Test 23. Test what order of LPC gives best result, also test how large of an order it is possible to try
-#Test 24. Test what k-value gives the best compression rate when using LPC and Rice codes for different orders of LPC
-#Test 25. Test what m-value gives the best compression rate when using LPC and Golomb codes for different order of LPC
-#Test 26. Test what order of LPC with rice codes gives the best compression rate over a full array of mics
+#Test 24. Test what k-value gives the best compression rate when using LPC and Rice codes for different orders of LPC (Fixed to compare to original as 24bit)
+#Test 25. Test what m-value gives the best compression rate when using LPC and Golomb codes for different order of LPC(Fixed to compare to original as 24bit)
+#Test 26. Test what order of LPC with rice codes gives the best compression rate over a full array of mics(Fixed to compare to original as 24bit)
 #Test 27. Test how long time it takes LPC to decompress a full array of mics and recreate original inputs when using Rice codes
 #Test 28. Test how long time it takes LPC to decompress a full array of mics and recreate original inputs when using Golomb codes
 
@@ -511,7 +511,7 @@ if test == 31:
 
 
 if test == 28:
-    Order = 5
+    Order = 1
     AllCodeWords = []
     AllCofficents = []
     UncodedWords = []
@@ -530,7 +530,7 @@ if test == 28:
 
 
 if test == 27:
-    Order = 5
+    Order = 1
     AllCodeWords = []
     AllCofficents = []
     UncodedWords = []
@@ -549,7 +549,10 @@ if test == 27:
 
     
 if test == 26:
-    Order = 8
+    Order = 1
+    #Metadata for LPC is 5 bits of encoding k value, and 10 bits per cofficent needed to be encoded.
+    #The amount of cofficents corresponds to what order of lpc is used
+    metaData = np.binary_repr(0,5+(10*Order))
     AllCodeWords = []
     UncodedWords = []
     memorysIn = []
@@ -559,9 +562,6 @@ if test == 26:
     mic_end = 127
     all_k = []
     LPC_predictor = LPC(Order)
-    #To account for extra length needed with more coefficents as meta data the binary_cofficent variable is created
-    #This assumes that each cofficent can be represented as 10 bits
-    binary_cofficents = np.binary_repr(0,Order*10)
     for i in range(mic_start, mic_end+1):
         AllCodeWords.append([])
         memorysIn.append([0]*Order)
@@ -573,7 +573,7 @@ if test == 25:
     uncoded_words = []
     orders = []
     order_start = 1
-    order_stop = 8
+    order_stop = 1
     order_array = []
     memorys = []
     for i in range(order_start, order_stop+1):
@@ -584,8 +584,8 @@ if test == 25:
     #m starting and stop value will be their assigned values times factorr
     #m will increment by step factor each time
     factorr = 1
-    m_start = 1
-    m_stop = 100
+    m_start = 61000
+    m_stop = 67000
     m_array = []
 
     for i in range(m_start, m_stop+1):
@@ -598,7 +598,7 @@ if test == 24:
     uncoded_words = []
     orders = []
     order_start = 1
-    order_stop = 8
+    order_stop = 5
     order_array = []
     k_ideal_array = []
     memorys = []
@@ -608,8 +608,8 @@ if test == 24:
         k_ideal_array.append([])
         memorys.append([0]*i)
     
-    k_start = 7
-    k_stop = 16
+    k_start = 1
+    k_stop = 8
     k_array = []
     for i in range(k_start, k_stop+1):
         k_array.append(i)
@@ -642,7 +642,7 @@ if test == 22:
     inputs = []
     code_words = []
     uncoded_words = []
-    order = 32
+    order = 5
     memory = [0] * order
     LPC_predictor = LPC(order)
     cof_array = []
@@ -654,7 +654,7 @@ if test == 21:
     inputs = []
     code_words = []
     uncoded_words = []
-    order = 8
+    order = 5
     memory = [0] * order
     LPC_predictor = LPC(order)
     cof_array = []
@@ -663,7 +663,7 @@ if test == 21:
 
 
 if test == 18:
-    Order = 1
+    Order = 2
     AllCodeWords = []
     UncodedWords = []
     OriginalInputs = []
@@ -705,7 +705,11 @@ if test == 17:
 
 
 if test == 16:
-    Order = 1
+    #Meta data in the case for shorten algorithm would only be the k value.
+    #This is encoded in 5 bits, to acount for it when calculating cr 5 bits are added to each codeword
+    metaData = np.binary_repr(0,5)
+    Order = 3
+    AllInputs = []
     AllCodeWords = []
     UncodedWords = []
     memorysIn = []
@@ -727,8 +731,8 @@ if test == 16:
    
 if test == 15:
     uncoded_words = []
-    m_start = 155000
-    m_stop = 175000
+    m_start = 164000
+    m_stop = 170000
     m_array = []
     order_0_array = []
     order_1_array = []
@@ -746,7 +750,7 @@ if test == 14:
     inputs = []
     code_words = []
     uncoded_words = []
-    order = 2
+    order = 3
     memory = memorys[order].copy()
     Shorten_predictor = Shorten(order)
     m_array = []
@@ -786,7 +790,7 @@ if test == 11:
     inputs = []
     code_words = []
     uncoded_words = []
-    order = 2
+    order = 0
     memory = memorys[order].copy()
     Shorten_predictor = Shorten(order)
     k_array = []
@@ -1737,8 +1741,8 @@ for itter in range(len(test_data)):
 
             uncoded_word = ""
             for i in range(len(inputNow)):
-                #Saves binary value of input, represented in 32 bits
-                uncoded_word += np.binary_repr(abs(inputNow[i]),32)
+                #Saves binary value of input, represented in 24 bits
+                uncoded_word += np.binary_repr(abs(inputNow[i]),24)
             #Saves the full binary value of the uncoded word in an array
             UncodedWords[microphone-mic_start].append(uncoded_word)
             
@@ -1754,24 +1758,23 @@ for itter in range(len(test_data)):
             #if abs_res_avg is less than 4.7 it would give a k value less than 1.
             #k needs tobe a int > 1. All abs_res_avg values bellow 6.64 will be set to 1 to avoid this issue
             if abs_res_avg > 6.64:
-                k = int(round(math.log(math.log(2,10) * abs_res_avg,2)))
+                #from testing it appears that the actual ideal k-value is larger by +1 than theory suggest,
+            #atleast for larger k-value. The exact limit is unknown but it have been true for all test except for when the lowest k, k =1 is best.
+            #Therefore th formula have been modified to increment k by 1 if abs_res_avg > 6.64.
+                k = int(round(math.log(math.log(2,10) * abs_res_avg,2))) + 1
             else:
                 k = 1
 
-            #from testing it appears that the actual ideal k-value is larger by +1 than theory suggest,
-            #atleast for larger k-value. The exact limit is unknown but it have been true for all test except for when the lowest k, k =1 is best.
-            #Therefore th formula have been modified to increment k by 1 if k is larger than 1.
-            if k > 1:
-                k +=1
+            
             #Appends the ideal k vaule in the array matching the correct Shorten order
             k_array[mic].append(k)
             all_k.append(k)
 
             #Rice code the residuals using the calculated k-value
             
-            #Each code word will start with the cofficents
+            #Each code word will start with the metadata, it is possible to set code_word = "" to find CR with no meta data taken into acount
             #This takes into account that higher order of LPC will need more meta data sent
-            code_word = binary_cofficents
+            code_word = metaData
             for i in range(len(currentResidual)):
                 Rice_coder = RiceCoding(k, sign)
                 n = int(currentResidual[i])
@@ -1785,7 +1788,7 @@ for itter in range(len(test_data)):
     if test == 25:
     
 
-        input = current_data[silent_mic_2,:]#Input data used in test
+        input = current_data[best_mic,:]#Input data used in test
 
         
         #loops though all k values in k_array.
@@ -1793,7 +1796,7 @@ for itter in range(len(test_data)):
         for j in range(len(m_array)):
             m = m_array[j]
 
-            #loops thorugh all order, i = 0-3
+            #loops thorugh all order
             for i in range(len(orders)):
                 #Does the LPC calculations and updates memory
                 LPC_predictor = LPC(orders[i])
@@ -1814,10 +1817,10 @@ for itter in range(len(test_data)):
                 
         
         #Calculates size of uncoded input.
-        #Assuming each vaule is repsented in 32 bits.
+        #Assuming each vaule is repsented in 24 bits.
         uncoded_word = ""              
         for j in range(len(input)):
-            uncoded_word += np.binary_repr(input[j],32)
+            uncoded_word += np.binary_repr(abs(input[j]),24)
 
 
 
@@ -1826,7 +1829,7 @@ for itter in range(len(test_data)):
 
 
     if test == 24:
-        input = current_data[best_mic,:]#Input data used in test
+        input = current_data[silent_mic_1,:]#Input data used in test
 
         
         #loops though all k values in k_array.
@@ -1868,10 +1871,10 @@ for itter in range(len(test_data)):
                 
         
         #Calculates size of uncoded input.
-        #Assuming each vaule is repsented in 32 bits.
+        #Assuming each vaule is repsented in 24 bits.
         uncoded_word = ""              
         for j in range(len(input)):
-            uncoded_word += np.binary_repr(input[j],32)
+            uncoded_word += np.binary_repr(abs(input[j]),24)
 
 
 
@@ -2116,12 +2119,12 @@ for itter in range(len(test_data)):
 
             uncoded_word = ""
             for i in range(len(inputNow)):
-                #Saves binary value of input, represented in 32 bits
-                uncoded_word += np.binary_repr(abs(inputNow[i]),32)
+                #Saves binary value of input, represented in 24 bits
+                uncoded_word += np.binary_repr(abs(inputNow[i]),24)
             #Saves the full binary value of the uncoded word in an array
             UncodedWords[microphone-mic_start].append(uncoded_word)
             
-
+        AllInputs.append(inputs)
 
         for mic in range(len(inputs)):
             currentInput = inputs[mic]
@@ -2133,22 +2136,23 @@ for itter in range(len(test_data)):
             #if abs_res_avg is less than 4.7 it would give a k value less than 1.
             #k needs tobe a int > 1. All abs_res_avg values bellow 6.64 will be set to 1 to avoid this issue
             if abs_res_avg > 6.64:
-                k = int(round(math.log(math.log(2,10) * abs_res_avg,2)))
+            #from testing it appears that the actual ideal k-value is larger by +1 than theory suggest,
+            #atleast for larger k-value. The exact limit is unknown but it have been true for all test except for when the lowest k, k =1 is best.
+            #Therefore th formula have been modified to increment k by 1 if abs_res_avg is larger than 6.64.
+                k = int(round(math.log(math.log(2,10) * abs_res_avg,2))) +1
             else:
                 k = 1
 
-            #from testing it appears that the actual ideal k-value is larger by +1 than theory suggest,
-            #atleast for larger k-value. The exact limit is unknown but it have been true for all test except for when the lowest k, k =1 is best.
-            #Therefore th formula have been modified to increment k by 1 if k is larger than 1.
-            if k > 1:
-                k +=1
+            
+            
             #Appends the ideal k vaule in the array matching the correct Shorten order
             k_array[mic].append(k)
             all_k.append(k)
 
             #Rice code the residuals using the calculated k-value
-
-            code_word = ""
+            
+            #Can either set to "" or to metaData if test want to take meta data into acount or not
+            code_word = metaData
             for i in range(len(currentResidual)):
                 Rice_coder = RiceCoding(k, sign)
                 n = int(currentResidual[i])
@@ -2531,7 +2535,6 @@ if test == 73:
 
     print("Average time to recreate values is ",avg_time,"seconds. Using Shorten order ", Order)
 
-    
 
 if test == 72:
     print("Test 72")
@@ -2553,10 +2556,6 @@ if test == 72:
 
     avg_cr = sum(CrArray) / len(CrArray)
     print("Average compression rate for doublecompression is: cr = ", avg_cr,"when using Shorten order ",Order)
-
-
-
-
 
 
 if test == 71:
@@ -3561,7 +3560,8 @@ if test == 31:
 if test == 28:
     print("Test 28")
     print("")
-
+    print("LPC Order ", Order)
+    print("")
 
     time_array = []
     memorysOut = []
@@ -3649,7 +3649,8 @@ if test == 28:
 if test == 27:
     print("Test 27")
     print("")
-
+    print("LPC Order ", Order)
+    print("")
 
     time_array = []
     memorysOut = []
@@ -3744,9 +3745,9 @@ if test == 26:
             print("Current k varriance = ", np.var(currentKs))
 
 
-    print("all_k max = ", np.max(all_k))
-    print("all_k mix = ", np.min(all_k))
-    print("all_k varraince = ", np.var(all_k))
+        print("all_k max = ", np.max(all_k))
+        print("all_k mix = ", np.min(all_k))
+        print("all_k varraince = ", np.var(all_k))
 
     all_cr = []
     #Loops thorugh all mics to get the code_words for the specific mics
@@ -3819,6 +3820,7 @@ if test == 25:
         print("For a given value: m = ", m_array)
         for i in range(len(orders)):
             print("Average compression rate for order ",orders[i]," = ", cr[i])
+            print("")
 
 
         print("")
@@ -3832,9 +3834,9 @@ if test == 25:
     m_best = []
     cr_best = []
     for q in range(len(orders)):
-        temp_best_cr = cr[q][0]
-        temp_best_m = m_array[0]
-        for i in range(len(m_array)-1):
+        temp_best_cr = cr[q][5]
+        temp_best_m = m_array[5]
+        for i in range(5,len(m_array)-1):
             if cr[q][i+1] < temp_best_cr:
                 temp_best_cr = cr[q][i+1]
                 temp_best_m = m_array[i+1]
@@ -3844,6 +3846,7 @@ if test == 25:
     
     for i in range(len(orders)):
         print("LPC order ",orders[i],"have best cr at m = ",m_best[i],"with cr = ",cr_best[i])
+        print("")
 
 
     #plotting compression rate over m-values for differente orders
@@ -4018,8 +4021,91 @@ if test == 24:
     for i in range(len(orders)):
         print("LPC order ",orders[i],"have best cr at k = ",k_best[i],"with cr = ",cr_best[i])
 
+
+    if 1 > 0:#only for plots in report
+        
+
     
-    if 1 < 0:#only for plots in report
+        #Values from testing sine sound, k= 8-16 for order 1, k=7-16 order 2, k = 7-16 for order 3, k = 7-16 order 4, k = 7-16 for order 5
+        Sine_order1 = [0.7995198567708334, 0.6397867838541667, 0.58076171875, 0.5725748697916667, 0.5897460937500001, 0.6253417968749999, 0.666796875, 0.7083658854166668, 0.75]
+
+        Sine_order2 = [0.9288818359375, 0.6835774739583332, 0.5820475260416667, 0.5524739583333333, 0.5596923828125, 0.586181640625, 0.6255452473958333, 0.6668701171874999, 0.7083740234375001, 0.75]
+
+        Sine_order3 = [0.8458658854166666, 0.6416259765625, 0.5608479817708333, 0.5417968750000001, 0.5546793619791667, 0.5852213541666667, 0.6255777994791667, 0.6668375651041667, 0.7083740234375001, 0.75]
+        Sine_order4 = [0.7119547526041666, 0.5751871744791667, 0.5279947916666667, 0.5262125651041667, 0.5483317057291667, 0.5848063151041667, 0.6255777994791666, 0.666845703125, 0.7083740234375001, 0.75]
+        Sine_order5 = [0.7107747395833334, 0.5746744791666667, 0.5276936848958333, 0.5258382161458333, 0.5481526692708334, 0.584814453125, 0.6255289713541667, 0.6668294270833333, 0.7083740234375001, 0.75]
+
+        #Values from testing silent (mic 20), k = 1-8 for all
+        Silent_order1 =  [0.125, 0.16666666666666663, 0.20833333333333334, 0.25, 0.29166666666666674, 0.33333333333333326, 0.375, 0.4166666666666667]
+        Silent_order2 = [0.125, 0.16666666666666663, 0.20833333333333334, 0.25, 0.29166666666666674, 0.33333333333333326, 0.375, 0.4166666666666667]
+        Silent_order3 =  [0.125, 0.16666666666666663, 0.20833333333333334, 0.25, 0.29166666666666674, 0.33333333333333326, 0.375, 0.4166666666666667]
+        Silent_order4 = [0.125, 0.16666666666666663, 0.20833333333333334, 0.25, 0.29166666666666674, 0.33333333333333326, 0.375, 0.4166666666666667]
+        Silent_order5 = [0.125, 0.16666666666666663, 0.20833333333333334, 0.25, 0.29166666666666674, 0.33333333333333326, 0.375, 0.4166666666666667]
+
+        #Values from testing Drone, k = 12-20 for all
+        Drone_order1 =  [1.1723307291666667, 0.9091634114583333, 0.7989420572916666, 0.764892578125, 0.7698974609374999, 0.7954264322916667, 0.8334147135416667, 0.875, 0.9166666666666667]
+
+        Drone_order2 = [1.0881510416666664, 0.8672119140625, 0.7778727213541666, 0.7544514973958333, 0.7651448567708333, 0.7940022786458335, 0.8333984375000002, 0.875, 0.9166666666666667]
+
+        Drone_order3 = [1.0695393880208333, 0.8576416015625, 0.7733072916666667, 0.752490234375, 0.7640380859375, 0.7938802083333334, 0.8333984375000002, 0.875, 0.9166666666666667] 
+        Drone_order4 = [1.06240234375, 0.8544026692708332, 0.7717692057291667, 0.7512125651041666, 0.7636881510416667, 0.7936686197916667, 0.8333902994791668, 0.875, 0.9166666666666667]
+
+        Drone_order5 = [0.99404296875, 0.8203938802083334, 0.7546630859375, 0.7431396484375, 0.7598225911458334, 0.7926920572916666, 0.8333577473958333, 0.875, 0.9166666666666667]
+
+        #Values from testing static noise, k = 13-20 for all
+        Static_order1 = [1.038134765625, 0.8631022135416666, 0.7969401041666667, 0.7851318359375, 0.8017008463541666, 0.8340087890625, 0.875, 0.9166666666666667]
+
+        Static_order2 = [0.9714192708333332, 0.8300211588541668, 0.7802571614583333, 0.7771728515625, 0.7982666015625, 0.8336344401041667, 0.875, 0.9166666666666667]
+
+        Static_order3 = [0.9663818359375, 0.8274332682291666, 0.7792073567708333, 0.7765055338541667, 0.798046875, 0.8336669921875, 0.875, 0.9166666666666667]
+
+        Static_order4 = [0.9208984375, 0.8046549479166665, 0.7679361979166667, 0.7709879557291667, 0.7954833984375, 0.8334147135416667, 0.875, 0.9166666666666667]
+
+        Static_order5 = [0.8694905598958332, 0.7792236328125, 0.7555094401041667, 0.7656331380208332, 0.7939127604166666, 0.8333902994791668, 0.875, 0.9166666666666667]
+
+        plt.figure("Test24_fixed_values")
+
+        #Plot sine
+        plt.plot(list(range(8,17)), Sine_order1, 'yv', label='1k Hz tone, Order 1')
+        plt.plot(list(range(7,17)), Sine_order2, 'ys', label='1k Hz tone, Order 2')
+        plt.plot(list(range(7,17)), Sine_order3, 'y*', label='1k Hz tone, Order 3')
+        plt.plot(list(range(7,17)), Sine_order4, 'yo', label='1k Hz tone, Order 4')
+        plt.plot(list(range(7,17)), Sine_order5, 'y^', label='1k Hz tone, Order 5')
+    
+        #plot silent
+        plt.plot(list(range(1,9)), Silent_order1, 'ro', label='Silent mic, Order 1')
+        plt.plot(list(range(1,9)), Silent_order2, 'rv', label='Silent mic, Order 2')
+        plt.plot(list(range(1,9)), Silent_order3, 'rs', label='Silent mic, Order 3')
+        plt.plot(list(range(1,9)), Silent_order4, 'r*', label='Silent mic, Order 4')
+        plt.plot(list(range(1,9)), Silent_order5, 'r^', label='Silent mic, Order 5')
+
+        #plot drone
+        plt.plot(list(range(12,21)), Drone_order1, 'bo', label='Drone sound, Order 1')
+        plt.plot(list(range(12,21)), Drone_order2, 'bv', label='Drone sound, Order 2')
+        plt.plot(list(range(12,21)), Drone_order3, 'bs', label='Drone sound, Order 3')
+        plt.plot(list(range(12,21)), Drone_order4, 'b*', label='Drone sound, Order 4')
+        plt.plot(list(range(12,21)), Drone_order5, 'b^', label='Drone sound, Order 5')
+
+        #plot Static oise
+        plt.plot(list(range(13,21)), Static_order1, 'go', label='Static noise, Order 1')
+        plt.plot(list(range(13,21)), Static_order2, 'gv', label='Static noise, Order 2')
+        plt.plot(list(range(13,21)), Static_order3, 'gs', label='Static noise, Order 3')
+        plt.plot(list(range(13,21)), Static_order4, 'g*', label='Static noise, Order 4')
+        plt.plot(list(range(13,21)), Static_order5, 'g^', label='Static noise, Order 5')
+
+        #plt.plot(k_array, cr_2, 'bo', label='Order 2')
+        #plt.plot(k_array, cr_3, 'go', label='Order 3')
+        #plt.title("Comparison of comression ratio for differente orders")
+        plt.yticks(fontsize=20)
+        plt.xticks(fontsize=20)
+        plt.xlabel("k-value", fontsize=25)
+        plt.ylabel("Average compression ratio", fontsize=25)
+        plt.legend(fontsize=15)
+
+        plt.show()
+
+    
+    elif 1 < 0:#only for plots in report
 
         colors = ['k', 'c', 'm', 'y', 'r', 'b', 'g', 'purple']
         #Plots Order 1, 2, and 3 of shorten in the same plot for some k-values
@@ -4235,7 +4321,38 @@ if test == 22:
             print("Itteration nr",i," failed decodeing ",value_check," values")
 
 
-        if 1 > 0:#Only plots for report
+
+        if 1 > 0:
+            fig_title = "Test22_order_" + str(order)
+            plt.figure(fig_title)
+            plt.plot(input, 'b', label='Original values')
+            plt.plot(uncoded_values, 'r-.', label='Decoded values')
+            
+            plt.legend(fontsize=25)
+            plt.yticks(fontsize=20)
+            plt.xticks(fontsize=20)
+            plt.show()
+
+            new_fig_title = fig_title + "_zero"
+            plt.figure(new_fig_title)
+            plt.plot(plot_zero, 'g')
+            #plt.legend(fontsize=25)
+            plt.yticks(fontsize=20)
+            plt.xticks(fontsize=20)
+            plt.show()
+
+             #plt.plot(k_array, cr_2, 'bo', label='Order 2')
+        #plt.plot(k_array, cr_3, 'go', label='Order 3')
+        #plt.title("Comparison of comression ratio for differente orders")
+        #plt.yticks(fontsize=20)
+        #plt.xticks(fontsize=20)
+        #plt.xlabel("k-value", fontsize=25)
+        #plt.ylabel("Average compression ratio", fontsize=25)
+        #
+        #plt.legend(fontsize=20)
+
+
+        elif 1 > 0:#Only plots for report
 
 
             plt.figure("Original values")
@@ -4362,11 +4479,40 @@ if test == 21:
             print("Itteration nr",i," failed decodeing ",value_check," values")
 
         
+        if 1 < 0:#only for report
+            fig_title = "Test21_order_" + str(order)
+            plt.figure(fig_title)
+            plt.plot(input, 'b', label='Original values')
+            plt.plot(uncoded_values, 'r-.', label='Decoded values')
+            
+            plt.legend(fontsize=25)
+            plt.yticks(fontsize=20)
+            plt.xticks(fontsize=20)
+            plt.show()
+
+            new_fig_title = fig_title + "_zero"
+            plt.figure(new_fig_title)
+            plt.plot(plot_zero, 'g')
+            #plt.legend(fontsize=25)
+            plt.yticks(fontsize=20)
+            plt.xticks(fontsize=20)
+            plt.show()
+
+             #plt.plot(k_array, cr_2, 'bo', label='Order 2')
+        #plt.plot(k_array, cr_3, 'go', label='Order 3')
+        #plt.title("Comparison of comression ratio for differente orders")
+        #plt.yticks(fontsize=20)
+        #plt.xticks(fontsize=20)
+        #plt.xlabel("k-value", fontsize=25)
+        #plt.ylabel("Average compression ratio", fontsize=25)
+        #
+        #plt.legend(fontsize=20)
 
 
-        if 1 < 0:#Only plots for report
 
-            if i == 1:#Only want to display on plot
+        elif 1 < 0:#Only plots for report
+
+            if i == 1:#Only want to display one plot
 
                 plt.figure("Test21_Original_values")
 
@@ -4415,7 +4561,8 @@ if test == 21:
 if test == 18:
     print("Test 18")
     print("")
-
+    print("Shorten Order ", Order)
+    print("")
 
     time_array = []
     memorysOut = []
@@ -4499,7 +4646,8 @@ if test == 18:
 if test == 17:
     print("Test 17")
     print("")
-
+    print("Shorten Order ", Order)
+    print("")
 
     time_array = []
     memorysOut = []
@@ -4582,7 +4730,7 @@ if test == 17:
 if test == 16:
     print("Test 16")
     print("")
-    if 1 > 0:#Some info about k values
+    if 1 < 0:#Some info about k values
         for i in range(len(k_array)):
             currentKs = k_array[i]
             print("Current max k = ", np.max(currentKs))
@@ -4840,7 +4988,28 @@ if test == 14:
             print("Itteration nr",i," failed decodeing ",value_check," values")
 
 
-        if 1 < 0:#Only plots for report
+
+        if 1 > 0:#Only plots for report
+            fig_title = "Test14_order_" + str(order)
+            plt.figure(fig_title)
+            plt.plot(input, 'b', label='Original values')
+            plt.plot(uncoded_values, 'r-.', label='Decoded values')
+            plt.legend(fontsize=25)
+            plt.yticks(fontsize=20)
+            plt.xticks(fontsize=20)
+            plt.show()
+
+             #plt.plot(k_array, cr_2, 'bo', label='Order 2')
+        #plt.plot(k_array, cr_3, 'go', label='Order 3')
+        #plt.title("Comparison of comression ratio for differente orders")
+        #plt.yticks(fontsize=20)
+        #plt.xticks(fontsize=20)
+        #plt.xlabel("k-value", fontsize=25)
+        #plt.ylabel("Average compression ratio", fontsize=25)
+        #
+        #plt.legend(fontsize=20)
+
+        elif 1 < 0:#Only plots for report
 
 
             plt.figure("Original values")
@@ -5239,7 +5408,31 @@ if test == 11:
 
         
 
-        if 1 < 0:#Only plots for report
+
+        if 1 < 0:#Only plots for repport
+            fig_title = "Test11_order_" + str(order)
+            plt.figure(fig_title)
+            plt.plot(input, 'b', label='Original values')
+            plt.plot(uncoded_values, 'r-.', label='Decoded values')
+            plt.legend(fontsize=25)
+            plt.yticks(fontsize=20)
+            plt.xticks(fontsize=20)
+            plt.show()
+
+             #plt.plot(k_array, cr_2, 'bo', label='Order 2')
+        #plt.plot(k_array, cr_3, 'go', label='Order 3')
+        #plt.title("Comparison of comression ratio for differente orders")
+        #plt.yticks(fontsize=20)
+        #plt.xticks(fontsize=20)
+        #plt.xlabel("k-value", fontsize=25)
+        #plt.ylabel("Average compression ratio", fontsize=25)
+        #
+        #plt.legend(fontsize=20)
+
+            
+
+
+        elif 1 < 0:#Only plots for report
 
 
             plt.figure("Original values")
@@ -5342,7 +5535,64 @@ if test == 1:
     print("")
 
     
-    if 1 < 0:
+    if 1 < 0:#only for report
+
+        sine = [-24104, -24632, -24245, -22717, -21856, -18517, -16941, -14584, -12349, -9949, -5617, -4457, -1172, 3212, 4075, 8452, 11111, 11103, 15540, 16312, 17251, 20076, 19695, 20463, 23027, 20603, 20279, 20791, 17919, 18296, 14751, 12851, 12299, 8715, 6304, 3320, 1231, -3436, -6036, -8261, -14236, -14273, -16876, -19732, -21793, -23557, -23588, -25857, -25433, -24104, -26105, -23264, -22245, -22893, -18661, -18461, -16588, -12604, -9377, -7761, -4172, -2888, 1356, 4188, 5135, 9591, 12587, 13132, 16267, 17091, 18875, 19064, 19631, 20099, 21071, 19759, 17824, 18032, 18247, 14335, 12532, 11540, 7675, 5132, 4136, -1788, -4316, -7289, -11804, -13492, -16097, -18924, -20833, -22056, -23804, -24964, -23853, -26569, -26133, -24069, -24740, -22844, -20305, -21256, -16756, -15385, -13584, -7920, -7188, -3636, -145, 1179, 4304, 7920, 9636, 11348, 14548, 15987, 17627, 18371, 19531, 19428, 20264, 21007, 18816, 18647, 16547, 16048, 12671, 10459, 10051, 6327, 3443, 1224, -2672, -6300, -8168, -11805, -15284, -17437, -19745, -21904, -23377, -24493, -25257, -25585, -27033, -26757, -25096, -25725, -23736, -21604, -19877, -18996, -15372, -13225, -10084, -6945, -5568, -2865, 2039, 3199, 6515, 9735, 11084, 11996, 15683, 15836, 15907, 17635, 18443, 17332, 18971, 16991, 16595, 15523, 12796, 12624, 9864, 6300, 5304, 1631, -1745, -3640, -7905, -10105, -13501, -15937, -18977, -20768, -22377, -24457, -25848, -26141, -27720, -27144, -28068, -26805, -25684, -25324, -23209, -20012, -18736, -16760, -12901, -11896, -7085, -5161, -3437, 796, 2523, 6199, 9315, 9676, 13679, 14763, 15543, 16292, 17240, 17755, 17527, 17984, 15627, 16203, 14663, 12335, 11212, 10076, 5232, 3668, 1419, -3324, -5317, -8505, -12080, -14464, -18404, -19941, -22697, -25464, -24076, -28209, -27457, -27677, -29389, -27552, -27948, -26964, -24932, -24188, -20869, -19857, -17249, -14744, -12481, -9137, -11485, -14489, -17909, -21781, -23057, -25665, -26904, -29912, -31773, -31165, -32604, -33216, -31612, -31997, -29656, -27577, -28276, -24508, -22225, -21392, -17349, -16329, -11972, -9285, -6580, -3809, 256, 2524, 3728, 6719, 9696, 10956, 12016, 13307, 14523, 14171, 13760, 14339, 12923, 11004, 11535, 7320, 7620, 4215, 1467, 451, -3236, -7329, -10693, -12768, -15757, -19844, -22585, -25380, -27076, -29201, -30936, -31552, -33344, -33356, -33349, -34240, -32832, -30425, -31264, -26876, -25360, -23493, -20409, -17045, -15896, -11877, -8393, -5949, -2525, 0, 2624, 6108, 9116, 8120, 12087, 13979, 12279, 16256, 14304, 14448, 15392, 13652, 12715, 11652, 9080, 8203, 6211, 1547, 479, -2556, -6509, -9372, -12416, -15289, -18884, -21385, -23876, -25192, -26700, -28621, -29753, -29845, -29992, -31217, -28889, -29328, -28488, -25101, -24736, -23569, -19429, -17705, -15168, -10980, -9228, -5792, -2713, 156, 3219, 4783, 7787, 10903, 11968, 13520, 16731, 15051, 15216, 17904, 15964, 15936, 15967, 13384, 11488, 11388, 8959, 5495, 3968, 591, -2568, -5325, -7777, -11805, -14841, -17720, -20424, -23780, -25173, -27773, -28741, -29972, -30264, -32229, -30608, -30897, -29784, -28113, -27932, -24436, -22084, -20045, -19465, -15028, -12312, -10601, -6332, -3732, -1132, 1984, 5212, 6772, 9727, 11880, 12096, 14527, 16103, 14488, 16616, 15832, 15212, 14575, 13000, 11684, 8535, 7475, 3399, 2383, -1561, -4572, -7140, -10785, -14000, -16929, -19917, -22724, -23977, -26733, -28328, -30024, -31853, -29821, -31484, -33008, -29393, -29501, -28940, -25609, -26368, -21516, -19980, -18297, -13305, -11633, -9228, -4589, -2641, -240, 3407, 4968, 8228, 10536, 10244, 15219, 14972, 14152, 16792, 16548, 14831, 15983, 13564, 13583, 11883, 9160, 7764, 5167, 1979, 511, -3940, -6729, -10032, -13112, -16576, -19252, -21885, -24000, -26196, -26901, -29085, -29564, -28916, -30792]
+
+        drone = [128223, -40169, -125481, -108628, -179677, -151228, -60312, -30768, 93931, 4195, -280889, -45693, 73391, 22392, 137320, 200243, -18765, 8236, 142391, -51097, -160164, -33245, 79299, -78804, -207936, -80368, -16484, 57379, 14687, 13571, 178231, -42864, -272492, -92509, 100548, 26691, -88060, -25288, 83655, 194636, 12568, -49176, 94676, 9900, 9615, 215472, 138495, -169189, -238668, -215261, -76484, 72824, -25425, -80517, 69276, 18664, -130289, -100321, 7955, -93137, -151809, -14025, 124823, 211744, 37175, -144025, -11941, 66464, 177312, 425560, 330200, -33673, -187512, -185133, -89284, 89592, -613, -172185, -237893, -235533, -79117, 81843, 41968, -41484, 6704, 57571, 96447, 85159, 62419, 101963, -11065, -73684, -17197, 105956, 274528, 151920, -145780, -177737, 62516, 170963, 42684, -101732, -212788, -221937, -141460, -120669, -71256, 20707, -84105, -105580, 4823, 138995, 230520, 99260, 62703, 125543, 59311, 134644, 110027, -66985, -65924, -146749, -23752, 64023, -82196, -82125, -98764, -145712, -27792, 26912, -110036, -67376, 63416, -48605, -150721, -56056, 22239, -13809, 40463, 131395, 127720, 112492, 48524, -72837, -69824, 20132, 94516, 43727, -110924, -172161, -64465, 58263, 115683, -6808, -86676, -58617, -26864, 7748, 50344, 113248, 35332, -105609, -150761, -54380, 84544, 21104, -79292, 12968, 84804, 71387, 78407, -8788, -41088, 43247, 58832, 33992, 22140, -39757, -74821, -12761, 50540, -44908, -201552, -211852, -106060, 44903, 110012, -117748, -216417, -10697, 48055, 156168, 100736, 12407, 152996, 132628, 78304, 194416, 232571, -95565, -186184, -196657, -22044, 72059, -177353, -181633, -243501, -343316, -174729, 138416, 225583, 60764, -116933, -125668, 83187, 191492, 91367, 39259, -59285, -119140, 19384, 148248, 173920, 168108, 31643, -145452, -41121, 117975, -1993, -63180, -227068, -278677, -128949, -92945, -49532, -116776, -52077, 171, 39700, 120635, 110432, 135132, 73023, -65872, -80961, 38912, 132916, -10593, -197585, -44168, 134523, 80339, -5297, -67537, -111392, -72985, -24789, -5485, 114923, 98755, -19925, 14023, 70008, 58580, 50503, 40740, -19193, -38356, 44319, 83232, 93003, 98967, -132145, -261565, -22693, 79820, 50915, -159601, -311385, -92229, 105295, 122867, 46004, -124333, -90520, -42500, -99065, 17340, 133547, 83308, -79905, -92389, 42059, 103911, 156496, 124924, 0, -5477, 104571, 147612, 81639, -98001, -178485, -91908, 13759, 62380, 27987, -68496, -70093, -42700, -65273, -45785, 16092, -36880, -112893, -67177, 13039, -1093, -51684, -76896, -87472, 40995, 183476, 93352, -60364, -45685, 72748, 103595, 11523, -83957, -106829, -47100, 22704, 46808, 463, -33773, 14771, 62260, 52752, 73660, 96527, 26791, -24537, -11960, -14680, 73679, 85539, -40804, -78881, -119669, -52105, 90307, 92779, 3123, -63613, -111524, -76141, -16657, 16192, 4724, -108789, -72353, 28928, 76235, 133792, 56795, 13444, -53365, -22485, 97223, 118055, 84940, 6051, -115541, -159912, -49309, 101243, 147868, 1500, -146617, -43853, 42092, 49119, 18084, -82377, -11116, 104648, 19448, -93285, -22068, 24683, -10396, 29027, 1724, 87539, 54968, -138865, -106100, 117471, 168396, 2824, -201349, -215729, 87824, 284808, 175187, -46048, -128757, -65885, -31680, 27400, 206280, 156483, -101356, -324008, -241925, 46300, 145483, 68100, -61389, -96473, 3108, 71080, 130067, 226148, 123527, -46440, -37608, 52060, 118380, 131787, -62480, -197793, -73152, 12547, -71961, -145285, -160613, -142800, 6244, 136260, 36647, -69876, -116372, 17464, 143024, 164596, 62584, 11255, -11689, -125525, -92753, 138656, 125764, -145680, -222504, -158357, 58443, 149971, -42112, -47380, 93404, 106211, 40640, 8, 52560, 95231, 57420, -63756, -64001, 105896, 151595, 1612, -70829, -10600, 70263, 57792, -5084, -18785, -9801, -1229, 2764, -47889, -105789, -113340, -159832, -149596, 19951, 114963, 48608, 17847, -45232, 7479, 92447, 109835, 147244, 81248, 23128, 58220, 16287, -6416, 107767, 73304, -5932, -78933, -126201, -29036, -7080, -27456, -65972, -90788, -119732]
+
+
+        static = [-19001, 43808, 73104, 195403, -32880, -32548, 73251, -183364, -101596, 121528, -2656, -50484, 24347, -82912, -219092, -56832, 90995, -57064, -204941, -86421, -45400, -79565, 113023, 16183, -142177, 97203, -836, -100092, 205647, 152895, -54777, 60952, 118035, 15675, 22312, 82296, 11308, -124700, -101104, 38591, 62179, 59603, 45140, -94812, -185124, 31955, 61547, -108045, 115455, 168784, -107056, -62693, 17952, 39491, 250219, 279519, -34220, -258849, 25548, 248735, -65340, 23548, 20860, -306008, -146573, 12284, -50269, -119981, -37956, -48761, -295380, 209440, 267863, -191465, 181075, 199000, -195585, 125899, 248643, 84707, 41776, -94837, -106612, 54620, 285111, 113171, -353113, -94492, 193743, -70444, -12653, 24135, -282969, -60948, 179727, -144852, -157733, -20637, -99297, -2917, 123831, 37912, -56953, 44139, 175459, 190396, 37503, -157660, -53628, 213239, 190272, -51725, -127044, -99817, -77728, 128056, 176244, -68324, -128844, -81317, -84804, 179852, 203040, -204832, -102440, 175084, -61437, -173252, -19436, -1333, 95335, 199932, -74720, -114920, 44364, -17133, 57543, 137787, 79979, 32863, 47160, -43216, -249873, 5448, 172203, 2740, -5876, -110312, -208236, -130140, 55764, 137203, 38252, 73812, -15120, -186741, -22877, 138531, -5788, 17028, 126436, -133084, -277653, -50188, 159772, 157979, 20347, -57037, -82621, 42783, 190416, 136800, 46356, 27763, -277, -91916, -62084, 113228, 28063, -190244, -97204, 65496, -92269, -153268, 72943, 72995, 6715, 99927, -25564, -134973, 62023, 46919, -51129, 145356, -10069, -439212, -254776, 216539, 142508, -89125, 68723, -146240, -246505, 302716, 140791, -173108, 142884, 137791, -34901, 65687, 83731, -202721, -181989, 264460, 212963, 535, 88136, -120157, -264261, 132672, 253267, 11068, -78113, -207769, -205532, -8997, 21592, -37864, -87241, -76536, 46472, 71752, 45836, -59461, -82360, 229932, 344619, 71883, -227709, -172433, 166623, 179859, 61248, -7077, -197333, -218976, -16476, 103480, 45852, -33373, -160617, -166264, 97555, 151100, -114605, -177344, -97012, 34083, -66164, -147896, 10252, 55627, -24688, -73481, -61541, 18356, 127644, 160564, -400, -115412, -55472, -24993, 73048, 185976, 69167, -39596, -14776, -55849, -53584, 66635, 169931, 142600, -30308, -162953, -171380, -104101, 102375, 170423, -91208, -199080, -115813, -81937, 82847, 160835, -98125, -124465, 115115, 116368, 67267, 28843, -180101, -142504, 121748, 191031, 94907, -79920, -163392, -230217, -30628, 266616, 58023, -70529, -6600, -165725, -1428, 234323, 60755, -1016, 86579, -45837, -138977, 74607, 79959, -194224, -65381, 226856, 12611, -196933, -103453, -216732, -20420, 363864, 108563, -171848, -75396, -74700, 55660, 281759, 205143, -43576, -172449, -68632, 167147, 217243, 143643, 4012, -223537, -58372, 132568, 1000, 66148, 70228, -159689, -115132, 20696, -38289, -45816, -9744, -110797, -151012, -4941, 113784, -26220, -121045, 715, -49417, 60468, 258391, 60031, -83217, -27652, -39780, 24415, 140600, 163179, -104897, -281064, -53632, 8320, 95583, 169327, -239992, -241044, 72580, -42253, -1237, 141107, 18847, -55065, -67533, -43560, 23167, 42168, 32163, 39668, 88843, 37424, -124516, -106580, 77851, 146836, 81663, 43767, -57445, -137605, 31380, 118387, 50344, 101688, -5757, -231928, -93385, 134339, 62708, -15737, -23653, -64344, -18168, 89775, -36573, -228500, -15129, 242259, 57320, -58964, -13577, -222053, -96101, 273308, 164971, -94228, -126620, -126093, 65760, 293028, 118664, -167092, -98985, -7421, 0, 33167, 37544, 95804, -44452, -254177, -10877, 200656, 3467, -27120, -29297, -123709, 151627, 188187, -189049, -121876, 130143, 56096, 90847, 111112, -113980, -187037, 48427, 178300, 31851, -103373, -101229, -133865, -7877, 151455, -115733, -327961, -46789, 122232, -22160, 30588, 101064, -148585, -131897, 138571, 98768, 23983, 119024, 74055, -24737, -8925, 83328, 78023, 28619, 46700, 23316, 22764, 23592, -65305, -51229, 48492, -39212, -194876, -124808, 17359, 1687, -44549, -42704, -34941, -50161, -40041, -59752, -42872, 131003, 100623, -70480, 22427, 62343]
+
+        print("len sine = ", len(sine))
+
+        print("len drone = ", len(drone))
+
+        print("len static = ", len(static))
+
+        white_plot = [-100000,100000] + [-200000]*510
+
+        plt.figure("Test_1_Mic_79_all_sounds")
+        plt.plot(white_plot, 'w')
+        plt.plot([-300000]*512, 'w')
+        plt.plot(sine, 'b', label = '1k Hz tone')
+        plt.plot(drone, 'g-.', label = 'Drone sound')
+        
+        plt.plot(static, 'r:', label = 'Static noise')
+        
+        
+        plt.yticks(fontsize=20)
+        plt.xticks(fontsize=20)
+        plt.legend(fontsize=25)
+
+
+        plt.show()
+
+
+
+        plt.figure("Test_1_Mic_136_233")
+        plt.plot(plot_sig[233], 'g', label = 'Mic #233')
+        
+        plt.plot(plot_sig[136], 'r', label = 'Mic #136')
+        
+        
+        plt.yticks(fontsize=20)
+        plt.xticks(fontsize=20)
+        plt.legend(fontsize=25)
+
+
+        plt.show()
+
+    elif 1 < 0:
+
+       
+
+      
+
+
+
+
+    
         
         
         plt.figure("Test_1_Mic_79_136_233")
