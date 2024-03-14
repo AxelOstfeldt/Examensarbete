@@ -188,16 +188,22 @@ class FLAC:
         if codeChoice > 5:
             LpcCoffChoosen = LpcCoff[codeChoice-6]
         
-            
+        
 
+        #k is encoded in 5 bits, allowing for values from 0-32, since k can never be less than 1
+        #k is decremented by 1 beffore enocding it. Allowing for k values in between: 1 <= k <= 33
+        if 33 < k_Choice :
+            raise ValueError(f"k can not be represented in 5 bits binary, max value for k is 32 and current value is {k_Choice}")
 
+        k_Choice = k_Choice - 1
         
         return valueChoice, np.binary_repr(k_Choice,5), np.binary_repr(codeChoice,6), memory, LpcCoffChoosen
 
     
     def Out(self, code_residuals, memory, k_value, code_choose, LpcCoff):
         DecodedValues = []#Array to save decoded values
-        k_value = int(k_value,2)
+        k_value = int(k_value,2) + 1
+
         code_choose = int(code_choose,2)
         #If code_chosse is 0 the residual is encoded using RLE
         
@@ -338,13 +344,15 @@ class FLAC:
         abs_res = np.absolute(current_residuals)
         abs_res_avg = np.mean(abs_res)
 
-        #if abs_res_avg is less than 4.7 it would give a k value less than 1.
-        #k needs tobe a int > 1 and therefore if abs_res_avg < 5 k is set to 1
-        #OBS. 4.7 < abs_res_avg < 5 would be rounded of to k=1 so setting the limit to 5 works well
-        if abs_res_avg > 5:
-            k_ideal = int(round(math.log(math.log(2,10) * abs_res_avg,2)))
+        #k needs tobe a int > 1. abs_res_avg = 6.64 gives k = 1.
+        #All k values for abs_res_avg above 6.64 is calculated using modified Rice Theory
+        if abs_res_avg > 6.64:
+            k_ideal = int(round(math.log(math.log(2,10) * abs_res_avg,2))) + 1
         else:
             k_ideal = 1
+
+        if k_ideal < 1 :
+            raise ValueError(f"k can not be less than 1, current value is {k_ideal}")
 
         #calculates the Rice code word for the residual
         code_word =""

@@ -36,7 +36,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 18
+test = 34
 
 #General tests
 #Test 1. This test plots microphone data
@@ -65,9 +65,10 @@ test = 18
 
 #FLAC tests
 #Test 31. Runs several itteration of FLAC and prints out what gave the best compression rate for that itteration. 
-#Along with the compression rate and plotting the recreated signal
+#Along with the compression rate and plotting the recreated signal(Fixed to compare to original as 24bit)
 #Test 32. Test the performans of RLE. Need to modify the FLAC function to force the choice of RLE
-#Test 33. Time how long time it takes for FLAC to recreate a full array off microphone values
+#Test 33. Test FLAC compression rate for a full array of mics(Possible to compare with and without metadata acounted for)
+#Test 34. Time how long time it takes for FLAC to recreate a full array off microphone values
 
 #Adjacant tests
 #Test 41. Plot Residuals using adjacent for some set of mic
@@ -476,7 +477,57 @@ if test == 41:
     for i in range(mic_start, mic_end+1):
         mic_residuals.append([])
         mic_predictions.append([])
- 
+
+
+if test == 34:
+    LPC_Order = 32
+    start_mic = 64
+    end_mic = 127
+    FLAC_prediction = FLAC(LPC_Order)
+    MemorysIn = []
+    AllCodeWords = []
+    AllKvalues = []
+    AllEncodingChoices = []
+    AllCofficents = []
+    AllOriginalInputs = []
+
+
+    for mic in range(end_mic + 1 - start_mic):
+        AllCodeWords.append([])
+        AllKvalues.append([])
+        AllEncodingChoices.append([])
+        AllCofficents.append([])
+        AllOriginalInputs.append([])
+
+        if LPC_Order > 4:
+            MemorysIn.append([0]*LPC_Order)
+        else:
+            MemorysIn.append([0]*4)
+
+
+
+
+if test == 33:
+    LPC_Order = 32
+    start_mic = 64
+    end_mic = 127
+    FLAC_prediction = FLAC(LPC_Order)
+    MemorysIn = []
+    AllCodeWords = []
+
+    #Meta data for FLAC is: k-value in 5 bits, enoding choice in 6 bits, and LPC Cofficents in 10 bits each. This is meta data for every codeword
+    #(One code word for every data block and mic)
+    MetaData = np.binary_repr(0, (5 + 6 + (10 * LPC_Order)))
+    for mic in range(end_mic + 1 - start_mic):
+
+        if LPC_Order > 4:
+            MemorysIn.append([0]*LPC_Order)
+        else:
+            MemorysIn.append([0]*4)
+
+    AllEncodingChoices = [0] * (6+LPC_Order)
+    OriginalInputsBinary = []
+
 
 if test == 32:
     LPC_Order = 1
@@ -663,7 +714,7 @@ if test == 21:
 
 
 if test == 18:
-    Order = 2
+    Order = 3
     AllCodeWords = []
     UncodedWords = []
     OriginalInputs = []
@@ -1595,6 +1646,58 @@ for itter in range(len(test_data)):
                 mic_predictions[i].append(CurrentPredictions[i])
 
 
+    if test == 34:
+        TestInputs = []
+        for microphone in range(start_mic, end_mic+1):
+            inputNow = current_data[microphone,:].copy()
+            TestInputs.append(inputNow)
+            #Save the inputs for the corresponding mic to later check that it was decoded correctly
+            AllOriginalInputs[microphone-start_mic].append(inputNow)
+
+            
+        for mic in range(len(TestInputs)):
+            #Encode the inputs corresponding to a specific mic
+            CurrentTestInput = TestInputs[mic]
+            Current_Encoded_inputs, Current_k_value, Current_Encoding_choice, MemorysIn[mic], Current_LPC_Cofficents = FLAC_prediction.In(CurrentTestInput, MemorysIn[mic])
+
+
+            #Save relevant data for each mic
+            AllCodeWords[mic].append(Current_Encoded_inputs)
+            AllKvalues[mic].append(Current_k_value)
+            AllEncodingChoices[mic].append(Current_Encoding_choice)
+            AllCofficents[mic].append(Current_LPC_Cofficents)
+
+            
+
+
+    if test == 33:
+        TestInputs = []
+        for microphone in range(start_mic, end_mic+1):
+            inputNow = current_data[microphone,:].copy()
+            TestInputs.append(inputNow)
+            #Save the input value as a binary representation in 24 bits
+            UncodedWord = ""
+            for value in inputNow:
+                UncodedWord += np.binary_repr(abs(value),24)
+
+            #Save the full uncoded word
+            OriginalInputsBinary.append(UncodedWord)
+
+        for i in range(len(TestInputs)):
+            CurrentTestInput = TestInputs[i]
+            Current_Encoded_inputs, Current_k_value, Current_Encoding_choice, MemorysIn[i], Current_LPC_Cofficents = FLAC_prediction.In(CurrentTestInput, MemorysIn[i])
+
+            #Code word can either be set to = MetaData or ="" depending if the test is comparing with our without meta data
+            CodeWord = MetaData
+            #Save the current codeword
+            CodeWord += Current_Encoded_inputs
+            AllCodeWords.append(CodeWord)
+
+            #Save the current encoding choice
+            EncodingChoice = int(Current_Encoding_choice, 2)
+            AllEncodingChoices[EncodingChoice] += 1
+
+
     if test == 32:
         testInput = current_data[silent_mic_2,:]#Input data used in test
 
@@ -1621,7 +1724,6 @@ for itter in range(len(test_data)):
         AllMemorys.append(testMemory)
         LPC_Cofficents.append(Current_LPC_Cofficents)
         AllTestInputs.append(testInput)
-
 
 
     if test == 28:
@@ -3392,6 +3494,104 @@ if test == 41:
             plt.show()#Each figure is plotted one at a time, to plot all at the same time move this outsie for-loop
 
 
+if test == 34:
+    print("Test 34")
+    print("")
+    AllDecodedInputs = []
+    MemorysOut = []
+    time_array = []
+    for mic in range(end_mic + 1 - start_mic):
+        AllDecodedInputs.append([])
+        if LPC_Order > 4:
+            MemorysOut.append([0]*LPC_Order)
+        else:
+            MemorysOut.append([0]*4)
+
+    AllCorrect = 0
+  
+
+    #For each mic values for all data blocks
+    for microphone in range(end_mic + 1 - start_mic):
+        OriginalMicAllDatablocks = AllOriginalInputs[microphone]
+        CodeWordMic = AllCodeWords[microphone]
+        KvaluesMic = AllKvalues[microphone]
+        EncodingChoicesMic = AllEncodingChoices[microphone]
+        CofficentsMic = AllCofficents[microphone]
+
+        #loop thourhg each data block and grab that datablocks values
+        for datablock in range(recomnded_limit):
+            CodeWord = CodeWordMic[datablock]
+            OriginalInputs = OriginalMicAllDatablocks[datablock]
+            EncodingChoice = EncodingChoicesMic[datablock]
+            kValue = KvaluesMic[datablock]
+            LpcCofficents = CofficentsMic[datablock]
+
+            #Decode the codeword and get the original inputs, time how long it takes
+            start_time = time.time()
+            DecodedInputs, MemorysOut[microphone] = FLAC_prediction.Out(CodeWord, MemorysOut[microphone], kValue, EncodingChoice, LpcCofficents)
+            end_time = time.time()
+            total_time = end_time - start_time
+
+            #save the total time in the time array to later calculate average time
+            time_array.append(total_time)
+
+            #Check that all values was decoded correctly, 
+            #since LPC get it somewhat wrong if the encoding choice is indecating that LPC have been used an error of up to 10 in magnitude will be allowed
+            for i in range(len(OriginalInputs)):
+                zero = OriginalInputs[i] - DecodedInputs[i]
+
+                if int(EncodingChoice, 2) > 5:
+                    if zero > 10:
+                        AllCorrect +=1
+                        print("Failed recreate value at datablock ", datablock, "mic ", microphone)
+
+                else:
+                    if zero != 0:
+                        AllCorrect +=1
+                        print("Failed recreate value at datablock ", datablock, "mic ", microphone)
+
+
+    if AllCorrect == 0:
+        print("All values where recreated succesfully")
+
+    print("")
+    #Calculate average time it took to reacreate values
+    avg_time = sum(time_array) / len(time_array)
+    print("Average time to recreate values using FLAC with max LPC Order ", LPC_Order," is ", avg_time, "seconds")
+                        
+
+
+
+
+if test == 33:
+    print("Test 33")
+    print("")
+    print("FLAC with max LPC order ", LPC_Order)
+    print("")
+    CrArray = []
+    #loop through all code words
+    for i in range(len(AllCodeWords)):
+        #Calculate the cr for the current codeword
+        cr = len(AllCodeWords[i]) / len(OriginalInputsBinary[i])
+        #Save the current cr
+        CrArray.append(cr)
+
+    #Calulcate the average cr
+    avg_cr = sum(CrArray) / len(CrArray)
+    print("Average compression rate is, cr = ", avg_cr)
+    print("")
+    for i in range(len(AllEncodingChoices)):
+        if i == 0:
+            print("RLE used to encode ", AllEncodingChoices[i],"code words")
+
+        elif i < 6:
+            print("Shorten Order ",i-1,"used to encode ", AllEncodingChoices[i],"code words")
+
+        else:
+            print("LPC Order ",i-5,"is used to encode ", AllEncodingChoices[i],"code words")
+        print("")
+
+
 if test == 32:
     print("Test 32")
     print("")
@@ -3507,7 +3707,8 @@ if test == 31:
         current_test_input = AllTestInputs[i]
         uncoded_inputs = ""
         for j in range(len(current_test_input)):
-            uncoded_inputs += np.binary_repr(abs(current_test_input[j]), 32)
+            #Fixed to compare to 24 bits
+            uncoded_inputs += np.binary_repr(abs(current_test_input[j]), 24)
             current_zero = current_test_input[j] - Current_decoded_Inputs[j]
             plot_zero.append(current_zero)
 
