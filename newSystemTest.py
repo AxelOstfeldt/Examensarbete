@@ -3531,6 +3531,7 @@ if test == 34:
             DecodedInputs, MemorysOut[microphone] = FLAC_prediction.Out(CodeWord, MemorysOut[microphone], kValue, EncodingChoice, LpcCofficents)
             end_time = time.time()
             total_time = end_time - start_time
+            print(total_time)
 
             #save the total time in the time array to later calculate average time
             time_array.append(total_time)
@@ -3553,7 +3554,7 @@ if test == 34:
 
     if AllCorrect == 0:
         print("All values where recreated succesfully")
-
+    print("Len total time = ", len(total_time))
     print("")
     #Calculate average time it took to reacreate values
     avg_time = sum(time_array) / len(time_array)
