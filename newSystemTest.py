@@ -36,7 +36,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 34
+test = 44
 
 #General tests
 #Test 1. This test plots microphone data
@@ -67,7 +67,7 @@ test = 34
 #Test 31. Runs several itteration of FLAC and prints out what gave the best compression rate for that itteration. 
 #Along with the compression rate and plotting the recreated signal(Fixed to compare to original as 24bit)
 #Test 32. Test the performans of RLE. Need to modify the FLAC function to force the choice of RLE
-#Test 33. Test FLAC compression rate for a full array of mics(Possible to compare with and without metadata acounted for)
+#Test 33. Test FLAC compression rate for a full array of mics(Possible to compare with and without metadata acounted for)(Comparing to 24 bit data )
 #Test 34. Time how long time it takes for FLAC to recreate a full array off microphone values
 
 #Adjacant tests
@@ -77,8 +77,9 @@ test = 34
 #Test 44. Test different k-values to encode residuals from adjacent with Rice codes.
 #Test 45. Test different m-values to encode residuals from adjacent with Golomb codes.
 #Test 46. Test differente orders for Adjacent with Rice codes
-#Test 47. Time how long time it takes for FLAC to recreate a full array off microphone values using Rice codes
-#Test 48. Time how long time it takes for FLAC to recreate a full array off microphone values using Golomb codes
+#Test 47. Time how long time it takes for Adhacent to recreate a full array off microphone values using Rice codes
+#Test 48. Time how long time it takes for Adhacent to recreate a full array off microphone values using Golomb codes
+#Test 49. Compression rate for full array of mics using Adjacent (Comparing to 24 bit data )
 
 #Test that compare all algorithms(Shorten, LPC, FLAC, Adjacent)
 #Test 51. Compare compression rate of all algorithms over 1 array of 64 mics, adjusted formula for k-value by incrementing it by 1
@@ -381,7 +382,64 @@ if test == 51:
         UncodedWords.append([])
         Encoding_choice.append([])
 
-    
+
+if test == 49:
+    order = 0
+    if order == 0:
+        memorysIn = []
+    else:
+        memorysIn = [0]*order
+    uncoded_words = []
+    mic_start = 64#sugested 64
+    mic_end = 127#Sugested 127
+    AllInputsBinary = []
+    AllCodeWords = []
+    sign = True
+    Adjacent_predictor = Adjacent(order)
+    #Meta data for Adjacent is only k-value in 5 bits, it is added to every codeword
+    #There is one code word for every sample in every datablock, no mather how many mics
+    #For a datablock with all 256 samples there are 256 codewords
+    MetaData = np.binary_repr(0,5)
+
+
+if test == 48:
+    order = 2
+    if order == 0:
+        memorysIn = []
+    else:
+        memorysIn = [0]*order
+    mic_start = 64#sugested 64
+    mic_end = 127#Sugested 127
+    AllInputs = []
+    AllCodeWords = []
+    AllMvalues = []
+    for sample in range(256):
+        AllCodeWords.append([])
+        AllMvalues.append([])
+        AllInputs.append([])
+    sign = True
+    Adjacent_predictor = Adjacent(order)
+
+
+if test == 47:
+    order = 2
+    if order == 0:
+        memorysIn = []
+    else:
+        memorysIn = [0]*order
+    mic_start = 64#sugested 64
+    mic_end = 127#Sugested 127
+    AllInputs = []
+    AllCodeWords = []
+    AllKvalues = []
+    for sample in range(256):
+        AllCodeWords.append([])
+        AllKvalues.append([])
+        AllInputs.append([])
+    sign = True
+    Adjacent_predictor = Adjacent(order)
+
+
 if test == 46:
     memorysIn = [[],[0],[0,0],[0,0,0],[0,0,0,0]]
     uncoded_words = []
@@ -432,7 +490,7 @@ if test == 44:
     sign = True
     AllResiduals = []
     k_start = 12
-    k_end = 22
+    k_end = 20
     k_ideal_array = []
     abs_res = []
 
@@ -503,8 +561,6 @@ if test == 34:
             MemorysIn.append([0]*LPC_Order)
         else:
             MemorysIn.append([0]*4)
-
-
 
 
 if test == 33:
@@ -1465,6 +1521,132 @@ for itter in range(len(test_data)):
             UncodedWordsAdjacent.append(uncoded_word)
 
 
+    if test == 49:
+        #Crate an loop that determines how many sampels that are going to be looked at
+        for sample in range(256):
+            #create an array to save all mic values for current data sample
+            testInputs = []
+            uncoded_word = ""
+            for microphone in range(mic_start, mic_end+1):
+                testIn = current_data[microphone,sample]
+                testInputs.append(testIn)
+                #represent original value in 24 bits
+                uncoded_word += np.binary_repr(abs(testIn),24)
+            
+            AllInputsBinary.append(uncoded_word)
+
+            CurrentResiduals, memorysIn, CurrentPredictions = Adjacent_predictor.In(testInputs, memorysIn)
+
+            #Calculates the ideal k_vaule for the residuals
+            abs_res = np.absolute(CurrentResiduals)
+            abs_res_avg = np.mean(abs_res)
+            #if abs_res_avg is less than 4.7 it would give a k value less than 1.
+            #k needs tobe a int > 1. All abs_res_avg values bellow 6.64 will be set to 1 to avoid this issue
+            if abs_res_avg > 6.64:
+                #from testing it appears that the actual ideal k-value is larger by +1 than theory suggest,
+            #atleast for larger k-value. The exact limit is unknown but it have been true for all test except for when the lowest k, k =1 is best.
+            #Therefore th formula have been modified to increment k by 1 if abs_res_avg > 6.64.
+                k = int(round(math.log(math.log(2,10) * abs_res_avg,2))) + 1
+            else:
+                k = 1
+
+            #Rice code the resiudals
+            #The codeword can either be ="" or =MetaData depending on if cr is tested with or without meta data
+            
+            CodeWord = ""#MetaData
+            for i in range(len(CurrentResiduals)):
+                Rice_coder = RiceCoding(k, sign)
+                n = int(CurrentResiduals[i])
+                kodOrd = Rice_coder.Encode(n)
+                CodeWord += kodOrd
+
+            AllCodeWords.append(CodeWord)
+
+
+    if test == 48:
+        #Crate an loop that determines how many sampels that are going to be looked at
+        for sample in range(256):
+            #create an array to save all mic values for current data sample
+            testInputs = []
+
+            for microphone in range(mic_start, mic_end+1):
+                testIn = current_data[microphone,sample]
+                testInputs.append(testIn)
+                
+            
+            AllInputs[sample].append(testInputs)
+
+            CurrentResiduals, memorysIn, CurrentPredictions = Adjacent_predictor.In(testInputs, memorysIn)
+
+            #Calculates the ideal k_vaule for the residuals
+            abs_res = np.absolute(CurrentResiduals)
+            abs_res_avg = np.mean(abs_res)
+            #if abs_res_avg is less than 4.7 it would give a k value less than 1.
+            #k needs tobe a int > 1. All abs_res_avg values bellow 6.64 will be set to 1 to avoid this issue
+            if abs_res_avg > 6.64:
+
+                k = int(round(math.log(math.log(2,10) * abs_res_avg,2)))
+            else:
+                k = 1
+
+            #calculating the m value by taking 2 to the power of k
+                
+            m = pow(2,k)
+
+            #Golomb code the resiudals
+            
+            CodeWord = ""#
+            for i in range(len(CurrentResiduals)):
+                Golomb_coder = GolombCoding(m, sign)
+                n = int(CurrentResiduals[i])
+                kodOrd = Golomb_coder.Encode(n)
+                CodeWord += kodOrd
+            
+            #Save the ricecoded residuals and k-values to later decode
+            AllCodeWords[sample].append(CodeWord)
+            AllMvalues[sample].append(m)
+
+
+    if test == 47:
+        #Crate an loop that determines how many sampels that are going to be looked at
+        for sample in range(256):
+            #create an array to save all mic values for current data sample
+            testInputs = []
+
+            for microphone in range(mic_start, mic_end+1):
+                testIn = current_data[microphone,sample]
+                testInputs.append(testIn)
+                
+            
+            AllInputs[sample].append(testInputs)
+
+            CurrentResiduals, memorysIn, CurrentPredictions = Adjacent_predictor.In(testInputs, memorysIn)
+
+            #Calculates the ideal k_vaule for the residuals
+            abs_res = np.absolute(CurrentResiduals)
+            abs_res_avg = np.mean(abs_res)
+            #if abs_res_avg is less than 4.7 it would give a k value less than 1.
+            #k needs tobe a int > 1. All abs_res_avg values bellow 6.64 will be set to 1 to avoid this issue
+            if abs_res_avg > 6.64:
+
+                k = int(round(math.log(math.log(2,10) * abs_res_avg,2)))
+            else:
+                k = 1
+
+            #Rice code the resiudals
+            
+            CodeWord = ""#
+            for i in range(len(CurrentResiduals)):
+                Rice_coder = RiceCoding(k, sign)
+                n = int(CurrentResiduals[i])
+                kodOrd = Rice_coder.Encode(n)
+                CodeWord += kodOrd
+            
+            #Save the ricecoded residuals and k-values to later decode
+            AllCodeWords[sample].append(CodeWord)
+            AllKvalues[sample].append(k)           
+
+
     if test == 46:
         #Crate an loop that determines how many sampels that are going to be looked at
         for sample in range(256):
@@ -1515,8 +1697,8 @@ for itter in range(len(test_data)):
                     kodOrd = Golomb_coder.Encode(n)
                     code_word[j] += kodOrd
                 
-                #Saves binary value of input, represented in 32 bits
-                uncoded_word += np.binary_repr(testInputs[i],32)
+                #Saves binary value of input, represented in 24 bits
+                uncoded_word += np.binary_repr(abs(testInputs[i]),24)
 
             #Saves Rice coded residuals and binary input values arrays
             for j in range(len(m_array)):
@@ -1557,8 +1739,8 @@ for itter in range(len(test_data)):
                     kodOrd = Rice_coder.Encode(n)
                     code_word[j] += kodOrd
                 
-                #Saves binary value of input, represented in 32 bits
-                uncoded_word += np.binary_repr(testInputs[i],32)
+                #Saves binary value of input, represented in 24 bits
+                uncoded_word += np.binary_repr(abs(testInputs[i]),24)
 
             #Saves Rice coded residuals and binary input values arrays
             for j in range(len(k_array)):
@@ -1666,8 +1848,6 @@ for itter in range(len(test_data)):
             AllKvalues[mic].append(Current_k_value)
             AllEncodingChoices[mic].append(Current_Encoding_choice)
             AllCofficents[mic].append(Current_LPC_Cofficents)
-
-            
 
 
     if test == 33:
@@ -3058,6 +3238,143 @@ if test == 51:
     print("")
 
 
+if test == 49:
+    print("Test 49")
+    print("")
+    
+
+    CrArray = []
+
+    #loop thourgh all codewords and calculate the cr
+    for i in range(len(AllCodeWords)):
+        #Calculate cr by taking length rice coded residuals and divide it by length of input values represented as 24 bits binary digits
+        #each itteration contains the length for all mics of 1 sample
+        cr = len(AllCodeWords[i]) / len(AllInputsBinary[i])
+        #Save the CR value
+        CrArray.append(cr)
+
+    #Calculate average CR
+    avg_cr = sum(CrArray) / len(CrArray)
+
+    print("Average compression rate using adjacent with order ", order, "is: cr = ", avg_cr)
+    
+  
+if test == 48:
+    print("Test 48")
+    print("")
+    timeArray = []
+    allCorrect = 0
+    allCorrectUsed = False
+    recreatedValues = []
+    if order == 0:
+        memoryOut = []
+    else:
+        memoryOut = [0]*order
+
+    #Loop thorugh all data blocks
+    for datablock in range(recomnded_limit):
+        #Time how long it takes to recreate the values of all mics and sample from one datablock
+        start_time = time.time()
+        
+        #loop thorugh all samples
+        for sample in range(256):
+            #Grab data from the current sample
+            CodeWordsDataSample = AllCodeWords[sample]
+            MvaluesSample = AllMvalues[sample]
+            InputSample = AllInputs[sample]
+
+            #Grab data from the current datablock
+            CodeWord = CodeWordsDataSample[datablock]
+            mValue = MvaluesSample[datablock]
+            OgInput = InputSample[datablock]
+
+            Golomb_decoder = GolombCoding(mValue, sign)
+            residuals = Golomb_decoder.Decode(CodeWord)
+
+            recreatedValue, memoryOut, predictions = Adjacent_predictor.Out(residuals, memoryOut)
+
+            #Can be used to check if values was recreated correctly, affect timeing so only used to test once to see if it works correctly
+            if 1 < 0:
+                allCorrectUsed = True
+                for i in range(len(recreatedValue)):
+                    zero = OgInput[i] - recreatedValue[i]
+                    if zero != 0:
+                        allCorrect += 1
+                        print("Failed to recreate value at datablock=", datablock,", sample=",sample,",mic = ",i)
+
+        stop_time = time.time()
+        total_time = stop_time-start_time
+        timeArray.append(total_time)
+
+    if allCorrectUsed:
+        if allCorrect == 0:
+            print("All values recreated succesfully")
+
+    print("")
+    #Calculate average time
+    avg_time = sum(timeArray) / len(timeArray)
+
+    print("Average time to recreta value using adjacent with order ", order," is ",avg_time,"seconds")
+    
+
+if test == 47:
+    print("Test 47")
+    print("")
+    timeArray = []
+    allCorrect = 0
+    allCorrectUsed = False
+    recreatedValues = []
+    if order == 0:
+        memoryOut = []
+    else:
+        memoryOut = [0]*order
+
+    #Loop thorugh all data blocks
+    for datablock in range(recomnded_limit):
+        #Time how long it takes to recreate the values of all mics and sample from one datablock
+        start_time = time.time()
+        
+        #loop thorugh all samples
+        for sample in range(256):
+            #Grab data from the current sample
+            CodeWordsDataSample = AllCodeWords[sample]
+            KvaluesSample = AllKvalues[sample]
+            InputSample = AllInputs[sample]
+
+            #Grab data from the current datablock
+            CodeWord = CodeWordsDataSample[datablock]
+            kValue = KvaluesSample[datablock]
+            OgInput = InputSample[datablock]
+
+            Rice_decoder = RiceCoding(kValue, sign)
+            residuals = Rice_decoder.Decode(CodeWord)
+
+            recreatedValue, memoryOut, predictions = Adjacent_predictor.Out(residuals, memoryOut)
+
+            #Can be used to check if values was recreated correctly, affect timeing so only used to test once to see if it works correctly
+            if 1 < 0:
+                allCorrectUsed = True
+                for i in range(len(recreatedValue)):
+                    zero = OgInput[i] - recreatedValue[i]
+                    if zero != 0:
+                        allCorrect += 1
+                        print("Failed to recreate value at datablock=", datablock,", sample=",sample,",mic = ",i)
+
+        stop_time = time.time()
+        total_time = stop_time-start_time
+        timeArray.append(total_time)
+
+    if allCorrectUsed:
+        if allCorrect == 0:
+            print("All values recreated succesfully")
+
+    print("")
+    #Calculate average time
+    avg_time = sum(timeArray) / len(timeArray)
+
+    print("Average time to recreta value using adjacent with order ", order," is ",avg_time,"seconds")
+    
+
 if test == 46:
     print("Test 46")
     print("")
@@ -3187,6 +3504,8 @@ if test == 45:
 if test == 44:
     print("Test 44")
     print("")
+    print("Adjacent with order ", order)
+    print("")
     #calculate ideal k_value
     #Calculates the ideal k-value according to Rice theory
     abs_res_avg = np.mean(abs_res)
@@ -3243,20 +3562,58 @@ if test == 44:
 
 
 
+    if 1 > 0:#Plots for report only
+
+        plt_title =("Test44_fixed")
+        #K values for sine: 2 = k 8-16
+        Sine_2 = [0.8500504811604804, 0.6653977711995446, 0.5942123413085907, 0.5801274617513004, 0.5951808929443353, 0.6281656901041665, 0.667703755696605, 0.708484268188506, 0.75]
     
+        #K values for Drone: 2 = k 12-20
+        #rone_2 =[1.0085985819498702, 0.8280771891276049, 0.7590602874755846, 0.7461541493733703, 0.7623184204101547, 0.7942623138427689, 0.8335726420085013, 0.8750035603841146, 0.9166666666666524]
+
+        #K values for static: 2 = k 13-20
+        Static_2 = [0.9175244649251315, 0.8035437266031901, 0.7679500579833974, 0.7721909840901684, 0.7975072224934917, 0.8339841206868762, 0.8750086466471352, 0.9166666666666524]
+
+        plt.figure("Test13_fixed_values")
+
+        #Plot sine
+        plt.plot(, Sine_2, 'yo', label='1k Hz sine soundwave, Shorten order 0')
+
+
+        #plot drone
+        plt.plot(, Drone_order0, 'bo', label='Drone sound, Shorten order 0')
+
+
+        #plot Static oise
+        plt.plot(, Static_order0, 'go', label='Static noise, Shorten order 0')
+
+
+        #plt.plot(k_array, cr_2, 'bo', label='Order 2')
+        #plt.plot(k_array, cr_3, 'go', label='Order 3')
+        #plt.title("Comparison of comression ratio for differente orders")
+        plt.yticks(fontsize=20)
+        plt.xticks(fontsize=20)
+        plt.xlabel("k-value", fontsize=25)
+        plt.ylabel("Average compression ratio", fontsize=25)
+        plt.legend(fontsize=15)
+
+        plt.show()
+
+
+    else:
     
 
-    plt.figure("Test_44_")
+        plt.figure("Test_44_")
 
-    plt.plot(k_array, avg_cr, "o")
+        plt.plot(k_array, avg_cr, "o")
 
-        
-        
-    plt.xlabel("k-value")
-    plt.ylabel("Average compression ratio")
-    plt.legend()
+            
+            
+        plt.xlabel("k-value")
+        plt.ylabel("Average compression ratio")
+        plt.legend()
 
-    plt.show()
+        plt.show()
 
 
 if test == 43:
@@ -3511,15 +3868,23 @@ if test == 34:
   
 
     #For each mic values for all data blocks
-    for microphone in range(end_mic + 1 - start_mic):
-        OriginalMicAllDatablocks = AllOriginalInputs[microphone]
-        CodeWordMic = AllCodeWords[microphone]
-        KvaluesMic = AllKvalues[microphone]
-        EncodingChoicesMic = AllEncodingChoices[microphone]
-        CofficentsMic = AllCofficents[microphone]
 
-        #loop thourhg each data block and grab that datablocks values
-        for datablock in range(recomnded_limit):
+    #loop thourgh all data blocks
+    for datablock in range(recomnded_limit):
+    
+        #Time how long time it takes to decode every mic in a data block
+        start_time = time.time()
+        #loop thorugh all mics
+        for microphone in range(end_mic + 1 - start_mic):
+            
+            #Grab data corresponding to each mic
+            OriginalMicAllDatablocks = AllOriginalInputs[microphone]
+            CodeWordMic = AllCodeWords[microphone]
+            KvaluesMic = AllKvalues[microphone]
+            EncodingChoicesMic = AllEncodingChoices[microphone]
+            CofficentsMic = AllCofficents[microphone]
+            
+            #rab that datablocks values
             CodeWord = CodeWordMic[datablock]
             OriginalInputs = OriginalMicAllDatablocks[datablock]
             EncodingChoice = EncodingChoicesMic[datablock]
@@ -3527,42 +3892,47 @@ if test == 34:
             LpcCofficents = CofficentsMic[datablock]
 
             #Decode the codeword and get the original inputs, time how long it takes
-            start_time = time.time()
+            
             DecodedInputs, MemorysOut[microphone] = FLAC_prediction.Out(CodeWord, MemorysOut[microphone], kValue, EncodingChoice, LpcCofficents)
-            end_time = time.time()
-            total_time = end_time - start_time
-            print(total_time)
+        
+        
 
-            #save the total time in the time array to later calculate average time
-            time_array.append(total_time)
+            #Can be used to check if every thing is decoded correctly, this is will affect time and is just done to check that the code works
+            if 1 < 0:
+                #Check that all values was decoded correctly, 
+                #since LPC get it somewhat wrong if the encoding choice is indecating that LPC have been used an error of up to 10 in magnitude will be allowed
+                for i in range(len(OriginalInputs)):
+                    zero = OriginalInputs[i] - DecodedInputs[i]
 
-            #Check that all values was decoded correctly, 
-            #since LPC get it somewhat wrong if the encoding choice is indecating that LPC have been used an error of up to 10 in magnitude will be allowed
-            for i in range(len(OriginalInputs)):
-                zero = OriginalInputs[i] - DecodedInputs[i]
+                    if int(EncodingChoice, 2) > 5:
+                        if zero > 10:
+                            AllCorrect +=1
+                            print("Failed recreate value at datablock ", datablock, "mic ", microphone)
 
-                if int(EncodingChoice, 2) > 5:
-                    if zero > 10:
-                        AllCorrect +=1
-                        print("Failed recreate value at datablock ", datablock, "mic ", microphone)
-
-                else:
-                    if zero != 0:
-                        AllCorrect +=1
-                        print("Failed recreate value at datablock ", datablock, "mic ", microphone)
+                    else:
+                        if zero != 0:
+                            AllCorrect +=1
+                            print("Failed recreate value at datablock ", datablock, "mic ", microphone)
 
 
-    if AllCorrect == 0:
-        print("All values where recreated succesfully")
-    print("Len total time = ", len(total_time))
-    print("")
+                    if AllCorrect == 0:
+                        print("All values where recreated succesfully")
+                    print("Len total time = ", len(total_time))
+                    print("")
+
+
+        end_time = time.time()
+        total_time = end_time - start_time
+
+
+        #save the total time in the time array to later calculate average time
+        time_array.append(total_time)
+
+
     #Calculate average time it took to reacreate values
     avg_time = sum(time_array) / len(time_array)
     print("Average time to recreate values using FLAC with max LPC Order ", LPC_Order," is ", avg_time, "seconds")
                         
-
-
-
 
 if test == 33:
     print("Test 33")

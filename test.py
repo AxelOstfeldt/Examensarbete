@@ -8,10 +8,7 @@ from LPC import LPC
 
 if 1 > 0:
     
-    
-    memory = list(range(1,4))
-
-    print(memory)
+   print(pow(2,1))
     
 
 if 1 < 0:
