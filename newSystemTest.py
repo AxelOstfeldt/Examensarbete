@@ -36,7 +36,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 44
+test = 45
 
 #General tests
 #Test 1. This test plots microphone data
@@ -468,9 +468,9 @@ if test == 45:
     AllInputs = []
     sign = True
     AllResiduals = []
-    m_start = 280
-    m_end = 700
-    magnitude = 100
+    m_start = 43900
+    m_end = 44700
+    magnitude = 1
 
     for i in range(m_start, m_end+1):
         code_words.append([])
@@ -3444,6 +3444,8 @@ if test == 46:
 if test == 45:
     print("Test 45")
     print("")
+    print("Adjacent with order ", order)
+    print("")
     #Create array for compression rate for each m value
     cr = []
     avg_cr = []
@@ -3562,40 +3564,38 @@ if test == 44:
 
 
 
-    if 1 > 0:#Plots for report only
+    if 1 < 0:#Plots for report only
 
-        plt_title =("Test44_fixed")
         #K values for sine: 2 = k 8-16
         Sine_2 = [0.8500504811604804, 0.6653977711995446, 0.5942123413085907, 0.5801274617513004, 0.5951808929443353, 0.6281656901041665, 0.667703755696605, 0.708484268188506, 0.75]
     
         #K values for Drone: 2 = k 12-20
-        #rone_2 =[1.0085985819498702, 0.8280771891276049, 0.7590602874755846, 0.7461541493733703, 0.7623184204101547, 0.7942623138427689, 0.8335726420085013, 0.8750035603841146, 0.9166666666666524]
+        Drone_2 =[1.0085985819498702, 0.8280771891276049, 0.7590602874755846, 0.7461541493733703, 0.7623184204101547, 0.7942623138427689, 0.8335726420085013, 0.8750035603841146, 0.9166666666666524]
 
         #K values for static: 2 = k 13-20
         Static_2 = [0.9175244649251315, 0.8035437266031901, 0.7679500579833974, 0.7721909840901684, 0.7975072224934917, 0.8339841206868762, 0.8750086466471352, 0.9166666666666524]
 
-        plt.figure("Test13_fixed_values")
+        plt.figure("Test44_fixed_values")
 
         #Plot sine
-        plt.plot(, Sine_2, 'yo', label='1k Hz sine soundwave, Shorten order 0')
+        plt.plot(list(range(8,17)), Sine_2, 'yo', label='1k Hz tone')
 
 
         #plot drone
-        plt.plot(, Drone_order0, 'bo', label='Drone sound, Shorten order 0')
+        plt.plot(list(range(12,21)), Drone_2, 'bo', label='Drone sound')
 
 
         #plot Static oise
-        plt.plot(, Static_order0, 'go', label='Static noise, Shorten order 0')
+        plt.plot(list(range(13,21)), Static_2, 'go', label='Static noise')
 
 
-        #plt.plot(k_array, cr_2, 'bo', label='Order 2')
-        #plt.plot(k_array, cr_3, 'go', label='Order 3')
+         
         #plt.title("Comparison of comression ratio for differente orders")
         plt.yticks(fontsize=20)
         plt.xticks(fontsize=20)
         plt.xlabel("k-value", fontsize=25)
         plt.ylabel("Average compression ratio", fontsize=25)
-        plt.legend(fontsize=15)
+        plt.legend(fontsize=20)
 
         plt.show()
 
