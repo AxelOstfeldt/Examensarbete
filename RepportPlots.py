@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import math
 
-PlotNr = 13
+PlotNr = 12
 
 #PlotNr 1. Bar plot for RiceCoding original input 
 #PlotNr 11. Bar plot for Shorten best k and m values
@@ -205,7 +205,7 @@ if PlotNr == 12:
     #Rice Codes
 
     cr = {
-        '1 k Hz tone': (0.163, 0.086, 0.169, 0.192),
+        '1 k Hz tone': (0.163, 0.086, 0.100, 0.115),
         'Drone sound': (0.231, 0.231, 0.241, 0.261),
         'Static noise': (0.229, 0.207, 0.281, 0.276),
     }

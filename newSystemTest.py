@@ -36,7 +36,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 45
+test = 18
 
 #General tests
 #Test 1. This test plots microphone data
@@ -770,7 +770,7 @@ if test == 21:
 
 
 if test == 18:
-    Order = 3
+    Order = 2
     AllCodeWords = []
     UncodedWords = []
     OriginalInputs = []
