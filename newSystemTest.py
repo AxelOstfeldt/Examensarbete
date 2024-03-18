@@ -36,7 +36,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 18
+test = 21
 
 #General tests
 #Test 1. This test plots microphone data
@@ -489,8 +489,8 @@ if test == 44:
     AllInputs = []
     sign = True
     AllResiduals = []
-    k_start = 12
-    k_end = 20
+    k_start = 6
+    k_end = 16
     k_ideal_array = []
     abs_res = []
 
@@ -618,7 +618,7 @@ if test == 31:
 
 
 if test == 28:
-    Order = 1
+    Order = 5
     AllCodeWords = []
     AllCofficents = []
     UncodedWords = []
@@ -637,7 +637,7 @@ if test == 28:
 
 
 if test == 27:
-    Order = 1
+    Order = 5
     AllCodeWords = []
     AllCofficents = []
     UncodedWords = []
@@ -715,8 +715,8 @@ if test == 24:
         k_ideal_array.append([])
         memorys.append([0]*i)
     
-    k_start = 1
-    k_stop = 8
+    k_start = 6
+    k_stop = 16
     k_array = []
     for i in range(k_start, k_stop+1):
         k_array.append(i)
@@ -934,7 +934,7 @@ if test == 1:
 #The data from the while loop is appended in the test_data array
 #It loops recomended_limit amount of time, this depends on the size of the sound file
 #23 was found to be a good number to use
-recomnded_limit = 20
+recomnded_limit = 2
 
 test_data = []
 data = np.empty((config.N_MICROPHONES, config.N_SAMPLES), dtype=np.float32)
@@ -1572,6 +1572,7 @@ for itter in range(len(test_data)):
             for microphone in range(mic_start, mic_end+1):
                 testIn = current_data[microphone,sample]
                 testInputs.append(testIn)
+
                 
             
             AllInputs[sample].append(testInputs)
@@ -2111,7 +2112,7 @@ for itter in range(len(test_data)):
 
 
     if test == 24:
-        input = current_data[silent_mic_1,:]#Input data used in test
+        input = current_data[best_mic,:]#Input data used in test
 
         
         #loops though all k values in k_array.
@@ -3564,7 +3565,7 @@ if test == 44:
 
 
 
-    if 1 < 0:#Plots for report only
+    if 1 > 0:#Plots for report only
 
         #K values for sine: 2 = k 8-16
         Sine_2 = [0.8500504811604804, 0.6653977711995446, 0.5942123413085907, 0.5801274617513004, 0.5951808929443353, 0.6281656901041665, 0.667703755696605, 0.708484268188506, 0.75]
@@ -3575,7 +3576,7 @@ if test == 44:
         #K values for static: 2 = k 13-20
         Static_2 = [0.9175244649251315, 0.8035437266031901, 0.7679500579833974, 0.7721909840901684, 0.7975072224934917, 0.8339841206868762, 0.8750086466471352, 0.9166666666666524]
 
-        plt.figure("Test44_fixed_values")
+        plt.figure("Test44_fixed_values", layout = 'constrained')
 
         #Plot sine
         plt.plot(list(range(8,17)), Sine_2, 'yo', label='1k Hz tone')
@@ -3591,11 +3592,11 @@ if test == 44:
 
          
         #plt.title("Comparison of comression ratio for differente orders")
-        plt.yticks(fontsize=20)
-        plt.xticks(fontsize=20)
-        plt.xlabel("k-value", fontsize=25)
-        plt.ylabel("Average compression ratio", fontsize=25)
-        plt.legend(fontsize=20)
+        plt.yticks(fontsize=25)
+        plt.xticks(fontsize=25)
+        plt.xlabel("k-value", fontsize=30)
+        plt.ylabel("Average compression ratio", fontsize=30)
+        plt.legend(fontsize=25)
 
         plt.show()
 
@@ -4635,7 +4636,7 @@ if test == 24:
 
         Static_order5 = [0.8694905598958332, 0.7792236328125, 0.7555094401041667, 0.7656331380208332, 0.7939127604166666, 0.8333902994791668, 0.875, 0.9166666666666667]
 
-        plt.figure("Test24_fixed_values")
+        plt.figure("Test24_fixed_values", layout = 'constrained')
 
         #Plot sine
         plt.plot(list(range(8,17)), Sine_order1, 'yv', label='1k Hz tone, Order 1')
@@ -4668,10 +4669,10 @@ if test == 24:
         #plt.plot(k_array, cr_2, 'bo', label='Order 2')
         #plt.plot(k_array, cr_3, 'go', label='Order 3')
         #plt.title("Comparison of comression ratio for differente orders")
-        plt.yticks(fontsize=20)
-        plt.xticks(fontsize=20)
-        plt.xlabel("k-value", fontsize=25)
-        plt.ylabel("Average compression ratio", fontsize=25)
+        plt.yticks(fontsize=25)
+        plt.xticks(fontsize=25)
+        plt.xlabel("k-value", fontsize=30)
+        plt.ylabel("Average compression ratio", fontsize=30)
         plt.legend(fontsize=15)
 
         plt.show()
@@ -5051,9 +5052,9 @@ if test == 21:
             print("Itteration nr",i," failed decodeing ",value_check," values")
 
         
-        if 1 < 0:#only for report
+        if 1 > 0:#only for report
             fig_title = "Test21_order_" + str(order)
-            plt.figure(fig_title)
+            plt.figure(fig_title, layout = 'constrained')
             plt.plot(input, 'b', label='Original values')
             plt.plot(uncoded_values, 'r-.', label='Decoded values')
             
@@ -5063,7 +5064,7 @@ if test == 21:
             plt.show()
 
             new_fig_title = fig_title + "_zero"
-            plt.figure(new_fig_title)
+            plt.figure(new_fig_title, layout = 'constrained')
             plt.plot(plot_zero, 'g')
             #plt.legend(fontsize=25)
             plt.yticks(fontsize=20)
