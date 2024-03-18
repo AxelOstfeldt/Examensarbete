@@ -36,7 +36,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 21
+test = 1
 
 #General tests
 #Test 1. This test plots microphone data
@@ -5052,7 +5052,7 @@ if test == 21:
             print("Itteration nr",i," failed decodeing ",value_check," values")
 
         
-        if 1 > 0:#only for report
+        if 1 < 0:#only for report
             fig_title = "Test21_order_" + str(order)
             plt.figure(fig_title, layout = 'constrained')
             plt.plot(input, 'b', label='Original values')
@@ -5562,9 +5562,9 @@ if test == 14:
 
 
 
-        if 1 > 0:#Only plots for report
+        if 1 < 0:#Only plots for report
             fig_title = "Test14_order_" + str(order)
-            plt.figure(fig_title)
+            plt.figure(fig_title, layout = 'constrained')
             plt.plot(input, 'b', label='Original values')
             plt.plot(uncoded_values, 'r-.', label='Decoded values')
             plt.legend(fontsize=25)
@@ -5835,41 +5835,41 @@ if test == 13:
         Static_order2 = [1.0432942708333335, 0.8866048177083332, 0.8293619791666667, 0.8226725260416667, 0.8415852864583332, 0.8756266276041667, 0.9166666666666667]
         Static_order3 = [0.9977783203125001, 0.8848958333333332, 0.8495035807291667, 0.853662109375, 0.8788574218749998, 0.9167724609375]
         
-        plt.figure("Test13_fixed_values")
+        plt.figure("Test13_fixed_values", layout = 'constrained')
 
         #Plot sine
-        plt.plot(k_plot[10:15], Sine_order0, 'yo', label='1k Hz sine soundwave, Shorten order 0')
-        plt.plot(k_plot[7:15], Sine_order1, 'yv', label='1k Hz sine soundwave, Shorten order 1')
-        plt.plot(k_plot[7:15], Sine_order2, 'ys', label='1k Hz sine soundwave, Shorten order 2')
-        plt.plot(k_plot[7:15], Sine_order3, 'y*', label='1k Hz sine soundwave, Shorten order 3')
+        plt.plot(k_plot[10:15], Sine_order0, 'yo', label='1k Hz tone, Order 0')
+        plt.plot(k_plot[7:15], Sine_order1, 'yv', label='1k Hz tone, Order 1')
+        plt.plot(k_plot[7:15], Sine_order2, 'ys', label='1k Hz tone, Order 2')
+        plt.plot(k_plot[7:15], Sine_order3, 'y*', label='1k Hz tone, Order 3')
 
         #plot silent
-        plt.plot(k_plot[0:8], Silent_order0, 'ro', label='Silent mic, Shorten order 0')
-        plt.plot(k_plot[0:8], Silent_order1, 'rv', label='Silent mic, Shorten order 1')
-        plt.plot(k_plot[0:8], Silent_order2, 'rs', label='Silent mic, Shorten order 2')
-        plt.plot(k_plot[0:8], Silent_order2, 'r*', label='Silent mic, Shorten order 3')
+        plt.plot(k_plot[0:8], Silent_order0, 'ro', label='Silent mic, Order 0')
+        plt.plot(k_plot[0:8], Silent_order1, 'rv', label='Silent mic, Order 1')
+        plt.plot(k_plot[0:8], Silent_order2, 'rs', label='Silent mic, Order 2')
+        plt.plot(k_plot[0:8], Silent_order2, 'r*', label='Silent mic, Order 3')
 
         #plot drone
-        plt.plot(k_plot[12:20], Drone_order0, 'bo', label='Drone sound, Shorten order 0')
-        plt.plot(k_plot[12:20], Drone_order1, 'bv', label='Drone sound, Shorten order 1')
-        plt.plot(k_plot[12:20], Drone_order2, 'bs', label='Drone sound, Shorten order 2')
-        plt.plot(k_plot[13:20], Drone_order3, 'b*', label='Drone sound, Shorten order 3')
+        plt.plot(k_plot[12:20], Drone_order0, 'bo', label='Drone sound, Order 0')
+        plt.plot(k_plot[12:20], Drone_order1, 'bv', label='Drone sound, Order 1')
+        plt.plot(k_plot[12:20], Drone_order2, 'bs', label='Drone sound, Order 2')
+        plt.plot(k_plot[13:20], Drone_order3, 'b*', label='Drone sound, Order 3')
 
         #plot Static oise
-        plt.plot(k_plot[12:20], Static_order0, 'go', label='Static noise, Shorten order 0')
-        plt.plot(k_plot[13:20], Static_order1, 'gv', label='Static noise, Shorten order 1')
-        plt.plot(k_plot[13:20], Static_order2, 'gs', label='Static noise, Shorten order 2')
-        plt.plot(k_plot[14:20], Static_order3, 'g*', label='Static noise, Shorten order 3')
+        plt.plot(k_plot[12:20], Static_order0, 'go', label='Static noise, Order 0')
+        plt.plot(k_plot[13:20], Static_order1, 'gv', label='Static noise, Order 1')
+        plt.plot(k_plot[13:20], Static_order2, 'gs', label='Static noise, Order 2')
+        plt.plot(k_plot[14:20], Static_order3, 'g*', label='Static noise, Order 3')
 
         #plt.plot(k_array, cr_2, 'bo', label='Order 2')
         #plt.plot(k_array, cr_3, 'go', label='Order 3')
         #plt.title("Comparison of comression ratio for differente orders")
-        plt.yticks(fontsize=20)
-        plt.xticks(fontsize=20)
-        plt.xlabel("k-value", fontsize=25)
-        plt.ylabel("Average compression ratio", fontsize=25)
-        plt.legend(fontsize=15)
-
+        plt.yticks(fontsize=25)
+        plt.xticks(fontsize=25)
+        plt.xlabel("k-value", fontsize=30)
+        plt.ylabel("Average compression ratio", fontsize=30)
+        plt.legend(fontsize=20)
+        plt.xticks(np.arange(0, 21, 1.0))
         plt.show()
 
 
@@ -5982,14 +5982,14 @@ if test == 11:
         
 
 
-        if 1 < 0:#Only plots for repport
+        if 1 > 0:#Only plots for repport
             fig_title = "Test11_order_" + str(order)
-            plt.figure(fig_title)
+            plt.figure(fig_title, layout = 'constrained')
             plt.plot(input, 'b', label='Original values')
             plt.plot(uncoded_values, 'r-.', label='Decoded values')
             plt.legend(fontsize=25)
-            plt.yticks(fontsize=20)
-            plt.xticks(fontsize=20)
+            plt.yticks(fontsize=25)
+            plt.xticks(fontsize=25)
             plt.show()
 
              #plt.plot(k_array, cr_2, 'bo', label='Order 2')
@@ -6108,7 +6108,7 @@ if test == 1:
     print("")
 
     
-    if 1 < 0:#only for report
+    if 1 > 0:#only for report
 
         sine = [-24104, -24632, -24245, -22717, -21856, -18517, -16941, -14584, -12349, -9949, -5617, -4457, -1172, 3212, 4075, 8452, 11111, 11103, 15540, 16312, 17251, 20076, 19695, 20463, 23027, 20603, 20279, 20791, 17919, 18296, 14751, 12851, 12299, 8715, 6304, 3320, 1231, -3436, -6036, -8261, -14236, -14273, -16876, -19732, -21793, -23557, -23588, -25857, -25433, -24104, -26105, -23264, -22245, -22893, -18661, -18461, -16588, -12604, -9377, -7761, -4172, -2888, 1356, 4188, 5135, 9591, 12587, 13132, 16267, 17091, 18875, 19064, 19631, 20099, 21071, 19759, 17824, 18032, 18247, 14335, 12532, 11540, 7675, 5132, 4136, -1788, -4316, -7289, -11804, -13492, -16097, -18924, -20833, -22056, -23804, -24964, -23853, -26569, -26133, -24069, -24740, -22844, -20305, -21256, -16756, -15385, -13584, -7920, -7188, -3636, -145, 1179, 4304, 7920, 9636, 11348, 14548, 15987, 17627, 18371, 19531, 19428, 20264, 21007, 18816, 18647, 16547, 16048, 12671, 10459, 10051, 6327, 3443, 1224, -2672, -6300, -8168, -11805, -15284, -17437, -19745, -21904, -23377, -24493, -25257, -25585, -27033, -26757, -25096, -25725, -23736, -21604, -19877, -18996, -15372, -13225, -10084, -6945, -5568, -2865, 2039, 3199, 6515, 9735, 11084, 11996, 15683, 15836, 15907, 17635, 18443, 17332, 18971, 16991, 16595, 15523, 12796, 12624, 9864, 6300, 5304, 1631, -1745, -3640, -7905, -10105, -13501, -15937, -18977, -20768, -22377, -24457, -25848, -26141, -27720, -27144, -28068, -26805, -25684, -25324, -23209, -20012, -18736, -16760, -12901, -11896, -7085, -5161, -3437, 796, 2523, 6199, 9315, 9676, 13679, 14763, 15543, 16292, 17240, 17755, 17527, 17984, 15627, 16203, 14663, 12335, 11212, 10076, 5232, 3668, 1419, -3324, -5317, -8505, -12080, -14464, -18404, -19941, -22697, -25464, -24076, -28209, -27457, -27677, -29389, -27552, -27948, -26964, -24932, -24188, -20869, -19857, -17249, -14744, -12481, -9137, -11485, -14489, -17909, -21781, -23057, -25665, -26904, -29912, -31773, -31165, -32604, -33216, -31612, -31997, -29656, -27577, -28276, -24508, -22225, -21392, -17349, -16329, -11972, -9285, -6580, -3809, 256, 2524, 3728, 6719, 9696, 10956, 12016, 13307, 14523, 14171, 13760, 14339, 12923, 11004, 11535, 7320, 7620, 4215, 1467, 451, -3236, -7329, -10693, -12768, -15757, -19844, -22585, -25380, -27076, -29201, -30936, -31552, -33344, -33356, -33349, -34240, -32832, -30425, -31264, -26876, -25360, -23493, -20409, -17045, -15896, -11877, -8393, -5949, -2525, 0, 2624, 6108, 9116, 8120, 12087, 13979, 12279, 16256, 14304, 14448, 15392, 13652, 12715, 11652, 9080, 8203, 6211, 1547, 479, -2556, -6509, -9372, -12416, -15289, -18884, -21385, -23876, -25192, -26700, -28621, -29753, -29845, -29992, -31217, -28889, -29328, -28488, -25101, -24736, -23569, -19429, -17705, -15168, -10980, -9228, -5792, -2713, 156, 3219, 4783, 7787, 10903, 11968, 13520, 16731, 15051, 15216, 17904, 15964, 15936, 15967, 13384, 11488, 11388, 8959, 5495, 3968, 591, -2568, -5325, -7777, -11805, -14841, -17720, -20424, -23780, -25173, -27773, -28741, -29972, -30264, -32229, -30608, -30897, -29784, -28113, -27932, -24436, -22084, -20045, -19465, -15028, -12312, -10601, -6332, -3732, -1132, 1984, 5212, 6772, 9727, 11880, 12096, 14527, 16103, 14488, 16616, 15832, 15212, 14575, 13000, 11684, 8535, 7475, 3399, 2383, -1561, -4572, -7140, -10785, -14000, -16929, -19917, -22724, -23977, -26733, -28328, -30024, -31853, -29821, -31484, -33008, -29393, -29501, -28940, -25609, -26368, -21516, -19980, -18297, -13305, -11633, -9228, -4589, -2641, -240, 3407, 4968, 8228, 10536, 10244, 15219, 14972, 14152, 16792, 16548, 14831, 15983, 13564, 13583, 11883, 9160, 7764, 5167, 1979, 511, -3940, -6729, -10032, -13112, -16576, -19252, -21885, -24000, -26196, -26901, -29085, -29564, -28916, -30792]
 
@@ -6125,7 +6125,7 @@ if test == 1:
 
         white_plot = [-100000,100000] + [-200000]*510
 
-        plt.figure("Test_1_Mic_79_all_sounds")
+        plt.figure("Test_1_Mic_79_all_sounds", layout = 'constrained')
         plt.plot(white_plot, 'w')
         plt.plot([-300000]*512, 'w')
         plt.plot(sine, 'b', label = '1k Hz tone')
@@ -6136,14 +6136,14 @@ if test == 1:
         
         plt.yticks(fontsize=20)
         plt.xticks(fontsize=20)
-        plt.legend(fontsize=25)
+        plt.legend(fontsize=25, loc = 'upper right')
 
 
         plt.show()
 
 
 
-        plt.figure("Test_1_Mic_136_233")
+        plt.figure("Test_1_Mic_136_233", layout = 'constrained')
         plt.plot(plot_sig[233], 'g', label = 'Mic #233')
         
         plt.plot(plot_sig[136], 'r', label = 'Mic #136')
@@ -6156,7 +6156,7 @@ if test == 1:
 
         plt.show()
 
-    elif 1 < 0:
+
 
        
 
@@ -6168,7 +6168,7 @@ if test == 1:
     
         
         
-        plt.figure("Test_1_Mic_79_136_233")
+        plt.figure("Test_1_Mic_79_136_233", layout = 'constrained')
         plt.plot(plot_sig[233], 'g', label = 'Mic #233')
         
         plt.plot(plot_sig[136], 'r', label = 'Mic #136')
@@ -6176,14 +6176,14 @@ if test == 1:
         
         plt.yticks(fontsize=20)
         plt.xticks(fontsize=20)
-        plt.legend(fontsize=25)
+        plt.legend(fontsize=25, loc = 'upper right')
 
 
         plt.show()
 
     
 
-        plt.figure("Test_1_Mic_233")
+        plt.figure("Test_1_Mic_233", layout = 'constrained')
         plt.plot(plot_sig[233], 'b', label = 'Mic #233')
         
         
@@ -6207,7 +6207,7 @@ if test == 1:
 
         plt.show()
 
-        plt.figure("Test_1_Mic_79")
+        plt.figure("Test_1_Mic_79", layout = 'constrained')
         plt.plot(plot_sig[79], 'b', label = 'Mic #79')
         
         
@@ -6219,7 +6219,7 @@ if test == 1:
 
         plt.show()
 
-        plt.figure("Test_1_Mic_19_20")
+        plt.figure("Test_1_Mic_19_20", layout = 'constrained')
         plt.plot([0,1],[-3,3],'w')
         plt.plot(plot_sig[19], 'r', label = 'Mic #19')
         plt.plot(plot_sig[20], 'b', label = 'Mic #20')
@@ -6227,12 +6227,12 @@ if test == 1:
         
         plt.yticks(fontsize=20)
         plt.xticks(fontsize=20)
-        plt.legend(fontsize=25)
+        plt.legend(fontsize=25, loc = 'upper right')
 
 
         plt.show()
 
-        plt.figure("Test_1_Mic_19")
+        plt.figure("Test_1_Mic_19", layout = 'constrained')
         plt.plot([0,1],[-3,3],'w')
         plt.plot(plot_sig[19], label = 'Mic #19')
         
@@ -6245,7 +6245,7 @@ if test == 1:
 
         plt.show()
 
-        plt.figure("Test_1_Mic_20")
+        plt.figure("Test_1_Mic_20", layout = 'constrained')
         plt.plot([0,1],[-3,3],'w')
         plt.plot(plot_sig[19], label = 'Mic #20')
         
@@ -6258,20 +6258,20 @@ if test == 1:
     
         plt.show()
 
-        plt.figure("Test_1_Mic_217")
+        plt.figure("Test_1_Mic_217", layout = 'constrained')
 
         plt.rc('font', **{'size':'30'})
         plt.plot(plot_sig[217], 'b', label = 'Mic #217')
         
         plt.yticks(fontsize=30)
         plt.xticks(fontsize=30)
-        plt.legend(fontsize=25)
+        plt.legend(fontsize=25, loc = 'upper right')
 
 
         plt.show()
 
 
-        plt.figure("Test_1_Mic_217_no_label")
+        plt.figure("Test_1_Mic_217_no_label", layout = 'constrained')
 
         plt.rc('font', **{'size':'30'})
         plt.plot(plot_sig[217], label = 'Mic #217')

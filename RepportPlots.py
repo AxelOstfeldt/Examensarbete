@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import math
 
-PlotNr = 43
+PlotNr = 62
 
 #
 #PlotNr 1. Bar plot for RiceCoding original input
@@ -28,6 +28,13 @@ PlotNr = 43
 #PlotNr 42. Bar plot for Adjacent time to recreate values
 #PlotNr 43. Test adjacent compression rate for all samples of an array (modifed k-values)
 
+#FLAC modified plots
+#PlotNr 51. Bar plot for time to recreate values using FLAC modified
+#PlotNr 52. Bar plot for compression rate using FLAC modified
+
+#DoubleCompression plots
+#PlotNr 61. Bar plot for time to recreate vales using DoubleCompression
+#PlotNr 62. Bar plot for compression rate using DoubleCompression
 
 
 if PlotNr == 1:
@@ -794,3 +801,130 @@ if PlotNr == 43:
     plt.show()
 
 
+if PlotNr == 51:
+
+    fig, ax = plt.subplots(layout='constrained')
+
+    title = ['1 k Hz tone', 'Drone sound', 'Static noise']
+    counts = [0.106, 0.146, 0.10]
+    bar_labels = ['1 k Hz tone', 'Drone sound', 'Static noise']
+    bar_colors = ['tab:red', 'tab:blue', 'tab:green']
+    for i in range(len(counts)):
+        rects = ax.bar(title[i], counts[i], label=bar_labels[i], color=bar_colors[i])
+        ax.bar_label(rects, fontsize = 60)
+
+    ax.set_ylabel('Average time [s]', fontsize=40)
+    #ax.legend(loc="upper left", fontsize = 20)
+    plt.ylim(0,0.2)
+    
+    plt.yticks(fontsize=25)
+    plt.xticks(fontsize=25)
+    plt.show()
+
+
+if PlotNr == 52:
+    fig, ax = plt.subplots(layout='constrained')
+
+    title = ['1 k Hz tone', 'Drone sound', 'Static noise']
+    counts = [0.529, 0.709, 0.730]
+    bar_labels = ['1 k Hz tone', 'Drone sound', 'Static noise']
+    bar_colors = ['tab:red', 'tab:blue', 'tab:green']
+    for i in range(len(counts)):
+        rects = ax.bar(title[i], counts[i], label=bar_labels[i], color=bar_colors[i])
+        ax.bar_label(rects, fontsize = 60)
+
+    ax.set_ylabel('Average compression rate', fontsize=40)
+    #ax.legend(loc="upper left", fontsize = 20)
+    plt.ylim(0,1)
+    
+    plt.yticks(fontsize=25)
+    plt.xticks(fontsize=25)
+    plt.show()
+
+
+if PlotNr == 61:
+    #Add some text for labels, title and custom x-axis tick labels, etc.
+
+    Order = ("Order 0", "Order 1", "Order 2", "Order 3", "Order 4")
+
+    #Rice Codes
+
+    cr = {
+        '1 k Hz tone': (0.085, 0.115, 0.257, 0.127, 0.249),
+        'Drone sound': (0.178,  0.300, 0.359, 0.321, 0.332),
+        'Static noise': (0.214, 0.305, 0.294, 0.329, 0.319),
+    }
+
+
+
+    x = np.arange(len(Order))  # the label locations
+    width = 0.25  # the width of the bars
+    multiplier = 0
+    
+    #First array for theoretical ideal, second for rice with best k, last for Golomb best m.
+    #First value in each array for order 0, second for order 1, etc
+
+    
+    fig, ax = plt.subplots(layout='constrained')
+    
+    for attribute, measurement in cr.items():
+
+        offset = width * multiplier
+        rects = ax.bar(x + offset, measurement, width, label=attribute)
+        ax.bar_label(rects, fontsize = 21)
+        
+        multiplier += 1
+        
+
+    # Add some text for labels, title and custom x-axis tick labels, etc.
+    ax.set_ylabel('Average time [s]', fontsize=70)
+    ax.set_xticks(x + width, Order, fontsize=50)
+    ax.legend(loc="upper left", fontsize = 33)
+    #ax.set_ylim(0, 0.4)
+    plt.yticks(fontsize=30)
+    
+    plt.show()
+
+
+if PlotNr == 62:
+    #Add some text for labels, title and custom x-axis tick labels, etc.
+
+    Order = ("Order 0", "Order 1", "Order 2", "Order 3", "Order 4")
+
+    #Rice Codes
+
+    cr = {
+        '1 k Hz tone': (0.550, 0.521, 0.554, 0.589, 0.623),
+        'Drone sound': (0.713, 0.725, 0.745, 0.772, 0.801),
+        'Static noise': (0.732, 0.753, 0.775, 0.804, 0.832),
+    }
+
+
+
+    x = np.arange(len(Order))  # the label locations
+    width = 0.25  # the width of the bars
+    multiplier = 0
+    
+    #First array for theoretical ideal, second for rice with best k, last for Golomb best m.
+    #First value in each array for order 0, second for order 1, etc
+
+    
+    fig, ax = plt.subplots(layout='constrained')
+    
+    for attribute, measurement in cr.items():
+
+        offset = width * multiplier
+        rects = ax.bar(x + offset, measurement, width, label=attribute)
+        ax.bar_label(rects, fontsize = 21)
+        
+        multiplier += 1
+        
+
+    # Add some text for labels, title and custom x-axis tick labels, etc.
+    ax.set_ylabel('Average compression rate', fontsize=55)
+    ax.set_xticks(x + width, Order, fontsize=50)
+    ax.legend(loc="upper left", fontsize = 33)
+    ax.set_ylim(0, 1)
+    plt.yticks(fontsize=30)
+    
+    plt.show()
