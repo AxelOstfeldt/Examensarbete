@@ -4,12 +4,23 @@ import numpy as np
 import random
 from Shorten import Shorten
 from LPC import LPC
+import math
 
 
 if 1 > 0:
     
-   print(pow(2,1))
+
+    test_array = [1.12345, 2.5678, 3.24999, 4.123123, 5.1234999]
+
+    for i in range(len(test_array)):
+        test_array[i] = round(test_array[i],3)
+
+    print(test_array)
+       
+ 
+
     
+       
 
 if 1 < 0:
 

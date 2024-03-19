@@ -10,6 +10,7 @@ from FLAC import FLAC
 from Adjacent import Adjacent
 from FlacModified import FlacModified
 from AdjacentAndShorten import DoubleCompression
+from LPC_Meta import MetaLPC
 
 import matplotlib.pyplot as plt
 import time
@@ -36,7 +37,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 1
+test = 81
 
 #General tests
 #Test 1. This test plots microphone data
@@ -93,12 +94,34 @@ test = 1
 
 #DoubleCompression test
 #Test 71. Test if DoubleCompression can ecreate inputs correctly, with options to plot original inputs, recreated input, and orgiginal input - recreated input
-#Test 62. Test Compression rate for DoubleCompression. Compare with orignal input values as binary 24 bit
-#Test 63. Test Decoding speed for DoubleCompression
+#Test 72. Test Compression rate for DoubleCompression. Compare with orignal input values as binary 24 bit
+#Test 73. Test Decoding speed for DoubleCompression
+
+#Testa LPC version with metadata
+#Test 81. Meta LPC compress full array
 
 
 
 #Initial values for tests
+if test == 81:
+    metaDataCoef = []
+    Order = 5
+    AllCodeWords = []
+    UncodedWords = []
+    memorysIn = []
+    sign = True
+    k_array = []
+    mic_start = 64
+    mic_end = 127
+    all_k = []
+    Meta_LPC_predictor = MetaLPC(Order)
+    for i in range(mic_start, mic_end+1):
+        AllCodeWords.append([])
+        memorysIn.append([0]*Order)
+        k_array.append([])
+        UncodedWords.append([])
+
+
 if test == 73:
     mic_start = 64
     mic_end = 127
@@ -974,6 +997,34 @@ print("")
 for itter in range(len(test_data)):
     current_data = test_data[itter]
     print("Itteration #", itter)
+
+
+    if test == 81:
+        inputs = []
+        for microphone in range(mic_start, mic_end + 1):
+            inputNow = current_data[microphone,:]
+            #Save the data for all the microphones of the array to be examined
+            inputs.append(inputNow)
+
+            uncoded_word = ""
+            for i in range(len(inputNow)):
+                #Saves binary value of input, represented in 24 bits
+                uncoded_word += np.binary_repr(abs(inputNow[i]),24)
+            #Saves the full binary value of the uncoded word in an array
+            UncodedWords[microphone-mic_start].append(uncoded_word)
+            
+        
+
+        for mic in range(len(inputs)):
+            currentInput = inputs[mic]
+            currentCodeword, memorysIn[mic], currentCoefficents = Meta_LPC_predictor.In(currentInput, memorysIn[mic])
+
+            #save the metadata for the coefficents
+            metaDataCoef.append(currentCoefficents)
+                
+            #Saves Rice coded residuals
+            AllCodeWords[mic].append(currentCodeword)
+
 
     if test == 73:
         input_data = current_data[mic_start:mic_end+1,:].copy()
@@ -2792,6 +2843,38 @@ for itter in range(len(test_data)):
 
 
 print("")
+
+if test == 81:
+    print("Test 81")
+    print("")
+    if 1 < 0:#Some info about k values
+        for i in range(len(k_array)):
+            currentKs = k_array[i]
+            print("Current max k = ", np.max(currentKs))
+            print("Current min k = ", np.min(currentKs))
+            print("Current k varriance = ", np.var(currentKs))
+
+
+        print("all_k max = ", np.max(all_k))
+        print("all_k mix = ", np.min(all_k))
+        print("all_k varraince = ", np.var(all_k))
+
+    all_cr = []
+    #Loops thorugh all mics to get the code_words for the specific mics
+    for mic in range(mic_end + 1 - mic_start):
+        encodedMic = AllCodeWords[mic]
+        uncodedMic = UncodedWords[mic]
+        #loops thorugh all data blocks to get the compression rate of the code word for that data block
+        for itteration in range(len(encodedMic)):
+            cr = len(encodedMic[itteration]) / len(uncodedMic[itteration])
+            all_cr.append(cr)
+
+    print("Average compression rate for LPC order ",Order,"is: cr = ", sum(all_cr) / len(all_cr))
+
+
+
+
+
 if test == 73:
     print("Test 73")
     print("")
