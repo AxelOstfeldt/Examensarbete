@@ -98,29 +98,28 @@ test = 81
 #Test 73. Test Decoding speed for DoubleCompression
 
 #Testa LPC version with metadata
-#Test 81. Meta LPC compress full array
+#Test 81. Meta LPC compress full array, get compression rate and plot for recreated values
 
 
 
 #Initial values for tests
 if test == 81:
     metaDataCoef = []
-    Order = 5
+    Order = 4
     AllCodeWords = []
     UncodedWords = []
     memorysIn = []
     AllInputs = []
     sign = True
     mic_start = 64
-    mic_end = 64
-    Meta_LPC_predictor = MetaLPC(Order)
+    mic_end = 127
+    BitsForDecimals = 20
+    Meta_LPC_predictor = MetaLPC(order = Order, CoefficentDecimalBits=BitsForDecimals)
     for i in range(mic_start, mic_end+1):
         AllCodeWords.append([])
         memorysIn.append([0]*Order)
         UncodedWords.append([])
         AllInputs.append([])
-
-
 
 
 if test == 73:
@@ -958,7 +957,7 @@ if test == 1:
 #The data from the while loop is appended in the test_data array
 #It loops recomended_limit amount of time, this depends on the size of the sound file
 #23 was found to be a good number to use
-recomnded_limit = 1
+recomnded_limit = 20
 
 test_data = []
 data = np.empty((config.N_MICROPHONES, config.N_SAMPLES), dtype=np.float32)
@@ -2863,7 +2862,19 @@ if test == 81:
         MemoryOut.append([0] * Order)
 
 
+    nrCodeWords = 0
+    totalLenCof = ""
+    for currentCoef in metaDataCoef:
+        totalLenCof += currentCoef
+        nrCodeWords +=1
 
+    avgLenCoef = len(totalLenCof) / nrCodeWords
+    avgLenPerCoef = avgLenCoef / Order
+
+    print("Average length for coefficents meta data is: ", avgLenCoef)
+    print("")
+    print("Average length per coefficent is = ", avgLenPerCoef)
+    print("")
 
     
     
@@ -2874,6 +2885,7 @@ if test == 81:
         encodedMic = AllCodeWords[mic]
         uncodedMic = UncodedWords[mic]
         OriginalValues = AllInputs[mic]
+
         
         #loops thorugh all data blocks to get the compression rate of the code word for that data block
         for itteration in range(len(encodedMic)):
@@ -2882,23 +2894,54 @@ if test == 81:
 
             RecreatedValues, MemoryOut[mic] = Meta_LPC_predictor.Out(encodedMic[itteration], MemoryOut[mic])
             
+
+
             incrementInput = itteration * 256
 
             zero = []
 
-            for value in range(len(RecreatedMicValues)):
+            for i in range(len(RecreatedValues)):
+
                 currentZero = OriginalValues[i+incrementInput] - RecreatedValues[i]
                 zero.append(currentZero)
 
-            if 1 < 0:
-                print("Maybe something for report??")
+            if 1 > 0:#Only prints for repport
+                if mic + mic_start == 79:
+                    if itteration == 0:
+                        fig_title = "Test_81_order_"+str(Order)+"_decbits_" + str(BitsForDecimals)
+                        plt.figure(fig_title, layout = 'constrained')
+                        plt.plot(OriginalValues[0:255], 'b', label='Original values')
+                        plt.plot(RecreatedValues, 'r-.', label='Decoded values')
+                        
+                        plt.legend(fontsize=25)
+                        plt.yticks(fontsize=20)
+                        plt.xticks(fontsize=20)
+                        plt.show()
 
-            else:
+                        new_fig_title = fig_title + "_zero"
+                        plt.figure(new_fig_title, layout = 'constrained')
+                        plt.plot(zero, 'g')
+                        #plt.legend(fontsize=25)
+                        plt.yticks(fontsize=20)
+                        plt.xticks(fontsize=20)
+                        plt.show()
 
-                fig = plt.figure()
+
+
+                
+
+
+            #Set a limit that the error can not go above
+            #if the error goes above this limit plot the outputs
+            
+            elif np.max(np.absolute(zero)) > 1000:
+                
+                fig_title = "Datablock " + str(itteration) + ", mic #" + str(mic + mic_start)
+
+                fig = plt.figure(fig_title)
 
                 ax = fig.add_subplot(311)
-                plt.plot(OriginalValues)
+                plt.plot(OriginalValues[incrementInput:incrementInput+255])
                 ax.title.set_text("Original input values")
 
                 ax = fig.add_subplot(312)

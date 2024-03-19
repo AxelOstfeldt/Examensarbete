@@ -4,7 +4,7 @@ import math
 
 class MetaLPC:
 
-    def __init__(self, order, sign = True):
+    def __init__(self, order, sign = True, CoefficentDecimalBits: int = 10):
         #Order have to be an integer of size 1 or larger for LPC
         #No upperlimit exist other than when the order is larger than the number of inputs the lag when caluclating autocorrelation will raise an error
         if  order < 0 or not isinstance(order, int):
@@ -12,6 +12,9 @@ class MetaLPC:
         
         self.order = order
         self.sign = sign
+        self.CoefDecBit = CoefficentDecimalBits
+        self.CoeffDivisionFactor = pow(2,CoefficentDecimalBits) - 1
+        
 
 
     #Function to calculate the autocorrelation of the input values
@@ -89,10 +92,8 @@ class MetaLPC:
                         a[j] = a_old[j] - k * a_old[(i-1)-j]
                 E = (1 - pow(k,2)) * E
 
-                if np.max(a) > 2 or np.min(a) < -2:
-                    print("")
-                    print("A contains a cofficents outside of -2 to 2, a = ", a)
-                    print("")
+
+
 
 
 
@@ -108,10 +109,10 @@ class MetaLPC:
             prediction += coef[j] * memory[j]
             memory[j] = memory[j-1]#updates the memory with the earlier values taking one step in the memory array
 
+
         prediction += coef[0] * memory[0]
 
         return prediction, memory
-    
     
 
     def In(self, inputs, memory):
@@ -119,7 +120,6 @@ class MetaLPC:
         coef = self.Coefficents(inputs)
 
 
-        
 
         residuals = []
 
@@ -128,13 +128,13 @@ class MetaLPC:
 
             memory[0] = inputs[i]#Updates the first slot in the memory array with the current value
             residual = inputs[i] - predict#caltulcates the residual
+
             residual = round(residual)#Since Rice and Golomb codes need to have interger the residual is rounded to closest int
 
 
             #Append current prediction and residual in array to returned
             residuals.append(residual)
 
-        print("coef in = ", coef)
 
         binaryCoefficents = self.CoefEncode(coef.copy())
 
@@ -148,6 +148,7 @@ class MetaLPC:
 
 
         return FullCodeWord, memory, binaryCoefficents
+
 
     def kCalculator(self, residuals):
         #Calculates the ideal k_vaule
@@ -171,6 +172,7 @@ class MetaLPC:
 
         return k, binaryK
     
+
     def RiceEncode(self, residuals, k):
         CodeWord = ""
 
@@ -247,6 +249,10 @@ class MetaLPC:
         #If the largest coefficents is 3.5 for example, multiplying this with 1023 and round down to closest in will get 3580 which needs 12 bits to be written,
         #that is 2 extra bits. It is the same amount of bits needed to write 3.5 rounded down to closest int.
         
+
+        #The basline for how many bits should be used for decimal can be changed in the function by changing:
+        #CoefficentDecimalBits in innit
+
         BinaryCoefficents = ""
         if np.max(np.absolute(coefficent.copy())) > 1:
 
@@ -274,17 +280,17 @@ class MetaLPC:
                 currentCoefficent = -currentCoefficent
             else:
                 CurrentBinaryCoef = "0"
-            #Multipli coeffcient by 1023 and round down to closest int
-            currentCoefficent = int(currentCoefficent * 1023)
+            #Multipli coeffcient by 1023 and round down to closest int (1023 is standard value)
+            currentCoefficent = int(currentCoefficent * self.CoeffDivisionFactor)
             
             #current coefficent should never be able to be larger than 2 ^ (10 + extraBits)
             #If it is it will not be possible to encode it
-            if currentCoefficent > pow(2,10+extraBits):
-                raise ValueError(f"current coefficent, {currentCoefficent} is larger than 2^{10+extraBits}")
+            if currentCoefficent > pow(2,self.CoefDecBit + extraBits):
+                raise ValueError(f"current coefficent, {currentCoefficent} is larger than 2^{self.CoefDecBit+extraBits}")
 
             
             #Write the currentCoefficent value in binary, with 10 + extraBits lenght
-            CurrentBinaryCoef +=  np.binary_repr(currentCoefficent, 10 + extraBits)
+            CurrentBinaryCoef +=  np.binary_repr(currentCoefficent, self.CoefDecBit + extraBits)
 
             #Add the current coefficent in binary to the full code word
             BinaryCoefficents += CurrentBinaryCoef
@@ -299,7 +305,7 @@ class MetaLPC:
         #Recreate the extra bits from the rle code
         while codeword[0] == "1":
             extraBits +=1
-            print(codeword)
+
             codeword = codeword[1:]
 
         codeword = codeword[1:]
@@ -314,8 +320,8 @@ class MetaLPC:
 
             codeword = codeword[1:]
 
-            CurrentCoefficentBinary = codeword[:10+extraBits]
-            codeword = codeword[10+extraBits:]
+            CurrentCoefficentBinary = codeword[:self.CoefDecBit+extraBits]
+            codeword = codeword[self.CoefDecBit+extraBits:]
             
 
 
@@ -324,7 +330,7 @@ class MetaLPC:
             if IsNegative:
                 CurrentCoefficent = -CurrentCoefficent
 
-            coefficents.append(CurrentCoefficent / 1023)
+            coefficents.append(CurrentCoefficent / self.CoeffDivisionFactor)
 
         if len(coefficents) != self.order:
             raise ValueError(f"Number of coefficents should match order, decoded coefficents are = {coefficents}")
@@ -342,7 +348,6 @@ class MetaLPC:
         coef, codeword = self.coefDecode(codeword)
 
 
-        print("current coefficents out = ",coef)
 
         residuals = self.RiceDecode(codeword, kValue)
 
@@ -351,13 +356,14 @@ class MetaLPC:
 
         for i in range(len(residuals)):
             predict, memory = self.prediciton(memory, coef)
+            
 
             #Recreates the current input
             #This maybe should also use round as in LPC.In
             #since the values in this project to be recreated always are int
             currentValue = residuals[i] + predict
 
-            memory[0] = input#Uppdates the first memory slot with the recreated input
+            memory[0] = currentValue#Uppdates the first memory slot with the recreated input
 
 
             #Appends the current recreated value to be returned
