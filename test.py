@@ -10,13 +10,13 @@ import math
 if 1 > 0:
     
 
-    test_array = [1.12345, 2.5678, 3.24999, 4.123123, 5.1234999]
+    tester = "123456789"
 
-    for i in range(len(test_array)):
-        test_array[i] = round(test_array[i],3)
+    k = tester[:3]
+    tester = tester[3:]
 
-    print(test_array)
-       
+    print("k = ",k)
+    print("tester = ",tester)
  
 
     

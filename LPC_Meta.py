@@ -134,6 +134,8 @@ class MetaLPC:
             #Append current prediction and residual in array to returned
             residuals.append(residual)
 
+        print("coef in = ", coef)
+
         binaryCoefficents = self.CoefEncode(coef.copy())
 
         idealK, binaryIdealK = self.kCalculator(residuals.copy())
@@ -141,6 +143,8 @@ class MetaLPC:
         CodeWord = self.RiceEncode(residuals, idealK)
 
         FullCodeWord = binaryIdealK + binaryCoefficents + CodeWord
+
+
 
 
         return FullCodeWord, memory, binaryCoefficents
@@ -245,10 +249,13 @@ class MetaLPC:
         
         BinaryCoefficents = ""
         if np.max(np.absolute(coefficent.copy())) > 1:
+
             extraBits = np.max(np.absolute(coefficent.copy()))
             extraBits = math.ceil(math.log(extraBits,2))
         else:
             extraBits = 0
+
+
         
         #Run length encode how many extra bits are needed
         for RunLengthEncode in range(extraBits):
@@ -292,6 +299,7 @@ class MetaLPC:
         #Recreate the extra bits from the rle code
         while codeword[0] == "1":
             extraBits +=1
+            print(codeword)
             codeword = codeword[1:]
 
         codeword = codeword[1:]
@@ -299,11 +307,24 @@ class MetaLPC:
         #loop thorugh the codeword and take out the bits representing a cofficents
         #this is done for every coefficents needed (number of coefficents = order)
         for NumberOfCoefficents in range(self.order):
-            CurrentCoefficentBinary = codeword[10+extraBits:]
-            codeword = codeword[:10+extraBits]
+            if codeword[0] == "1":
+                IsNegative = True
+            else:
+                IsNegative = False
+
+            codeword = codeword[1:]
+
+            CurrentCoefficentBinary = codeword[:10+extraBits]
+            codeword = codeword[10+extraBits:]
+            
+
 
             CurrentCoefficent = int(CurrentCoefficentBinary, 2)
-            coefficents.append(CurrentCoefficent)
+
+            if IsNegative:
+                CurrentCoefficent = -CurrentCoefficent
+
+            coefficents.append(CurrentCoefficent / 1023)
 
         if len(coefficents) != self.order:
             raise ValueError(f"Number of coefficents should match order, decoded coefficents are = {coefficents}")
@@ -316,11 +337,16 @@ class MetaLPC:
 
         kValue, codeword = self.kDecode(codeword)
 
+
+
         coef, codeword = self.coefDecode(codeword)
+
+
+        print("current coefficents out = ",coef)
 
         residuals = self.RiceDecode(codeword, kValue)
 
-        print("current coefficents out = ",coef)
+
 
 
         for i in range(len(residuals)):
@@ -342,10 +368,11 @@ class MetaLPC:
     def kDecode(self, codeword):
         #5 first bits in the codeword represent the k value used to encode the residuals
         kBinary = codeword[:5]
-        codeword = codeword[:5]
+        codeword = codeword[5:]
 
         #Convert k from binary to int
-        k = int(kBinary,2)
+        #Increment k by 1 because it is shifted down by 1 when encoded
+        k = int(kBinary,2) + 1
 
         return k, codeword
     
@@ -356,6 +383,8 @@ class MetaLPC:
 
         #Loops trough the code word to get all values in the code word
         while len(code) > 0:
+            
+            
             A = 0
             #If S is true the output should be negative
             S = False

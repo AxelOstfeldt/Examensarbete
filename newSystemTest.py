@@ -109,17 +109,18 @@ if test == 81:
     AllCodeWords = []
     UncodedWords = []
     memorysIn = []
+    AllInputs = []
     sign = True
-    k_array = []
     mic_start = 64
-    mic_end = 127
-    all_k = []
+    mic_end = 64
     Meta_LPC_predictor = MetaLPC(Order)
     for i in range(mic_start, mic_end+1):
         AllCodeWords.append([])
         memorysIn.append([0]*Order)
-        k_array.append([])
         UncodedWords.append([])
+        AllInputs.append([])
+
+
 
 
 if test == 73:
@@ -957,7 +958,7 @@ if test == 1:
 #The data from the while loop is appended in the test_data array
 #It loops recomended_limit amount of time, this depends on the size of the sound file
 #23 was found to be a good number to use
-recomnded_limit = 2
+recomnded_limit = 1
 
 test_data = []
 data = np.empty((config.N_MICROPHONES, config.N_SAMPLES), dtype=np.float32)
@@ -1005,6 +1006,11 @@ for itter in range(len(test_data)):
             inputNow = current_data[microphone,:]
             #Save the data for all the microphones of the array to be examined
             inputs.append(inputNow)
+            for value in inputNow:
+                AllInputs[microphone-mic_start].append(value)
+
+
+
 
             uncoded_word = ""
             for i in range(len(inputNow)):
@@ -2847,29 +2853,68 @@ print("")
 if test == 81:
     print("Test 81")
     print("")
-    if 1 < 0:#Some info about k values
-        for i in range(len(k_array)):
-            currentKs = k_array[i]
-            print("Current max k = ", np.max(currentKs))
-            print("Current min k = ", np.min(currentKs))
-            print("Current k varriance = ", np.var(currentKs))
+    print("Meta LPC order ",Order)
+    print("")
+
+    MemoryOut = []
 
 
-        print("all_k max = ", np.max(all_k))
-        print("all_k mix = ", np.min(all_k))
-        print("all_k varraince = ", np.var(all_k))
+    for i in range(mic_end + 1 - mic_start):
+        MemoryOut.append([0] * Order)
+
+
+
+
+    
+    
 
     all_cr = []
     #Loops thorugh all mics to get the code_words for the specific mics
     for mic in range(mic_end + 1 - mic_start):
         encodedMic = AllCodeWords[mic]
         uncodedMic = UncodedWords[mic]
+        OriginalValues = AllInputs[mic]
+        
         #loops thorugh all data blocks to get the compression rate of the code word for that data block
         for itteration in range(len(encodedMic)):
             cr = len(encodedMic[itteration]) / len(uncodedMic[itteration])
             all_cr.append(cr)
 
+            RecreatedValues, MemoryOut[mic] = Meta_LPC_predictor.Out(encodedMic[itteration], MemoryOut[mic])
+            
+            incrementInput = itteration * 256
+
+            zero = []
+
+            for value in range(len(RecreatedMicValues)):
+                currentZero = OriginalValues[i+incrementInput] - RecreatedValues[i]
+                zero.append(currentZero)
+
+            if 1 < 0:
+                print("Maybe something for report??")
+
+            else:
+
+                fig = plt.figure()
+
+                ax = fig.add_subplot(311)
+                plt.plot(OriginalValues)
+                ax.title.set_text("Original input values")
+
+                ax = fig.add_subplot(312)
+                plt.plot(RecreatedValues)
+                ax.title.set_text("Decoded input values")
+
+                ax = fig.add_subplot(313)
+                plt.plot(zero)
+                ax.title.set_text("Original input values - decoded input values")
+
+                plt.show()
+                
+
     print("Average compression rate for LPC order ",Order,"is: cr = ", sum(all_cr) / len(all_cr))
+
+
 
 
 
