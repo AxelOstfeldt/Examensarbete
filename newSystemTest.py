@@ -37,7 +37,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 81
+test = 74
 
 #General tests
 #Test 1. This test plots microphone data
@@ -96,6 +96,7 @@ test = 81
 #Test 71. Test if DoubleCompression can ecreate inputs correctly, with options to plot original inputs, recreated input, and orgiginal input - recreated input
 #Test 72. Test Compression rate for DoubleCompression. Compare with orignal input values as binary 24 bit
 #Test 73. Test Decoding speed for DoubleCompression
+#Test 74. Use shorten on sorted residuals to double check that DoubleCompression works correctly
 
 #Testa LPC version with metadata
 #Test 81. Meta LPC compress full array, get compression rate and plot for recreated values
@@ -121,6 +122,30 @@ if test == 81:
         UncodedWords.append([])
         AllInputs.append([])
 
+
+if test == 74:
+    mic_start = 64
+    mic_end = 127
+    AllCodeWords = []
+    OriginalInputs = []
+    ShortenCodeWords = []
+    sign = True
+
+    Order = 3
+    DoubleCompression_predictor = DoubleCompression(ShortenOrder = Order, mics = (mic_end + 1 - mic_start))
+    Shorten_predictor = Shorten(Order)
+
+    AdjacentMemoryIn = [0]*4
+    ShortenMemoryIn = []
+    ShortMemIn = []
+    for i in range(mic_end + 1 - mic_start):
+        ShortenMemoryIn.append([0]*4)
+        if Order == 0:
+            ShortMemIn.append([])
+        else:
+            ShortMemIn.append([0]*Order)
+        OriginalInputs.append([])
+        
 
 if test == 73:
     mic_start = 64
@@ -1031,17 +1056,82 @@ for itter in range(len(test_data)):
             AllCodeWords[mic].append(currentCodeword)
 
 
+    if test == 74:
+        input_data = current_data[mic_start:mic_end+1,:].copy()
+
+        #Encode the input data for the datablock
+        CodeWords, ShortenMemoryIn, AdjacentMemoryIn, currentAllSorted = DoubleCompression_predictor.In(input_data, ShortenMemoryIn, AdjacentMemoryIn)
+        AllCodeWords.append(CodeWords)
+
+        AllSortedResiduals = currentAllSorted[0]
+        
+        for mic in range(len(AllSortedResiduals)):
+
+            SortedResiduals = AllSortedResiduals[mic]
+
+            #uses Shorten to calculate residuals
+            ShortenResiduals,ShortMemIn[mic], predictions = Shorten_predictor.In(SortedResiduals, ShortMemIn[mic])
+
+            #Calculates the ideal k-value according to Rice theory
+            abs_res = np.absolute(ShortenResiduals)
+            abs_res_avg = np.mean(abs_res)
+            
+            #if abs_res_avg is less than 4.7 it would give a k value less than 1.
+            #k needs tobe a int > 1 and therefore if abs_res_avg < 5 k is set to 1
+            #OBS. 4.7 < abs_res_avg < 5 would be rounded of to k=1 so setting the limit to 5 works well
+            if abs_res_avg > 6.64:
+                k = int(round(math.log(math.log(2,10) * abs_res_avg,2))) + 1
+            else:
+                k = 1
+            
+            code_word = np.binary_repr(k,5)
+            #Rice codes the residuals from shorten and saves the code word in code_word
+            for i in range(len(ShortenResiduals)):
+                Rice_coder = RiceCoding(k, sign)
+                n = int(ShortenResiduals[i])
+                kodOrd = Rice_coder.Encode(n)
+                code_word += kodOrd
+                
+
+
+            #Saves Rice coded residuals and binary input values arrays
+            ShortenCodeWords.append(code_word)
+
+            if 1 < 0:#plot to see correlation of residual for all mics
+
+                figure_title = "mic #" + str(mic_start + i)
+                plt.figure(fig_title, layout = 'constrained')
+
+
+                plt.plot(SortedResiduals)
+                plt.show()
+            
+
+
+
+
+
+
+            
+
+        #Save the original data to later compare against the decoded data
+        for mic in range(mic_start, mic_end+1):
+            mic_data = current_data[mic,:]
+            for value in mic_data:
+                OriginalInputs[mic-mic_start].append(value)
+
+
     if test == 73:
         input_data = current_data[mic_start:mic_end+1,:].copy()
         #Encode the input data for the datablock
-        CodeWords, ShortenMemoryIn, AdjacentMemoryIn = DoubleCompression_predictor.In(input_data, ShortenMemoryIn, AdjacentMemoryIn)
+        CodeWords, ShortenMemoryIn, AdjacentMemoryIn, canIgnore = DoubleCompression_predictor.In(input_data, ShortenMemoryIn, AdjacentMemoryIn)
         AllCodeWords.append(CodeWords)
 
 
     if test == 72:
         input_data = current_data[mic_start:mic_end+1,:].copy()
         #Encode the input data for the datablock
-        CodeWords, ShortenMemoryIn, AdjacentMemoryIn = DoubleCompression_predictor.In(input_data, ShortenMemoryIn, AdjacentMemoryIn)
+        CodeWords, ShortenMemoryIn, AdjacentMemoryIn, canIgnore = DoubleCompression_predictor.In(input_data, ShortenMemoryIn, AdjacentMemoryIn)
         AllCodeWords.append(CodeWords)
 
         #Save the original data as 24 bit binary to later compare against the decoded data
@@ -1060,8 +1150,13 @@ for itter in range(len(test_data)):
         input_data = current_data[mic_start:mic_end+1,:].copy()
 
         #Encode the input data for the datablock
-        CodeWords, ShortenMemoryIn, AdjacentMemoryIn = DoubleCompression_predictor.In(input_data, ShortenMemoryIn, AdjacentMemoryIn)
+        CodeWords, ShortenMemoryIn, AdjacentMemoryIn, currentAllSorted = DoubleCompression_predictor.In(input_data, ShortenMemoryIn, AdjacentMemoryIn)
         AllCodeWords.append(CodeWords)
+
+        
+
+
+            
 
         #Save the original data to later compare against the decoded data
         for mic in range(mic_start, mic_end+1):
@@ -2958,9 +3053,111 @@ if test == 81:
     print("Average compression rate for LPC order ",Order,"is: cr = ", sum(all_cr) / len(all_cr))
 
 
+if test == 74:
+    print("Test 74")
+    print("")
+    print("Using Shorten order ",Order)
+    print("")
+
+    CrShorten = []
+
+    TotalLenOgInput = 0
+    TotalLenShorten = 0
+    TotalLenDouble = 0
+    for mic in range(mic_end + 1 - mic_start):
+        OgInputMic = OriginalInputs[mic]
+        for CurrentInput in OgInputMic:
+            binaryInput = np.binary_repr(abs(CurrentInput),24)
+            TotalLenOgInput += len(binaryInput)
+        for datablock in range(recomnded_limit):
+            datablockDoubleCodewords = AllCodeWords[datablock]
+            CodeWordsMic = datablockDoubleCodewords[mic]
+            for currentCodeword in CodeWordsMic:
+                TotalLenDouble += len(currentCodeword)
+
+    for CurrentShortenCodeword in ShortenCodeWords:
+        TotalLenShorten += len(CurrentShortenCodeword)
+
+    print("Total length DoubleCompression = ", TotalLenDouble)
+    print("Total length Shorten = ", TotalLenShorten)
+
+    print("")
+
+    print("CR DoubleCompression = ", TotalLenDouble / TotalLenOgInput)
+    print("CR Shorten = ", TotalLenShorten / TotalLenOgInput)
 
 
+    print("")
 
+    if TotalLenDouble - TotalLenShorten == 0:
+        print("Both Shorten and Double exactly the same")
+    else:
+        print("Shorten and double not the same")
+
+    print("")
+
+    AdjacentMemoryOut = [0]*4
+    ShortenMemoryOut = []
+    AllRecreatedValues = []
+    AllCorrect = 0
+    for mic in range(mic_end + 1 - mic_start):
+        ShortenMemoryOut.append([0]*4)
+        AllRecreatedValues.append([])
+
+    #recrete the orginal input values for each datablock
+    for CodeWords in AllCodeWords:
+        Decodedvalues, ShortenMemoryOut, AdjacentMemoryOut = DoubleCompression_predictor.Out(CodeWords, ShortenMemoryOut, AdjacentMemoryOut)
+        
+
+    
+
+        #Append the decoded values to the correct array depending on mic
+        for mic in range(mic_end + 1 - mic_start):
+            CurrentDecodedValues = Decodedvalues[mic]
+            for value in CurrentDecodedValues:
+                AllRecreatedValues[mic].append(value)
+
+    #Check if all values was reacreated correctly by checking if the original values are equal to the reacreated values
+    for mic in range(mic_end + 1 - mic_start):
+        mic_correct = 0
+        zero = []
+        OriginalMicValues = OriginalInputs[mic]
+        RecreatedMicValues = AllRecreatedValues[mic]
+        for i in range(len(RecreatedMicValues)):
+            current_zero = OriginalMicValues[i] - RecreatedMicValues[i]
+
+            if current_zero != 0:
+                mic_correct += 1
+
+            zero.append(current_zero)
+
+        if mic_correct != 0:
+            print("For mic #",mic+mic_start," ",mic_correct,"values was not recreated succesfully")
+
+        AllCorrect += mic_correct
+
+        #Plot the original input, recreated input, and zero (original - recreated)
+        if 1 < 0:
+
+            figure_title = "mic #" + str(mic + mic_start)
+
+            fig = plt.figure(figure_title)
+            ax = fig.add_subplot(311)
+            plt.plot(OriginalMicValues)
+            ax.title.set_text("Original input")
+            
+            ax = fig.add_subplot(312)
+            plt.plot(RecreatedMicValues)
+            ax.title.set_text("Recreated input")
+            
+            ax = fig.add_subplot(313)
+            plt.plot(zero)
+            ax.title.set_text("Original input - recreated input")
+
+            plt.show()
+
+    if AllCorrect == 0:
+        print("All values have been recreated succesfully")
 
 
 if test == 73:

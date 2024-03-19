@@ -14,6 +14,7 @@ class DoubleCompression:
     def In(self, Inputs, MemoryShorten, MemoryAdjacent):
         UnsortedResiduals = []
         AllCodeWords = []
+        AllSortedResiduals = []#only for testing
         #loop thorugh all inputs and calculate their residuals using Adjacentpredictor
         for sample in range(self.samples):
             CurrentInputs = Inputs[:,sample]
@@ -23,6 +24,7 @@ class DoubleCompression:
 
         #Sort the residuals so that they are grouped by mic and not by sample
         SortedResiduals = self.SortResiduals(UnsortedResiduals)
+        AllSortedResiduals.append(SortedResiduals)#only for testing
 
         #Loop though each residual and compress it again by using shorten
         #The shorten predictor now predict the residual between two mic for all sampels
@@ -49,7 +51,7 @@ class DoubleCompression:
 
             AllCodeWords.append(CodeWord)
 
-        return AllCodeWords, MemoryShorten, MemoryAdjacent
+        return AllCodeWords, MemoryShorten, MemoryAdjacent, AllSortedResiduals#AllsortedResiuduals is only for testing
                 
     def Out(self, AllCodeWords, MemoryShorten, MemoryAdjcent):
         AllDecodedValues = [] 
