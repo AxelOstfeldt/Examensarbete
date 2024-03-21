@@ -37,7 +37,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 1
+test = 43
 
 #General tests
 #Test 1. This test plots microphone data
