@@ -37,7 +37,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 43
+test = 81
 
 #General tests
 #Test 1. This test plots microphone data
@@ -98,15 +98,18 @@ test = 43
 #Test 73. Test Decoding speed for DoubleCompression
 #Test 74. Use shorten on sorted residuals to double check that DoubleCompression works correctly
 
-#Testa LPC version with metadata
+#Test LPC version with metadata
 #Test 81. Meta LPC compress full array, get compression rate and plot for recreated values
+
+#Test FLAC version with metadata
+#Test 91. Meta FLAC compress full array, get compression rate and plot for recreated values
 
 
 
 #Initial values for tests
 if test == 81:
     metaDataCoef = []
-    Order = 4
+    Order = 5
     AllCodeWords = []
     UncodedWords = []
     memorysIn = []
@@ -982,7 +985,7 @@ if test == 1:
 #The data from the while loop is appended in the test_data array
 #It loops recomended_limit amount of time, this depends on the size of the sound file
 #23 was found to be a good number to use
-recomnded_limit = 2
+recomnded_limit = 20
 
 test_data = []
 data = np.empty((config.N_MICROPHONES, config.N_SAMPLES), dtype=np.float32)
@@ -3000,7 +3003,7 @@ if test == 81:
                 currentZero = OriginalValues[i+incrementInput] - RecreatedValues[i]
                 zero.append(currentZero)
 
-            if 1 > 0:#Only prints for repport
+            if 1 < 0:#Only prints for repport
                 if mic + mic_start == 79:
                     if itteration == 0:
                         fig_title = "Test_81_order_"+str(Order)+"_decbits_" + str(BitsForDecimals)
@@ -3029,7 +3032,7 @@ if test == 81:
             #Set a limit that the error can not go above
             #if the error goes above this limit plot the outputs
             
-            elif np.max(np.absolute(zero)) > 1000:
+            elif np.max(np.absolute(zero)) > 100000:
                 
                 fig_title = "Datablock " + str(itteration) + ", mic #" + str(mic + mic_start)
 
@@ -4056,11 +4059,13 @@ if test == 43:
     else:
         print("Failed to recreate ",allCorrect,"values")
 
-    if 1 > 0:#Plots for report only
+    if 1 < 0:#Plots for report only
         plt.figure("Test_43_mic79", layout = 'constrained')
         plt.plot(mics_og[best_mic - mic_start], 'b', label = "Original values")
-        plt.plot(mics_re[best_mic - mic_start], 'r','.-', label = "Recreated values")
-        plt.legend()
+        plt.plot(mics_re[best_mic - mic_start], 'r-.', label = "Recreated values")
+        plt.legend(fontsize=25, loc = 'upper right')
+        plt.yticks(fontsize=20)
+        plt.xticks(fontsize=20)
         plt.show()
 
 
