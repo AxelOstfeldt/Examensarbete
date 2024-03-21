@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import math
 
-PlotNr = 62
+PlotNr = 61
 
 #
 #PlotNr 1. Bar plot for RiceCoding original input
@@ -40,21 +40,21 @@ PlotNr = 62
 if PlotNr == 1:
     fig, ax = plt.subplots(layout='constrained')
 
-    title = ['1 k Hz tone', 'Drone sound', 'Static noise', 'Silence (Mic 20)', 'Large magnitude (Mic 217)']
+    title = ['1 k Hz tone', 'Drone sound', 'Static noise', 'Silence', 'Loud']
     counts = [0.739, 0.809, 0.808, 0.125, 0.784]
-    bar_labels = ['1 k Hz tone', 'Drone sound', 'Static noise', 'Silence (Mic 20)', 'Large magnitude (Mic 217)']
-    bar_colors = ['tab:red', 'tab:blue', 'tab:green', 'tab:orange', 'tab:purple']
+    bar_labels = ['Mic#79', '_Mic#79', '_Mic#79', 'Mic#20', 'Mic#217']
+    bar_colors = ['tab:red', 'tab:red', 'tab:red', 'tab:blue', 'tab:green']
     for i in range(len(counts)):
         rects = ax.bar(title[i], counts[i], label=bar_labels[i], color=bar_colors[i])
-        ax.bar_label(rects, fontsize = 15)
+        ax.bar_label(rects, fontsize = 45)
 
 
-    ax.set_ylabel('Average compression rate', fontsize=25)
-    ax.legend(loc = 'upper left', fontsize = 20)
+    ax.set_ylabel('Average compression rate', fontsize=45)
+    ax.legend(loc = 'upper left', fontsize = 40, ncol = 3)
     plt.ylim(0,1.1)
     
-    plt.yticks(fontsize=20)
-    plt.xticks(fontsize=17)
+    plt.yticks(fontsize=35)
+    plt.xticks(fontsize=35)
     plt.show()
 
 
@@ -94,11 +94,11 @@ if PlotNr == 11:
         
 
     # Add some text for labels, title and custom x-axis tick labels, etc.
-    ax.set_ylabel('Average compression rate', fontsize=25)
-    ax.set_xticks(x + width, Order, fontsize=20)
-    ax.legend(loc="upper left", fontsize = 20)
+    ax.set_ylabel('Average compression rate', fontsize=45)
+    ax.set_xticks(x + width, Order, fontsize=35)
+    ax.legend(loc="upper left", fontsize = 22)
     ax.set_ylim(0, 1)
-    plt.yticks(fontsize=20)
+    plt.yticks(fontsize=35)
     
     plt.show()
 
@@ -135,11 +135,11 @@ if PlotNr == 11:
         
 
     # Add some text for labels, title and custom x-axis tick labels, etc.
-    ax.set_ylabel('Average compression rate', fontsize=25)
-    ax.set_xticks(x + width, Order, fontsize=20)
-    ax.legend(loc="upper left",fontsize = 20)
+    ax.set_ylabel('Average compression rate', fontsize=45)
+    ax.set_xticks(x + width, Order, fontsize=35)
+    ax.legend(loc="upper left", fontsize = 22)
     ax.set_ylim(0, 1)
-    plt.yticks(fontsize=20)
+    plt.yticks(fontsize=35)
 
 
     plt.show()
@@ -176,11 +176,11 @@ if PlotNr == 11:
         
 
     # Add some text for labels, title and custom x-axis tick labels, etc.
-    ax.set_ylabel('Average compression rate', fontsize=25)
-    ax.set_xticks(x + width, Order, fontsize=20)
-    ax.legend(loc="upper left",fontsize = 20)
+    ax.set_ylabel('Average compression rate', fontsize=45)
+    ax.set_xticks(x + width, Order, fontsize=35)
+    ax.legend(loc="upper left", fontsize = 22)
     ax.set_ylim(0, 1)
-    plt.yticks(fontsize=20)
+    plt.yticks(fontsize=35)
 
 
     plt.show()
@@ -218,11 +218,11 @@ if PlotNr == 11:
         
 
     # Add some text for labels, title and custom x-axis tick labels, etc.
-    ax.set_ylabel('Average compression rate', fontsize=25)
-    ax.set_xticks(x + width, Order, fontsize=20)
-    ax.legend(loc="upper left",fontsize = 20)
+    ax.set_ylabel('Average compression rate', fontsize=45)
+    ax.set_xticks(x + width, Order, fontsize=35)
+    ax.legend(loc="upper left", fontsize = 22)
     ax.set_ylim(0, 1)
-    plt.yticks(fontsize=20)
+    plt.yticks(fontsize=35)
 
     plt.show()
 
@@ -256,17 +256,17 @@ if PlotNr == 12:
 
         offset = width * multiplier
         rects = ax.bar(x + offset, measurement, width, label=attribute)
-        ax.bar_label(rects, fontsize = 15)
+        ax.bar_label(rects, fontsize = 22)
         
         multiplier += 1
         
 
     # Add some text for labels, title and custom x-axis tick labels, etc.
-    ax.set_ylabel('Average time [s]', fontsize=25)
-    ax.set_xticks(x + width, Order, fontsize=20)
-    ax.legend(loc="upper left", fontsize = 20)
-    #ax.set_ylim(0, 0.4)
-    plt.yticks(fontsize=20)
+    ax.set_ylabel('Average time [s]', fontsize=45)
+    ax.set_xticks(x + width, Order, fontsize=35)
+    ax.legend(loc="upper left", fontsize = 30, ncol = 3)
+    ax.set_ylim(0, 0.35)
+    plt.yticks(fontsize=35)
     
     plt.show()
 
@@ -294,17 +294,17 @@ if PlotNr == 12:
 
         offset = width * multiplier
         rects = ax.bar(x + offset, measurement, width, label=attribute)
-        ax.bar_label(rects, fontsize = 15)
+        ax.bar_label(rects, fontsize = 22)
         
         multiplier += 1
         
 
     # Add some text for labels, title and custom x-axis tick labels, etc.
-    ax.set_ylabel('Average time [s]', fontsize=25)
-    ax.set_xticks(x + width, Order, fontsize=20)
-    ax.legend(loc="upper left", fontsize = 20)
-    #ax.set_ylim(0, 0.4)
-    plt.yticks(fontsize=20)
+    ax.set_ylabel('Average time [s]', fontsize=45)
+    ax.set_xticks(x + width, Order, fontsize=35)
+    ax.legend(loc="upper left", fontsize = 30, ncol = 3)
+    #ax.set_ylim(0, 0.35)
+    plt.yticks(fontsize=35)
     
     plt.show()
 
@@ -338,17 +338,17 @@ if PlotNr == 13:
 
         offset = width * multiplier
         rects = ax.bar(x + offset, measurement, width, label=attribute)
-        ax.bar_label(rects, fontsize = 15)
+        ax.bar_label(rects, fontsize = 25)
         
         multiplier += 1
         
 
     # Add some text for labels, title and custom x-axis tick labels, etc.
-    ax.set_ylabel('Average time [s]', fontsize=25)
-    ax.set_xticks(x + width, Order, fontsize=20)
-    ax.legend(loc="upper left", fontsize = 20)
+    ax.set_ylabel('Average compression rate', fontsize=45)
+    ax.set_xticks(x + width, Order, fontsize=35)
+    ax.legend(loc="upper left", fontsize = 35, ncol = 3)
     ax.set_ylim(0, 1)
-    plt.yticks(fontsize=20)
+    plt.yticks(fontsize=35)
     
     plt.show()
 
@@ -390,11 +390,11 @@ if PlotNr == 21:
         
 
     # Add some text for labels, title and custom x-axis tick labels, etc.
-    ax.set_ylabel('Average compression rate', fontsize=25)
-    ax.set_xticks(x + width, Order, fontsize=20)
-    ax.legend(loc="upper left", fontsize = 20)
+    ax.set_ylabel('Average compression rate', fontsize=45)
+    ax.set_xticks(x + width, Order, fontsize=35)
+    ax.legend(loc="upper left", fontsize = 22)
     ax.set_ylim(0, 1)
-    plt.yticks(fontsize=20)
+    plt.yticks(fontsize=35)
     
     plt.show()
 
@@ -433,11 +433,11 @@ if PlotNr == 21:
         
 
     # Add some text for labels, title and custom x-axis tick labels, etc.
-    ax.set_ylabel('Average compression rate', fontsize=25)
-    ax.set_xticks(x + width, Order, fontsize=20)
-    ax.legend(loc="upper left",fontsize = 20)
+    ax.set_ylabel('Average compression rate', fontsize=45)
+    ax.set_xticks(x + width, Order, fontsize=35)
+    ax.legend(loc="upper left", fontsize = 22)
     ax.set_ylim(0, 1)
-    plt.yticks(fontsize=20)
+    plt.yticks(fontsize=35)
 
 
     plt.show()
@@ -474,11 +474,11 @@ if PlotNr == 21:
         
 
     # Add some text for labels, title and custom x-axis tick labels, etc.
-    ax.set_ylabel('Average compression rate', fontsize=25)
-    ax.set_xticks(x + width, Order, fontsize=20)
-    ax.legend(loc="upper left",fontsize = 20)
+    ax.set_ylabel('Average compression rate', fontsize=45)
+    ax.set_xticks(x + width, Order, fontsize=35)
+    ax.legend(loc="upper left", fontsize = 22)
     ax.set_ylim(0, 1)
-    plt.yticks(fontsize=20)
+    plt.yticks(fontsize=35)
 
 
     plt.show()
@@ -516,11 +516,11 @@ if PlotNr == 21:
         
 
     # Add some text for labels, title and custom x-axis tick labels, etc.
-    ax.set_ylabel('Average compression rate', fontsize=25)
-    ax.set_xticks(x + width, Order, fontsize=20)
-    ax.legend(loc="upper left",fontsize = 20)
+    ax.set_ylabel('Average compression rate', fontsize=45)
+    ax.set_xticks(x + width, Order, fontsize=35)
+    ax.legend(loc="upper left", fontsize = 22)
     ax.set_ylim(0, 1)
-    plt.yticks(fontsize=20)
+    plt.yticks(fontsize=35)
 
     plt.show()
 
@@ -538,7 +538,7 @@ if PlotNr == 22:
     cr = {
         '1 k Hz tone': (0.086, 0.088, 0.115, 0.096, 0.120),
         'Drone sound': (0.235, 0.243, 0.249, 0.272, 0.281),
-        'Static noise': (0.184, 0.220, 0.129, 0.144, 0.1423),
+        'Static noise': (0.184, 0.220, 0.129, 0.144, 0.142),
     }
 
 
@@ -557,17 +557,17 @@ if PlotNr == 22:
 
         offset = width * multiplier
         rects = ax.bar(x + offset, measurement, width, label=attribute)
-        ax.bar_label(rects, fontsize = 15)
+        ax.bar_label(rects, fontsize = 21)
         
         multiplier += 1
         
 
     # Add some text for labels, title and custom x-axis tick labels, etc.
-    ax.set_ylabel('Average time [s]', fontsize=25)
-    ax.set_xticks(x + width, Order, fontsize=20)
-    ax.legend(loc="upper left", fontsize = 20)
-    #ax.set_ylim(0, 0.4)
-    plt.yticks(fontsize=20)
+    ax.set_ylabel('Average time [s]', fontsize=45)
+    ax.set_xticks(x + width, Order, fontsize=35)
+    ax.legend(loc="upper left", fontsize = 30, ncol = 3)
+    ax.set_ylim(0, 0.35)
+    plt.yticks(fontsize=35)
     
     plt.show()
 
@@ -593,17 +593,17 @@ if PlotNr == 22:
 
         offset = width * multiplier
         rects = ax.bar(x + offset, measurement, width, label=attribute)
-        ax.bar_label(rects, fontsize = 15)
+        ax.bar_label(rects, fontsize = 21)
         
         multiplier += 1
         
 
     # Add some text for labels, title and custom x-axis tick labels, etc.
-    ax.set_ylabel('Average time [s]', fontsize=25)
-    ax.set_xticks(x + width, Order, fontsize=20)
-    ax.legend(loc="upper left", fontsize = 20)
+    ax.set_ylabel('Average time [s]', fontsize=45)
+    ax.set_xticks(x + width, Order, fontsize=35)
+    ax.legend(loc="upper left", fontsize = 30, ncol = 3)
     ax.set_ylim(0, 13.5)
-    plt.yticks(fontsize=20)
+    plt.yticks(fontsize=35)
     
     plt.show()
 
@@ -636,17 +636,17 @@ if PlotNr == 23:
 
         offset = width * multiplier
         rects = ax.bar(x + offset, measurement, width, label=attribute)
-        ax.bar_label(rects, fontsize = 15)
+        ax.bar_label(rects, fontsize = 21)
         
         multiplier += 1
         
 
     # Add some text for labels, title and custom x-axis tick labels, etc.
-    ax.set_ylabel('Average compression rate', fontsize=25)
-    ax.set_xticks(x + width, Order, fontsize=20)
-    ax.legend(loc="upper left", fontsize = 20)
+    ax.set_ylabel('Average compression rate', fontsize=45)
+    ax.set_xticks(x + width, Order, fontsize=35)
+    ax.legend(loc="upper left", fontsize = 35, ncol = 3)
     ax.set_ylim(0, 1)
-    plt.yticks(fontsize=20)
+    plt.yticks(fontsize=35)
     
     plt.show()
 
@@ -660,15 +660,15 @@ if PlotNr == 31:
     bar_colors = ['tab:red', 'tab:blue', 'tab:green']
     for i in range(len(counts)):
         rects = ax.bar(title[i], counts[i], label=bar_labels[i], color=bar_colors[i])
-        ax.bar_label(rects, fontsize = 25)
+        ax.bar_label(rects, fontsize = 45)
 
 
-    ax.set_ylabel('Average compression rate', fontsize=30)
-    ax.legend(loc="upper left", fontsize = 20)
+    ax.set_ylabel('Average compression rate', fontsize=45)
+    #ax.legend(loc="upper left", fontsize = 35, ncol = 3)
     plt.ylim(0,1)
     
-    plt.yticks(fontsize=25)
-    plt.xticks(fontsize=25)
+    plt.yticks(fontsize=35)
+    plt.xticks(fontsize=35)
     plt.show()
 
 
@@ -681,15 +681,15 @@ if PlotNr == 32:
     bar_colors = ['tab:red', 'tab:blue', 'tab:green']
     for i in range(len(counts)):
         rects = ax.bar(title[i], counts[i], label=bar_labels[i], color=bar_colors[i])
-        ax.bar_label(rects, fontsize = 25)
+        ax.bar_label(rects, fontsize = 45)
 
 
-    ax.set_ylabel('Average time [s]', fontsize=30)
-    ax.legend(loc="upper left", fontsize = 20)
-    #plt.ylim(0,1)
+    ax.set_ylabel('Average time [s]', fontsize=45)
+    #ax.legend(loc="upper left", fontsize = 35, ncol = 3)
+    plt.ylim(0,0.4)
     
-    plt.yticks(fontsize=25)
-    plt.xticks(fontsize=25)
+    plt.yticks(fontsize=35)
+    plt.xticks(fontsize=35)
     plt.show()
 
 
@@ -724,17 +724,17 @@ if PlotNr == 41:
 
         offset = width * multiplier
         rects = ax.bar(x + offset, measurement, width, label=attribute)
-        ax.bar_label(rects, labels =[i for i in k_values[multiplier] ], fontsize = 13)
+        ax.bar_label(rects, labels =[i for i in k_values[multiplier] ], fontsize = 22)
         
         multiplier += 1
         
 
     # Add some text for labels, title and custom x-axis tick labels, etc.
-    ax.set_ylabel('Average compression rate', fontsize=25)
-    ax.set_xticks(x + width, Order, fontsize=20)
-    ax.legend(loc="upper left", fontsize = 20)
+    ax.set_ylabel('Average compression rate', fontsize=45)
+    ax.set_xticks(x + width, Order, fontsize=35)
+    ax.legend(loc="upper left", fontsize = 30)
     ax.set_ylim(0, 1)
-    plt.yticks(fontsize=20)
+    plt.yticks(fontsize=35)
     
     plt.show()
 
@@ -766,17 +766,17 @@ if PlotNr == 42:
 
         offset = width * multiplier
         rects = ax.bar(x + offset, measurement, width, label=attribute)
-        ax.bar_label(rects, fontsize = 13)
+        ax.bar_label(rects, fontsize = 35)
         
         multiplier += 1
         
 
     # Add some text for labels, title and custom x-axis tick labels, etc.
-    ax.set_ylabel('Average time [s]', fontsize=25)
-    ax.set_xticks(x + width, Order, fontsize=20)
-    ax.legend(loc="upper left", fontsize = 20)
-    #ax.set_ylim(0, 1)
-    plt.yticks(fontsize=20)
+    ax.set_ylabel('Average time [s]', fontsize=45)
+    ax.set_xticks(x + width, Order, fontsize=35)
+    ax.legend(loc="upper left", fontsize = 35)
+    ax.set_ylim(0, 0.2)
+    plt.yticks(fontsize=35)
     
     plt.show()
 
@@ -790,14 +790,14 @@ if PlotNr == 43:
     bar_colors = ['tab:red', 'tab:blue', 'tab:green']
     for i in range(len(counts)):
         rects = ax.bar(title[i], counts[i], label=bar_labels[i], color=bar_colors[i])
-        ax.bar_label(rects, fontsize = 13)
+        ax.bar_label(rects, fontsize = 45)
 
-    ax.set_ylabel('Average compression rate', fontsize=25)
-    ax.legend(loc="upper left", fontsize = 20)
-    plt.ylim(0,1)
+    ax.set_ylabel('Average compression rate', fontsize=45)
+    #ax.legend(loc = 'upper left', fontsize = 35, ncol = 3)
+    plt.ylim(0,1.1)
     
-    plt.yticks(fontsize=25)
-    plt.xticks(fontsize=25)
+    plt.yticks(fontsize=35)
+    plt.xticks(fontsize=35)
     plt.show()
 
 
@@ -811,14 +811,14 @@ if PlotNr == 51:
     bar_colors = ['tab:red', 'tab:blue', 'tab:green']
     for i in range(len(counts)):
         rects = ax.bar(title[i], counts[i], label=bar_labels[i], color=bar_colors[i])
-        ax.bar_label(rects, fontsize = 60)
+        ax.bar_label(rects, fontsize = 45)
 
-    ax.set_ylabel('Average time [s]', fontsize=40)
+    ax.set_ylabel('Average time [s]', fontsize=45)
     #ax.legend(loc="upper left", fontsize = 20)
     plt.ylim(0,0.2)
     
-    plt.yticks(fontsize=25)
-    plt.xticks(fontsize=25)
+    plt.yticks(fontsize=35)
+    plt.xticks(fontsize=35)
     plt.show()
 
 
@@ -831,14 +831,14 @@ if PlotNr == 52:
     bar_colors = ['tab:red', 'tab:blue', 'tab:green']
     for i in range(len(counts)):
         rects = ax.bar(title[i], counts[i], label=bar_labels[i], color=bar_colors[i])
-        ax.bar_label(rects, fontsize = 60)
+        ax.bar_label(rects, fontsize = 45)
 
-    ax.set_ylabel('Average compression rate', fontsize=40)
+    ax.set_ylabel('Average compression rate', fontsize=45)
     #ax.legend(loc="upper left", fontsize = 20)
     plt.ylim(0,1)
     
-    plt.yticks(fontsize=25)
-    plt.xticks(fontsize=25)
+    plt.yticks(fontsize=35)
+    plt.xticks(fontsize=35)
     plt.show()
 
 

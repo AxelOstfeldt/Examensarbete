@@ -37,7 +37,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 74
+test = 1
 
 #General tests
 #Test 1. This test plots microphone data
@@ -982,7 +982,7 @@ if test == 1:
 #The data from the while loop is appended in the test_data array
 #It loops recomended_limit amount of time, this depends on the size of the sound file
 #23 was found to be a good number to use
-recomnded_limit = 20
+recomnded_limit = 2
 
 test_data = []
 data = np.empty((config.N_MICROPHONES, config.N_SAMPLES), dtype=np.float32)
@@ -6502,9 +6502,9 @@ if test == 1:
         plt.plot(static, 'r:', label = 'Static noise')
         
         
-        plt.yticks(fontsize=20)
-        plt.xticks(fontsize=20)
-        plt.legend(fontsize=25, loc = 'upper right')
+        plt.yticks(fontsize=30)
+        plt.xticks(fontsize=30)
+        plt.legend(fontsize=30, loc = 'upper right')
 
 
         plt.show()
@@ -6517,9 +6517,9 @@ if test == 1:
         plt.plot(plot_sig[136], 'r', label = 'Mic #136')
         
         
-        plt.yticks(fontsize=20)
-        plt.xticks(fontsize=20)
-        plt.legend(fontsize=25)
+        plt.yticks(fontsize=30)
+        plt.xticks(fontsize=30)
+        plt.legend(fontsize=30)
 
 
         plt.show()
@@ -6556,8 +6556,8 @@ if test == 1:
         
         
         
-        plt.yticks(fontsize=20)
-        plt.xticks(fontsize=20)
+        plt.yticks(fontsize=30)
+        plt.xticks(fontsize=30)
         #plt.legend(fontsize=25)
 
 
@@ -6568,8 +6568,8 @@ if test == 1:
         
         
         
-        plt.yticks(fontsize=20)
-        plt.xticks(fontsize=20)
+        plt.yticks(fontsize=30)
+        plt.xticks(fontsize=30)
         #plt.legend(fontsize=25)
 
 
@@ -6580,9 +6580,27 @@ if test == 1:
         
         
         
-        plt.yticks(fontsize=20)
-        plt.xticks(fontsize=20)
+        plt.yticks(fontsize=30)
+        plt.xticks(fontsize=30)
         #plt.legend(fontsize=25)
+
+        plt.figure("Test_1_Mic_79_drone", layout = 'constrained')
+        plt.plot(drone, 'b', label = 'Mic #79')
+        
+        
+        
+        plt.yticks(fontsize=30)
+        plt.xticks(fontsize=30)
+        
+
+        plt.figure("Test_1_Mic_79_static", layout = 'constrained')
+        plt.plot(static, 'b', label = 'Mic #79')
+        
+        
+        
+        plt.yticks(fontsize=30)
+        plt.xticks(fontsize=30)
+        
 
 
         plt.show()
@@ -6593,9 +6611,9 @@ if test == 1:
         plt.plot(plot_sig[20], 'b', label = 'Mic #20')
         
         
-        plt.yticks(fontsize=20)
-        plt.xticks(fontsize=20)
-        plt.legend(fontsize=25, loc = 'upper right')
+        plt.yticks(fontsize=30)
+        plt.xticks(fontsize=30)
+        plt.legend(fontsize=30, loc = 'upper right')
 
 
         plt.show()
@@ -6606,8 +6624,8 @@ if test == 1:
         
         
         
-        plt.yticks(fontsize=20)
-        plt.xticks(fontsize=20)
+        plt.yticks(fontsize=30)
+        plt.xticks(fontsize=30)
         #plt.legend(fontsize=25)
 
 
@@ -6615,12 +6633,12 @@ if test == 1:
 
         plt.figure("Test_1_Mic_20", layout = 'constrained')
         plt.plot([0,1],[-3,3],'w')
-        plt.plot(plot_sig[19], label = 'Mic #20')
+        plt.plot(plot_sig[20], label = 'Mic #20')
         
         
         
-        plt.yticks(fontsize=20)
-        plt.xticks(fontsize=20)
+        plt.yticks(fontsize=30)
+        plt.xticks(fontsize=30)
         #plt.legend(fontsize=25)
 
     
@@ -6633,7 +6651,7 @@ if test == 1:
         
         plt.yticks(fontsize=30)
         plt.xticks(fontsize=30)
-        plt.legend(fontsize=25, loc = 'upper right')
+        plt.legend(fontsize=30, loc = 'upper right')
 
 
         plt.show()
