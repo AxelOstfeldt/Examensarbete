@@ -4057,6 +4057,15 @@ if test == 43:
         print("Failed to recreate ",allCorrect,"values")
 
     if 1 > 0:#Plots for report only
+        plt.figure("Test_43_mic79", layout = 'constrained')
+        plt.plot(mics_og[best_mic - mic_start], 'b', label = "Original values")
+        plt.plot(mics_re[best_mic - mic_start], 'r','.-', label = "Recreated values")
+        plt.legend()
+        plt.show()
+
+
+    elif 1 < 0:#Plots for report only
+        print(len(mics_og))
 
         plt.figure("Test_43_Original_")
         plt.plot(mics_og[0])
