@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import math
 
-PlotNr = 24
+PlotNr = 61
 
 #
 #PlotNr 1. Bar plot for RiceCoding original input
@@ -25,7 +25,7 @@ PlotNr = 24
 #PlotNr 32. Timing for recreate original values using FLAC (max order lpc 32)
 
 #Adjacent plots
-#PlotNr 41. Bar plot for Adjacent best k and m values
+#PlotNr 41. Bar plot for Adjacent best k and m values, grouped by sound
 #PlotNr 42. Bar plot for Adjacent time to recreate values
 #PlotNr 43. Test adjacent compression rate for all samples of an array (modifed k-values)
 
@@ -826,57 +826,21 @@ if PlotNr == 23:
     plt.show()
 
 
-
 if PlotNr == 24:
     #Add some text for labels, title and custom x-axis tick labels, etc.
 
     SoundFiles = ("1 k Hz tone", "Silent (mic 20)", "Drone sound", "Static noise")
 
-    #CR
+
     #Order 1
     cr = {
-        'Rice code using theortical ideal k-value': (0.580, 0.125,),
-        'Rice code using best k-value': (0.573, 0.125,),
-        'Golomb code using best m-value': (0.573, 0.125,),
-    }
-    #Order 2
-    cr = {
-        'Rice code using theortical ideal k-value': (0.582, 0.125,),
-        'Rice code using best k-value': (0.552, 0.125,),
-        'Golomb code using best m-value': (0.552, 0.125,),
-    }
-    #Order 3
-    cr = {
-        'Rice code using theortical ideal k-value': (0.560, 0.125,),
-        'Rice code using best k-value': (0.542, 0.125,),
-        'Golomb code using best m-value': (0.542, 0.125,),
-    }
-    #Order 4
-    cr = {
-        'Rice code using theortical ideal k-value': (0.575, 0.125,),
-        'Rice code using best k-value': (0.526, 0.125,),
-        'Golomb code using best m-value': (0.525, 0.125,),
-    }
-    #Order 5
-    cr = {
-        'Rice code using theortical ideal k-value': (0.575, 0.125,),
-        'Rice code using best k-value': (0.526, 0.125,),
-        'Golomb code using best m-value': (0.525, 0.125,),
+        'Rice code using theortical ideal k-value': (0.580, 0.125,0.799,0.797),
+        'Rice code using best k-value': (0.573, 0.125,0.765,0.785),
+        'Golomb code using best m-value': (0.573, 0.125,0.762,0.785),
     }
 
-    #K-values
-    #Order 1
-    k_values = [["k = 10","k = 1","k = ","k = ", "k = "],["k = 11","k = 1","k = ","k = ", "k = "],["m = 1943","m = 1","m = ","m = ","m = "]]
-    #Order 2
-    k_values = [["k = 9","k = 1","k = ","k = ", "k = "],["k = 10","k = 1","k = ","k = ", "k = "],["m = 1125","m = 1","m = ","m = ","m = "]]
-    #Order 3
-    k_values = [["k = 9","k = 1","k = ","k = ", "k = "],["k = 10","k = 1","k = ","k = ", "k = "],["m = 1030","m = 1","m = ","m = ","m = "]]
-    #Order 4
-    k_values = [["k = 8","k = 1","k = ","k = ", "k = "],["k = 10","k = 1","k = ","k = ", "k = "],["m = 781","m = 1","m = ","m = ","m = "]]
-    #Order 5
-    k_values = [["k = 8","k = 1","k = ","k = ", "k = "],["k = 10","k = 1","k = ","k = ", "k = "],["m = 748","m = 1","m = ","m = ","m = "]]
-
-
+    k_values = [["k = 10","k = 1","k = 14","k = 15"],["k = 11","k = 1","k = 15","k = 16"],["m = 1943","m = 1","m = 38898","m = 64612"]]
+    
 
     x = np.arange(len(SoundFiles))  # the label locations
     width = 0.25  # the width of the bars
@@ -907,26 +871,23 @@ if PlotNr == 24:
     plt.show()
 
 
-    #Silent mic
-
-
-
+    #Order 2
     cr = {
-        'Rice code using theortical ideal k-value': (0.125, 0.125, 0.125, 0.125, 0.125),
-        'Rice code using best k-value': (0.125, 0.125, 0.125, 0.125, 0.125),
-        'Golomb code using best m-value': (0.125, 0.125, 0.125, 0.125, 0.125),
+        'Rice code using theortical ideal k-value': (0.582, 0.125,0.778,0.830),
+        'Rice code using best k-value': (0.552, 0.125,0.754,0.777),
+        'Golomb code using best m-value': (0.552, 0.125,0.753,0.777),
     }
 
 
 
-    x = np.arange(len(Order))  # the label locations
+    x = np.arange(len(SoundFiles))  # the label locations
     width = 0.25  # the width of the bars
     multiplier = 0
     
     #First array for theoretical ideal, second for rice with best k, last for Golomb best m.
     #First value in each array for order 0, second for order 1, etc
-    k_values = [["k = 1","k = 1","k = 1","k = 1","k = 1"],["k = 1","k = 1","k = 1","k = 1","k = 1"],["m = 1","m = 1","m = 1","m = 1", "m = 1"]]
-
+    k_values = [["k = 9","k = 1","k = 14","k = 14"],["k = 10","k = 1","k = 15","k = 16"],["m = 1125","m = 1","m = 32786","m = 53542"]]
+    
 
 
     fig, ax = plt.subplots(layout='constrained')
@@ -942,7 +903,7 @@ if PlotNr == 24:
 
     # Add some text for labels, title and custom x-axis tick labels, etc.
     ax.set_ylabel('Average compression rate', fontsize=45)
-    ax.set_xticks(x + width, Order, fontsize=35)
+    ax.set_xticks(x + width, SoundFiles, fontsize=35)
     ax.legend(loc="upper left", fontsize = 22)
     ax.set_ylim(0, 1)
     plt.yticks(fontsize=35)
@@ -950,24 +911,23 @@ if PlotNr == 24:
 
     plt.show()
 
-    #Drone sound
-
+    #Order 3
     cr = {
-        'Rice code using theortical ideal k-value': (0.799, 0.778, 0.773, 0.771, 0.755),
-        'Rice code using best k-value': (0.765, 0.754, 0.752, 0.751, 0.743),
-        'Golomb code using best m-value': (0.762, 0.753, 0.750, 0.749, 0.742),
+        'Rice code using theortical ideal k-value': (0.560, 0.125,0.773,0.827),
+        'Rice code using best k-value': (0.542, 0.125,0.752,0.777),
+        'Golomb code using best m-value': (0.542, 0.125,0.750,0.775),
     }
 
 
 
-    x = np.arange(len(Order))  # the label locations
+    x = np.arange(len(SoundFiles))  # the label locations
     width = 0.25  # the width of the bars
     multiplier = 0
     
     #First array for theoretical ideal, second for rice with best k, last for Golomb best m.
     #First value in each array for order 0, second for order 1, etc
-    k_values = [["k = 14","k = 14","k = 14","k = 14", "k = 14"],["k = 15","k = 15","k = 15","k = 15", "k = 15"],["m = 38898","m = 32786","m = 32788","m = 32725","m = 32277"]]
-
+    k_values = [["k = 9","k = 1","k = 14","k = 14"],["k = 10","k = 1","k = 15","k = 16"],["m = 1030","m = 1","m = 32788","m = 51011"]]
+    
 
 
     fig, ax = plt.subplots(layout='constrained')
@@ -983,7 +943,7 @@ if PlotNr == 24:
 
     # Add some text for labels, title and custom x-axis tick labels, etc.
     ax.set_ylabel('Average compression rate', fontsize=45)
-    ax.set_xticks(x + width, Order, fontsize=35)
+    ax.set_xticks(x + width, SoundFiles, fontsize=35)
     ax.legend(loc="upper left", fontsize = 22)
     ax.set_ylim(0, 1)
     plt.yticks(fontsize=35)
@@ -992,24 +952,23 @@ if PlotNr == 24:
     plt.show()
 
 
-    #Static noise
-
+    #Order 4
     cr = {
-        'Rice code using theortical ideal k-value': (0.797, 0.830, 0.827, 0.805, 0.799),
-        'Rice code using best k-value': (0.785, 0.777, 0.777, 0.768, 0.756),
-        'Golomb code using best m-value': (0.785, 0.777, 0.775, 0.767, 0.757),
+        'Rice code using theortical ideal k-value': (0.575, 0.125,0.771,0.805),
+        'Rice code using best k-value': (0.526, 0.125,0.751,0.768),
+        'Golomb code using best m-value': (0.525, 0.125,0.749,0.767),
     }
 
 
 
-    x = np.arange(len(Order))  # the label locations
+    x = np.arange(len(SoundFiles))  # the label locations
     width = 0.25  # the width of the bars
     multiplier = 0
     
     #First array for theoretical ideal, second for rice with best k, last for Golomb best m.
     #First value in each array for order 0, second for order 1, etc
-    k_values = [["k = 15","k = 14","k = 14","k = 14", "k = 14"],["k = 16","k = 16","k = 16","k = 15", "k = 15"],["m = 64612","m = 53542","m = 51011","m = 43993","m = 34679"]]
-
+    k_values = [["k = 8","k = 1","k = 14","k = 14"],["k = 10","k = 1","k = 15","k = 15"],["m = 781","m = 1","m = 32725","m = 43993"]]
+    
 
 
     fig, ax = plt.subplots(layout='constrained')
@@ -1025,13 +984,49 @@ if PlotNr == 24:
 
     # Add some text for labels, title and custom x-axis tick labels, etc.
     ax.set_ylabel('Average compression rate', fontsize=45)
-    ax.set_xticks(x + width, Order, fontsize=35)
+    ax.set_xticks(x + width, SoundFiles, fontsize=35)
     ax.legend(loc="upper left", fontsize = 22)
     ax.set_ylim(0, 1)
     plt.yticks(fontsize=35)
 
     plt.show()
 
+
+    #Order 5
+    cr = {
+        'Rice code using theortical ideal k-value': (0.575, 0.125,0.755,0.799),
+        'Rice code using best k-value': (0.526, 0.125,0.743,0.756),
+        'Golomb code using best m-value': (0.525, 0.125,0.742,0.757),
+    }
+
+    x = np.arange(len(SoundFiles))  # the label locations
+    width = 0.25  # the width of the bars
+    multiplier = 0
+    
+    #First array for theoretical ideal, second for rice with best k, last for Golomb best m.
+    #First value in each array for order 0, second for order 1, etc
+    k_values = [["k = 8","k = 1","k = 14","k = 14"],["k = 10","k = 1","k = 15","k = 15"],["m = 748","m = 1","m = 32277","m = 34679"]]
+
+
+    fig, ax = plt.subplots(layout='constrained')
+
+    for attribute, measurement in cr.items():
+
+        offset = width * multiplier
+        rects = ax.bar(x + offset, measurement, width, label=attribute)
+        ax.bar_label(rects, labels =[i for i in k_values[multiplier] ], fontsize = 13)
+        
+        multiplier += 1
+        
+
+    # Add some text for labels, title and custom x-axis tick labels, etc.
+    ax.set_ylabel('Average compression rate', fontsize=45)
+    ax.set_xticks(x + width, SoundFiles, fontsize=35)
+    ax.legend(loc="upper left", fontsize = 22)
+    ax.set_ylim(0, 1)
+    plt.yticks(fontsize=35)
+
+    plt.show()
 
 
 if PlotNr == 31:
@@ -1062,9 +1057,10 @@ if PlotNr == 32:
     counts = [0.198, 0.265, 0.332]
     bar_labels = ['1 k Hz tone', 'Drone sound', 'Static noise']
     bar_colors = ['tab:red', 'tab:blue', 'tab:green']
+    barTopText = [["0.198s"],["0.265s"],["0.332s"]]
     for i in range(len(counts)):
         rects = ax.bar(title[i], counts[i], label=bar_labels[i], color=bar_colors[i])
-        ax.bar_label(rects, fontsize = 45)
+        ax.bar_label(rects, labels = [j for j in barTopText[i]], fontsize = 45)
 
 
     ax.set_ylabel('Average time [s]', fontsize=45)
@@ -1134,7 +1130,7 @@ if PlotNr == 42:
         'Using Golomb codes': (0.101, 0.101,  0.146)
     }
 
-
+    barTopText = [["0.111s","0.163s","0.179s"],["0.101s","0.101s","0.146s"]]
 
 
     x = np.arange(len(Order))  # the label locations
@@ -1149,7 +1145,7 @@ if PlotNr == 42:
 
         offset = width * multiplier
         rects = ax.bar(x + offset, measurement, width, label=attribute)
-        ax.bar_label(rects, fontsize = 35)
+        ax.bar_label(rects, labels =[i for i in barTopText[multiplier] ],fontsize = 35)
         
         multiplier += 1
         
@@ -1189,12 +1185,13 @@ if PlotNr == 51:
     fig, ax = plt.subplots(layout='constrained')
 
     title = ['1 k Hz tone', 'Drone sound', 'Static noise']
-    counts = [0.106, 0.146, 0.10]
+    counts = [0.106, 0.146, 0.096]
     bar_labels = ['1 k Hz tone', 'Drone sound', 'Static noise']
     bar_colors = ['tab:red', 'tab:blue', 'tab:green']
+    barTopText = [["0.106s"],["0.146s"],["0.096s"]]
     for i in range(len(counts)):
         rects = ax.bar(title[i], counts[i], label=bar_labels[i], color=bar_colors[i])
-        ax.bar_label(rects, fontsize = 45)
+        ax.bar_label(rects, labels =[j for j in barTopText[i] ], fontsize = 45)
 
     ax.set_ylabel('Average time [s]', fontsize=45)
     #ax.legend(loc="upper left", fontsize = 20)
@@ -1238,7 +1235,7 @@ if PlotNr == 61:
         'Static noise': (0.214, 0.305, 0.294, 0.329, 0.319),
     }
 
-
+    barTopText = [["0.085s", "0.115s", "0.257s", "0.127s", "0.249s"],["0.178s", "0.300s", "0.359s", "0.321s", "0.332s"],["0.214s", "0.305s", "0.294s", "0.329s", "0.319s"]]
 
     x = np.arange(len(Order))  # the label locations
     width = 0.25  # the width of the bars
@@ -1254,7 +1251,7 @@ if PlotNr == 61:
 
         offset = width * multiplier
         rects = ax.bar(x + offset, measurement, width, label=attribute)
-        ax.bar_label(rects, fontsize = 21)
+        ax.bar_label(rects, labels =[i for i in barTopText[multiplier] ], fontsize = 21)
         
         multiplier += 1
         
