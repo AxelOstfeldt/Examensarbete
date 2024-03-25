@@ -10,7 +10,7 @@ PlotNr = 23
 #Shorten plots
 #PlotNr 11. Bar plot for Shorten best k and m values, grouped by sound
 #PlotNr 12. Bar plot for times using shorten with rice and golomb codes
-#PlotNr 13. Bar plot for compression rate over an array of mics using Shorten and rice codes (modifed k-value) (with meta data)
+#PlotNr 13. Bar plot for compression rate over an array of mics using Shorten and rice codes (modifed k-value) (with meta data, 20 bits for decimals)
 #PlotNr 14. Bar plot comparing rice and golomb but groupen by order not sound
 
 #Lpc plots
