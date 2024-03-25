@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import math
 
-PlotNr = 61
+PlotNr = 23
 
 #
 #PlotNr 1. Bar plot for RiceCoding original input
@@ -791,9 +791,9 @@ if PlotNr == 23:
     #Rice Codes
 
     cr = {
-        '1 k Hz tone': (0.558, 0.547, 0.542, 0.528, 0.525),
-        'Drone sound': (0.758, 0.754, 0.754, 0.752, 0.751),
-        'Static noise': (0.785, 0.778, 0.779, 0.769, 0.767),
+        '1 k Hz tone': (0.560, 0.553, 0.548, 0.533, 0.533),
+        'Drone sound': (0.762, 0.757, 0.759, 0.761, 0.761),
+        'Static noise': (0.786, 0.781, 0.784, 0.778, 0.776),
     }
 
 
