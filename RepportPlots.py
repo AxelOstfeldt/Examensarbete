@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import math
 
-PlotNr = 44
+PlotNr = 25
 
 #
 #PlotNr 1. Bar plot for RiceCoding original input
@@ -583,10 +583,10 @@ if PlotNr == 15:
     #plt.plot(k_array, cr_2, 'bo', label='Order 2')
     #plt.plot(k_array, cr_3, 'go', label='Order 3')
     #plt.title("Comparison of comression ratio for differente orders")
-    plt.yticks(fontsize=25)
-    plt.xticks(fontsize=25)
-    plt.xlabel("k-value", fontsize=30)
-    plt.ylabel("Average compression ratio", fontsize=30)
+    plt.yticks(fontsize=30)
+    plt.xticks(fontsize=30)
+    plt.xlabel("k-value", fontsize=45)
+    plt.ylabel("Average compression ratio", fontsize=45)
     plt.legend(fontsize=20)
     plt.xticks(np.arange(0, 21, 1.0))
     plt.show()
@@ -1166,10 +1166,10 @@ if PlotNr == 25:
     #plt.plot(k_array, cr_2, 'bo', label='Order 2')
     #plt.plot(k_array, cr_3, 'go', label='Order 3')
     #plt.title("Comparison of comression ratio for differente orders")
-    plt.yticks(fontsize=25)
-    plt.xticks(fontsize=25)
-    plt.xlabel("k-value", fontsize=30)
-    plt.ylabel("Average compression ratio", fontsize=30)
+    plt.yticks(fontsize=30)
+    plt.xticks(fontsize=30)
+    plt.xlabel("k-value", fontsize=45)
+    plt.ylabel("Average compression ratio", fontsize=45)
     plt.legend(fontsize=17)
 
     plt.show()
@@ -1291,15 +1291,15 @@ if PlotNr == 42:
 
         offset = width * multiplier
         rects = ax.bar(x + offset, measurement, width, label=attribute)
-        ax.bar_label(rects, labels =[i for i in barTopText[multiplier] ],fontsize = 35)
+        ax.bar_label(rects, labels =[i for i in barTopText[multiplier] ],fontsize = 30)
         
         multiplier += 1
         
 
     # Add some text for labels, title and custom x-axis tick labels, etc.
     ax.set_ylabel('Average time [s]', fontsize=45)
-    ax.set_xticks(x + width, Order, fontsize=35)
-    ax.legend(loc="upper left", fontsize = 35)
+    ax.set_xticks(x + (width/2), Order, fontsize=35)
+    ax.legend(loc="upper left", fontsize = 30)
     ax.set_ylim(0, 0.2)
     plt.yticks(fontsize=35)
     
@@ -1435,17 +1435,17 @@ if PlotNr == 61:
 
         offset = width * multiplier
         rects = ax.bar(x + offset, measurement, width, label=attribute)
-        ax.bar_label(rects, labels =[i for i in barTopText[multiplier] ], fontsize = 21)
+        ax.bar_label(rects, labels =[i for i in barTopText[multiplier] ], fontsize = 17)
         
         multiplier += 1
         
 
     # Add some text for labels, title and custom x-axis tick labels, etc.
-    ax.set_ylabel('Average time [s]', fontsize=70)
-    ax.set_xticks(x + width, Order, fontsize=50)
+    ax.set_ylabel('Average time [s]', fontsize=45)
+    ax.set_xticks(x + width, Order, fontsize=35)
     ax.legend(loc="upper left", fontsize = 33)
     #ax.set_ylim(0, 0.4)
-    plt.yticks(fontsize=30)
+    plt.yticks(fontsize=35)
     
     plt.show()
 
