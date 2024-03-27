@@ -37,7 +37,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 81
+test = 13
 
 #General tests
 #Test 1. This test plots microphone data
@@ -6253,7 +6253,6 @@ if test == 13:
         plt.legend(fontsize=20)
         plt.xticks(np.arange(0, 21, 1.0))
         plt.show()
-
 
 
 #Plot input signal, residual, predicted value to see how good the result of shorten is
