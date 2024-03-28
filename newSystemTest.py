@@ -15,6 +15,7 @@ from FLAC_Meta import MetaFLAC
 from ShortenMeta import ShortenMeta
 from AdjacentMeta import MetaAdjacent
 
+
 import matplotlib.pyplot as plt
 import time
 
