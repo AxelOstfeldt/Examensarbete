@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import math
 
-PlotNr = 25
+PlotNr = 31
 
 #
 #PlotNr 1. Bar plot for RiceCoding original input
@@ -1179,7 +1179,7 @@ if PlotNr == 31:
     fig, ax = plt.subplots(layout = 'constrained')
 
     title = ['1 k Hz tone', 'Drone sound', 'Static noise']
-    counts = [0.564, 0.781, 0.800]
+    counts = [0.532, 0.759, 0.776]
     bar_labels = ['1 k Hz tone', 'Drone sound', 'Static noise']
     bar_colors = ['tab:red', 'tab:blue', 'tab:green']
     for i in range(len(counts)):

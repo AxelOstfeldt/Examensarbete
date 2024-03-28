@@ -11,6 +11,7 @@ from Adjacent import Adjacent
 from FlacModified import FlacModified
 from AdjacentAndShorten import DoubleCompression
 from LPC_Meta import MetaLPC
+from FLAC_Meta import MetaFLAC
 
 import matplotlib.pyplot as plt
 import time
@@ -37,7 +38,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 13
+test = 91
 
 #General tests
 #Test 1. This test plots microphone data
@@ -99,14 +100,43 @@ test = 13
 #Test 74. Use shorten on sorted residuals to double check that DoubleCompression works correctly
 
 #Test LPC version with metadata
-#Test 81. Meta LPC compress full array, get compression rate and plot for recreated values
+#Test 81. Meta LPC compress full array, get compression rate and plot for recreated values (Original values represented in 24 bits)
 
 #Test FLAC version with metadata
-#Test 91. Meta FLAC compress full array, get compression rate and plot for recreated values
+#Test 91. Meta FLAC compress full array, get average compression rate (Original values represented in 24 bits)
 
 
 
 #Initial values for tests
+if test == 91:
+    BitsForDecimals = 20
+    LPC_Order = 32
+    Meta_FLAC_prediction = MetaFLAC(LPC_Order, BitsForDecimals)
+
+    start_mic = 64
+    end_mic = 127
+    memorys = []
+    CodeWords = []
+    UncodedBinaryData = []
+    OriginalInputs = []
+
+    for mic in range(end_mic + 1 - start_mic):
+        CodeWords.append([])
+        OriginalInputs.append([])
+        UncodedBinaryData.append([])
+
+        if LPC_Order > 4:
+            memorys.append([0]*LPC_Order)
+
+        else:
+            memorys.append([0]*4)
+
+    
+
+    
+
+
+
 if test == 81:
     metaDataCoef = []
     Order = 5
@@ -1025,6 +1055,21 @@ print("")
 for itter in range(len(test_data)):
     current_data = test_data[itter]
     print("Itteration #", itter)
+
+    if test == 91:
+        for mic in range(start_mic, end_mic+1):
+            
+            testInput = current_data[mic,:]#Input data used in test
+        
+            CodeWord, memorys[mic-start_mic] = Meta_FLAC_prediction.In(testInput.copy(), memorys[mic-start_mic])
+            CodeWords[mic-start_mic].append(CodeWord)
+            UncodedWord = ""
+            for curentDataInput in testInput:
+                OriginalInputs[mic-start_mic].append(curentDataInput)
+                UncodedWord += np.binary_repr(abs(curentDataInput),24)
+            UncodedBinaryData[mic-start_mic].append(UncodedWord)
+            
+
 
 
     if test == 81:
@@ -2946,6 +2991,49 @@ for itter in range(len(test_data)):
 
 
 print("")
+if test == 91:
+    print("Test 91")
+    print("")
+    print("Using max LPC order ",LPC_Order,"with ",BitsForDecimals,"bits to represent the decimals in LPC coefficents")
+    print("")
+
+    print("Len OriginalInputs = ",len(OriginalInputs))
+    print("Len OriginalInputs[0] = ",len(OriginalInputs[0]))
+    print("")
+    print("Len CodeWords = ", len(CodeWords))
+    print("Len CodeWords[0] = ", len(CodeWords[0]))
+    print("Len CodeWords[0][0] = ", len(CodeWords[0][0]))
+    print("")
+    print("Len uncodedbinardata = ", len(UncodedBinaryData))
+    print("Len uncodedbinardata[0] = ", len(UncodedBinaryData[0]))
+    print("Len uncodedbinardata[0][0] = ", len(UncodedBinaryData[0][0]))
+    print("")
+
+    cr_array = []
+
+    for mic in range(end_mic + 1 - start_mic):
+        #Grab all codewords and uncoded words for a specific mic
+        CodeWordsMic = CodeWords[mic]
+        UncodedWordsMic = UncodedBinaryData[mic]
+        for datablock in range(recomnded_limit):
+            #Grab one codeword and one uncodedword for a specific mic in a specific data block
+            CurrentCodeWord = CodeWordsMic[datablock]
+            CurrentUncodedWord = UncodedWordsMic[datablock]
+            #Calcuate CR for current codeword by comparing sizes
+            cr = len(CurrentCodeWord) / len(CurrentUncodedWord)
+            #save cr value
+            cr_array.append(cr)
+
+    #calculate average cr for all codewords:
+    avg_cr = sum(cr_array) / len(cr_array)
+
+    print("Average compression rate is: ",avg_cr)
+
+            
+
+    
+    
+
 
 if test == 81:
     print("Test 81")

@@ -4,13 +4,14 @@ from Rice import RiceCoding
 
 
 
-class FLAC:
+class MetaFLAC:
 
-    def __init__(self, LpcOrder: int = 32, CoefficentDecimalBits: int = 10):
+    def __init__(self, LpcOrder: int = 32, CoefficentDecimalBits: int = 10, sign = True):
         self.LpcOrder = LpcOrder
         self.ShortCoff = [[0],[1],[2, -1],[3, -3, 1],[4,-6,4,-1]]
         self.CoefDecBit = CoefficentDecimalBits
         self.CoeffDivisionFactor = pow(2,CoefficentDecimalBits) - 1
+        self.sign = sign
 
 
     #Function to calculate the autocorrelation of the input values
@@ -85,12 +86,15 @@ class FLAC:
         return CoefficentsArray
 
     def LpcCoefficentsBinaryIn(self, LpcCoefficentArray):
+        
         BinaryCoefficentArray = []
-        for coef in LpcCoefficentArray:
+        for c in range(len(LpcCoefficentArray)):
+            
+            coef = LpcCoefficentArray[c]
             BinaryCoefficents = ""
             if np.max(np.absolute(coef.copy())) > 1:
 
-                extraBits = np.max(np.absolute(coefficent.copy()))
+                extraBits = np.max(np.absolute(coef.copy()))
                 extraBits = math.ceil(math.log(extraBits,2))
             else:
                 extraBits = 0
@@ -127,7 +131,9 @@ class FLAC:
 
             BinaryCoefficentArray.append(BinaryCoefficents)
 
-            return BinaryCoefficentArray
+
+
+        return BinaryCoefficentArray
 
             
 
@@ -199,6 +205,7 @@ class FLAC:
 
         RleCode, ShortResiduals, LpcResiduals, memory, LpcBinaryCoefficents, LpcCoff, SPred, LPred = self.ResidualCalculation(inputs, memory)
 
+        
         #Crate an array to store all binary represented values for the residuals and RLE
         AllResidualsBinary = []
         k_array = [0]
@@ -219,7 +226,7 @@ class FLAC:
             CurrentCodeWord, ideal_k = self.FlacRice(LpcResiduals[i])
 
             #Add the coefficents for current lpc to the codeword
-            CurrentCodeword = LpcBinaryCoefficents[i] + CurrentCodeWord
+            CurrentCodeWord = LpcBinaryCoefficents[i] + CurrentCodeWord
             AllResidualsBinary.append(CurrentCodeWord)
             k_array.append(ideal_k)
 
@@ -257,7 +264,7 @@ class FLAC:
         
 
 
-        return FinalCodeWord, valueChoice, np.binary_repr(k_Choice,5), np.binary_repr(codeChoice,6), memory, LpcCoffChoosen
+        return FinalCodeWord, memory
 
     
     def Out(self, code_residuals, memory, k_value, code_choose, LpcCoff):
