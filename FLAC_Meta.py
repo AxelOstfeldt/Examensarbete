@@ -135,9 +135,6 @@ class MetaFLAC:
 
         return BinaryCoefficentArray
 
-            
-
-
 
     def ResidualCalculation(self, inputs, memory):
         LpcCoff = self.LpcCoefficentsCalc(inputs)
@@ -266,19 +263,60 @@ class MetaFLAC:
 
         return FinalCodeWord, memory
 
-    
-    def Out(self, code_residuals, memory, k_value, code_choose, LpcCoff):
-        DecodedValues = []#Array to save decoded values
-        k_value = int(k_value,2) + 1
 
-        code_choose = int(code_choose,2)
-        #If code_chosse is 0 the residual is encoded using RLE
+    def LpcCoefDecode(self, codeword, CurrentLpcOrder):
+        extraBits = 0
+        coefficents = []
+
+        #Recreate the extra bits from the rle code
+        while codeword[0] == "1":
+            extraBits +=1
+
+            codeword = codeword[1:]
+
+        codeword = codeword[1:]
+
+        #loop thorugh the codeword and take out the bits representing a cofficents
+        #this is done for every coefficents needed (number of coefficents = order)
+        for NumberOfCoefficents in range(CurrentLpcOrder):
+            if codeword[0] == "1":
+                IsNegative = True
+            else:
+                IsNegative = False
+
+            codeword = codeword[1:]
+
+            CurrentCoefficentBinary = codeword[:self.CoefDecBit+extraBits]
+            codeword = codeword[self.CoefDecBit+extraBits:]
+            
+
+
+            CurrentCoefficent = int(CurrentCoefficentBinary, 2)
+
+            if IsNegative:
+                CurrentCoefficent = -CurrentCoefficent
+
+            coefficents.append(CurrentCoefficent / self.CoeffDivisionFactor)
+
+        if len(coefficents) != CurrentLpcOrder:
+            raise ValueError(f"Number of coefficents should match order, decoded coefficents are = {coefficents}")
+        
+        return coefficents, codeword
+
+
+
+
+    
+    def Out(self, code_residuals, memory):
+        DecodedValues = []#Array to save decoded values
         
 
+        #the first 6 bits in the codeword indicate what encoder have been used
+        code_choose_binary = code_residuals[:6]
+        code_residuals = code_residuals[6:]
+        code_choose = int(code_choose_binary,2)
 
-
-
-
+        #If code_chosse is 0 the residual is encoded using RLE
         if code_choose == 0:
             
             #Loops trough all the enocded binary values with a while llop
@@ -335,14 +373,37 @@ class MetaFLAC:
          
 
         else:
+            
+            
+
+            #If code choice is larger than 5 LPC have been used to encode the residuals,
+            #the first bits in the codewords are then the coffiecnts used in LPC
+            if code_choose > 5:
+                #The LPC order will be 5 less than code_choose since code_choice 0 is for RLE and 1-5 is for Shorten
+                CurrentLpcOrder = code_choose - 5
+                #Decode the first bits that represent the LPC cofficents,
+                #The number of cofficents are equal to CurrentLpcOrder
+                LpcCoff, code_residuals = self.LpcCoefDecode(code_residuals, CurrentLpcOrder)
+
+
+            #Else if code_choose is not > 5 shorten have been used to encode it
+            else:
+                #The Shorten order will be 1 less than code_choose since code_choice 0 is for RLE
+                ShortenOrder = code_choose - 1
+
+            #The next 5 MSB in the codeword represnt the k-value used to encode the residuals using Rice codes  
+            k_binary = code_residuals[:5]
+            code_residuals = code_residuals[5:]
+            k_value = int(k_binary,2) + 1
+
+
+
+
             #In cases where RLE encoding is not used, the resiudals have been encoded using Rice codes
             #Decodes the Residuals with Rice.Decode
-            Rice_decoder = RiceCoding(k_value, True)
+            Rice_decoder = RiceCoding(k_value, self.sign)
             Residuals = Rice_decoder.Decode(code_residuals)
-            #The Shorten order will be 1 less than code_choose since code_choice 0 is for RLE
-            ShortenOrder = code_choose - 1
-            #The LPC order will be 5 less than code_choose since code_choice 0 is for RLE and 1-5 is for Shorten
-            CurrentLpcOrder = code_choose - 5
+            
 
             #loops thorugh all the residuals to calculate the original input value
             for i in range(len(Residuals)):
@@ -376,7 +437,7 @@ class MetaFLAC:
                 DecodedValues.append(current_input)
 
         #Return the decoded values and memory array
-        return DecodedValues, memory
+        return DecodedValues, memory, code_choose
                 
 
     def RleEnconder(self, RleValue, RleCounter):
@@ -433,7 +494,7 @@ class MetaFLAC:
         code_word =kBinary
         for q in range(len(current_residuals)):
             
-            Rice_coder = RiceCoding(k_ideal, True)
+            Rice_coder = RiceCoding(k_ideal, self.sign)
             n = int(current_residuals[q])
             kodOrd = Rice_coder.Encode(n)
             code_word += kodOrd
@@ -460,147 +521,6 @@ class MetaFLAC:
 
         
 
-
-
-
-#Test FLAC out
-if 1 < 0:
-    LPC_Order = 9
-    FLAC_prediction = FLAC(LPC_Order)
-
-    testInput = [1,3,5,7,9,8,9,10,9,20,9,21,9,22,9]
-
-    if LPC_Order > 4:
-        testMemory = [0]*LPC_Order
-    else:
-        testMemory = [0]*4
-
-    Encoded_inputs, k_value, Encoding_choice, mem, LPC_Cofficents = FLAC_prediction.In(testInput, testMemory)
-
-    print("k_value: ", k_value)
-    print("Encoding choice: ", Encoding_choice)
-
-    int_choice = int(Encoding_choice, 2)
-    if LPC_Order > 4:
-        mem_out = [0]*LPC_Order
-    else:
-        mem_out = [0]*4
-
-    
-
-    decodedInputs, mem_out = FLAC_prediction.Out(Encoded_inputs, mem_out, k_value, Encoding_choice, LPC_Cofficents)
-
-    print("Original input = ",testInput)
-    print("Decoded inputs = ", decodedInputs)
-    print("mem_out = ", mem_out)
-
-
-
-#Test to see that FLAC can perform aswell as Shorten and LPC
-#Aswell as test output from FLAC
-from Shorten import Shorten
-from LPC import LPC
-if 1 < 0:
-
-    LPC_Order = 8
-    FLAC_prediction = FLAC(LPC_Order)
-
-    testInput = [1,2,3,4,5,5,5,5,5,5,5,6,7,8,9,9,9,9]
-
-    if LPC_Order > 4:
-        testMemory = [0]*LPC_Order
-    else:
-        testMemory = [0]*4
-
-    Encoded_inputs, k_value, Encoding_choice, mem, LPC_Cofficents = FLAC_prediction.In(testInput, testMemory)
-    #print("Encoded_inputs: ", Encoded_inputs)
-    #print("k_value: ", k_value)
-    #print("Encoding choice: ", Encoding_choice)
-    #print("New memory: ", mem)
-    #print("LPC cofficents from FLAC:")
-    for i in range(len(LPC_Cofficents)):
-        i
-        
-        #print("LPC order ",i+1,": ",LPC_Cofficents[i])
-
-    S_order = 3
-    L_order = 1
-    for i in range(1, 8):
-        L_order = i
-        S_memory = [0]*S_order
-        L_memory = [0]*L_order
-        Shorten_predictor = Shorten(S_order)
-        LPC_predictor = LPC(L_order)
-
-        res_s, mem_s, pred_s = Shorten_predictor.In(testInput, S_memory)
-        cof_l, res_l, mem_l, pred_l = LPC_predictor.In(testInput, L_memory)
-        for j in range(L_order):
-            curr_flac_cofs = LPC_Cofficents[i-1]
-            if cof_l[j] != curr_flac_cofs[j]:
-                print("Wrong cofficents at: ", cof_l[j],"=! ", curr_flac_cofs[j])
-
-
-        #Calculates the ideal k_vaule for the LPC residuals
-        abs_res = np.absolute(res_s)
-        abs_res_avg = np.mean(abs_res)
-        #if abs_res_avg is less than 4.7 it would give a k value less than 1.
-        #k needs tobe a int > 1 and therefore if abs_res_avg < 5 k is set to 1
-        #OBS. 4.7 < abs_res_avg < 5 would be rounded of to k=1 so setting the limit to 5 works well
-        if abs_res_avg > 5:
-            k_s = int(round(math.log(math.log(2,10) * abs_res_avg,2)))
-        else:
-            k_s = 1
-
-        #Calculates the ideal k_vaule for the LPC residuals
-        abs_res = np.absolute(res_l)
-        abs_res_avg = np.mean(abs_res)
-        #if abs_res_avg is less than 4.7 it would give a k value less than 1.
-        #k needs tobe a int > 1 and therefore if abs_res_avg < 5 k is set to 1
-        #OBS. 4.7 < abs_res_avg < 5 would be rounded of to k=1 so setting the limit to 5 works well
-        if abs_res_avg > 5:
-            k_l = int(round(math.log(math.log(2,10) * abs_res_avg,2)))
-        else:
-            k_l = 1
-
-
-        #calculates the Rice code word for the residual
-        code_word =""
-        for q in range(len(res_s)):
-            
-            Rice_coder = RiceCoding(k_s, True)
-            n = int(res_s[q])
-            kodOrd = Rice_coder.Encode(n)
-            code_word += kodOrd
-        #print("Lenght for Shorten order ",S_order," = ",len(code_word))
-
-
-        #calculates the Rice code word for the residual
-        code_word =""
-        for q in range(len(res_l)):
-            Rice_coder = RiceCoding(k_l, True)
-            n = int(res_l[q])
-            kodOrd = Rice_coder.Encode(n)
-            code_word += kodOrd
-        print("Lenght for LPC order ",L_order," = ",len(code_word))
-
-    
-
-    
-    #auto_Corr = FLAC_prediction.autocorrelation(testInput, 2)#Works
-    #print(auto_Corr)
-
-    #Lpc_coff = FLAC_prediction.LpcCoefficentsCalc(testInput)#Works
-    #print(Lpc_coff[8])
-
-    RleCode, ShortResiduals, LpcResiduals, memory, LpcCoff, SPred, LPred = FLAC_prediction.ResidualCalculation(testInput,testMemory)
-
-    for i in range(len(LpcResiduals)):
-        print((LpcResiduals[i]))
-    
-
-    
-
-    
 
 
 

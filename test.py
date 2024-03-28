@@ -9,7 +9,7 @@ import math
 
 if 1 > 0:
     
-    print("A change to push")
+
     tester = "123456789"
 
     k = tester[:3]

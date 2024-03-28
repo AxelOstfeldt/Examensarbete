@@ -38,7 +38,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 91
+test = 92
 
 #General tests
 #Test 1. This test plots microphone data
@@ -104,10 +104,25 @@ test = 91
 
 #Test FLAC version with metadata
 #Test 91. Meta FLAC compress full array, get average compression rate (Original values represented in 24 bits)
-
+#Test 92. Meta FLAC recreate original inputs
 
 
 #Initial values for tests
+if test == 92:
+    BitsForDecimals = 20
+    LPC_Order = 32
+    Meta_FLAC_prediction = MetaFLAC(LPC_Order, BitsForDecimals)
+
+
+    CodeWords = []
+    OriginalInputs = []
+    if LPC_Order > 4:
+        memory = [0]*LPC_Order
+
+    else:
+        memory = [0]*4
+
+
 if test == 91:
     BitsForDecimals = 20
     LPC_Order = 32
@@ -130,11 +145,6 @@ if test == 91:
 
         else:
             memorys.append([0]*4)
-
-    
-
-    
-
 
 
 if test == 81:
@@ -1015,7 +1025,7 @@ if test == 1:
 #The data from the while loop is appended in the test_data array
 #It loops recomended_limit amount of time, this depends on the size of the sound file
 #23 was found to be a good number to use
-recomnded_limit = 20
+recomnded_limit = 2
 
 test_data = []
 data = np.empty((config.N_MICROPHONES, config.N_SAMPLES), dtype=np.float32)
@@ -1056,6 +1066,18 @@ for itter in range(len(test_data)):
     current_data = test_data[itter]
     print("Itteration #", itter)
 
+    if test == 92:
+        
+            
+        testInput = current_data[best_mic,:]#Input data used in test
+
+        OriginalInputs.append(testInput.copy())
+    
+        CodeWord, memory = Meta_FLAC_prediction.In(testInput.copy(), memory)
+
+        CodeWords.append(CodeWord)
+            
+
     if test == 91:
         for mic in range(start_mic, end_mic+1):
             
@@ -1069,8 +1091,6 @@ for itter in range(len(test_data)):
                 UncodedWord += np.binary_repr(abs(curentDataInput),24)
             UncodedBinaryData[mic-start_mic].append(UncodedWord)
             
-
-
 
     if test == 81:
         inputs = []
@@ -2991,23 +3011,76 @@ for itter in range(len(test_data)):
 
 
 print("")
+
+if test == 92:
+    print("Test 92")
+    print("")
+    print("Using max LPC order ",LPC_Order,"with ",BitsForDecimals,"bits to represent the decimals in LPC coefficents")
+    print("")
+
+    if LPC_Order > 4:
+        memoryOut = [0]*LPC_Order
+
+    else:
+        memoryOut = [0]*4
+
+
+    allCorrect = 0
+    for i in range(len(CodeWords)):
+        zero = []
+        CodeWord = CodeWords[i]
+        DecodedData, memoryOut, CodeChoice = Meta_FLAC_prediction.Out(CodeWord, memoryOut)
+        CurrentInputData = OriginalInputs[i]
+
+        print("len current input data = ", len(CurrentInputData))
+        print("len decodedData = ", len(DecodedData))
+
+        for sample in range(len(CurrentInputData)):
+
+            currentZero = CurrentInputData[sample] - DecodedData[sample]
+            zero.append(currentZero)
+
+            if abs(currentZero) > 10:
+                allCorrect += 1
+
+        fig = plt.figure(i)
+
+        ax = fig.add_subplot(211)
+        plt.plot(CurrentInputData, 'b', label = 'Original values')
+        plt.plot(DecodedData, 'r-.', label = 'Decoded values')
+
+        plt.legend(fontsize=25)
+        plt.yticks(fontsize=20)
+        plt.xticks(fontsize=20)
+
+
+        ax = fig.add_subplot(212)
+        plt.plot(zero, label = 'Original values - Decoded values')
+
+        plt.legend(fontsize=25)
+        plt.yticks(fontsize=20)
+        plt.xticks(fontsize=20)
+        
+        plt.show()
+
+    if allCorrect == 0:
+        print("All values where decoded succesfully")
+    else:
+        print("Failed decoding ", allCorrect,"values")
+
+
+
+    
+
+
+
+
 if test == 91:
     print("Test 91")
     print("")
     print("Using max LPC order ",LPC_Order,"with ",BitsForDecimals,"bits to represent the decimals in LPC coefficents")
     print("")
 
-    print("Len OriginalInputs = ",len(OriginalInputs))
-    print("Len OriginalInputs[0] = ",len(OriginalInputs[0]))
-    print("")
-    print("Len CodeWords = ", len(CodeWords))
-    print("Len CodeWords[0] = ", len(CodeWords[0]))
-    print("Len CodeWords[0][0] = ", len(CodeWords[0][0]))
-    print("")
-    print("Len uncodedbinardata = ", len(UncodedBinaryData))
-    print("Len uncodedbinardata[0] = ", len(UncodedBinaryData[0]))
-    print("Len uncodedbinardata[0][0] = ", len(UncodedBinaryData[0][0]))
-    print("")
 
     cr_array = []
 
@@ -3028,11 +3101,6 @@ if test == 91:
     avg_cr = sum(cr_array) / len(cr_array)
 
     print("Average compression rate is: ",avg_cr)
-
-            
-
-    
-    
 
 
 if test == 81:
