@@ -1,4 +1,5 @@
 import numpy as np
+import math
 from Rice import RiceCoding
 
 class ShortenMeta:
@@ -73,7 +74,7 @@ class ShortenMeta:
         #Calculate the k value to use for the Rice codes
         k_value = self.kCalculator(residuals.copy())
 
-        if k_value > 32:
+        if k_value > 33:
             raise ValueError(f"k can not be larger than 32, current k value is {k_value}")
 
 
@@ -84,7 +85,7 @@ class ShortenMeta:
 
         for i in range(len(residuals)):
             Rice_coder = RiceCoding(k_value, self.sign)
-            n = int(currentResidual[i])
+            n = int(residuals[i])
             kodOrd = Rice_coder.Encode(n)
             CodeWord += kodOrd
 

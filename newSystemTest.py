@@ -12,6 +12,7 @@ from FlacModified import FlacModified
 from AdjacentAndShorten import DoubleCompression
 from LPC_Meta import MetaLPC
 from FLAC_Meta import MetaFLAC
+from ShortenMeta import ShortenMeta
 
 import matplotlib.pyplot as plt
 import time
@@ -38,7 +39,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 81
+test = 101
 
 #General tests
 #Test 1. This test plots microphone data
@@ -106,8 +107,34 @@ test = 81
 #Test 91. Meta FLAC compress full array, get average compression rate (Original values represented in 24 bits)
 #Test 92. Meta FLAC recreate original inputs
 
+#Test Shorten with metadata
+#Test 101. Recreate original inputs 
+
+#Test Adjacent with metadata
+#Test 111. Recreate original inputs
+
 
 #Initial values for tests
+if test == 111:
+
+    CodeWords = []
+    OriginalInputs = []
+    memory = []
+
+
+if test == 101:
+    ShortenOrder = 1
+    MetaShortenPredcitor = ShortenMeta(ShortenOrder)
+
+    CodeWords = []
+    OriginalInputs = []
+    if ShortenOrder == 0:
+        memory = []
+
+    else:
+        memory = [0]*ShortenOrder
+
+
 if test == 92:
     BitsForDecimals = 20
     LPC_Order = 32
@@ -1065,6 +1092,17 @@ print("")
 for itter in range(len(test_data)):
     current_data = test_data[itter]
     print("Itteration #", itter)
+
+    if test == 101:
+        testInput = current_data[best_mic,:]#Input data used in test
+
+        OriginalInputs.append(testInput.copy())
+    
+        CodeWord, memory = MetaShortenPredcitor.In(testInput.copy(), memory)
+
+        CodeWords.append(CodeWord)
+
+
 
     if test == 92:
         
@@ -3011,6 +3049,63 @@ for itter in range(len(test_data)):
 
 
 print("")
+if test == 101:
+    print("Test 101")
+    print("")
+    print("Using Shorten order ", ShortenOrder)
+    print("")
+
+    #Create memory out
+    if ShortenOrder == 0:
+        memoryOut = []
+    else:
+        memoryOut = [0] * ShortenOrder
+
+    allCorrect = 0
+    for i in range(len(CodeWords)):
+        zero = []
+        CodeWord = CodeWords[i]
+        DecodedData, memoryOut = MetaShortenPredcitor.Out(CodeWord, memoryOut)
+        CurrentInputData = OriginalInputs[i]
+
+        print("len current input data = ", len(CurrentInputData))
+        print("len decodedData = ", len(DecodedData))
+
+
+        for sample in range(len(CurrentInputData)):
+            currentZero = CurrentInputData[sample] - DecodedData[sample]
+            zero.append(currentZero)
+
+            if currentZero != 0:
+                allCorrect += 1
+                print("Failed to decode value at datablock ",i,"sample #",sample)
+
+
+        fig = plt.figure(i, layout = 'constrained')
+
+        ax = fig.add_subplot(211)
+        plt.plot(CurrentInputData, 'b', label = 'Original values')
+        plt.plot(DecodedData, 'r-.', label = 'Decoded values')
+
+        plt.legend(fontsize=25, loc = 'upper right')
+        plt.yticks(fontsize=20)
+        plt.xticks(fontsize=20)
+
+
+        ax = fig.add_subplot(212)
+        plt.plot(zero, label = 'Original values - Decoded values')
+
+        plt.legend(fontsize=25, loc = 'upper right')
+        plt.yticks(fontsize=20)
+        plt.xticks(fontsize=20)
+        
+        plt.show()
+
+    if allCorrect == 0:
+        print("All values where decoded succesfully")
+    else:
+        print("Failed decoding ", allCorrect,"values")
+
 
 if test == 92:
     print("Test 92")
@@ -3032,8 +3127,7 @@ if test == 92:
         DecodedData, memoryOut, CodeChoice = Meta_FLAC_prediction.Out(CodeWord, memoryOut)
         CurrentInputData = OriginalInputs[i]
 
-        print("len current input data = ", len(CurrentInputData))
-        print("len decodedData = ", len(DecodedData))
+        
 
         for sample in range(len(CurrentInputData)):
 
@@ -3043,13 +3137,13 @@ if test == 92:
             if abs(currentZero) > 10:
                 allCorrect += 1
 
-        fig = plt.figure(i)
+        fig = plt.figure(i, layout = 'constrained')
 
         ax = fig.add_subplot(211)
         plt.plot(CurrentInputData, 'b', label = 'Original values')
         plt.plot(DecodedData, 'r-.', label = 'Decoded values')
 
-        plt.legend(fontsize=25)
+        plt.legend(fontsize=25, loc = 'upper right')
         plt.yticks(fontsize=20)
         plt.xticks(fontsize=20)
 
@@ -3057,7 +3151,7 @@ if test == 92:
         ax = fig.add_subplot(212)
         plt.plot(zero, label = 'Original values - Decoded values')
 
-        plt.legend(fontsize=25)
+        plt.legend(fontsize=25, loc = 'upper right')
         plt.yticks(fontsize=20)
         plt.xticks(fontsize=20)
         
