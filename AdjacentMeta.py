@@ -6,7 +6,7 @@ from Rice import RiceCoding
 
 class MetaAdjacent:
 
-    def __init__(self, order, int = 2, sign = True):
+    def __init__(self, order: int = 2, sign = True):
         self.order = order
         self.sign = sign
         #Coeficents for differente orders, from 0 to 4

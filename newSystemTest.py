@@ -13,6 +13,7 @@ from AdjacentAndShorten import DoubleCompression
 from LPC_Meta import MetaLPC
 from FLAC_Meta import MetaFLAC
 from ShortenMeta import ShortenMeta
+from AdjacentMeta import MetaAdjacent
 
 import matplotlib.pyplot as plt
 import time
@@ -39,7 +40,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 101
+test = 111
 
 #General tests
 #Test 1. This test plots microphone data
@@ -111,7 +112,7 @@ test = 101
 #Test 101. Recreate original inputs 
 
 #Test Adjacent with metadata
-#Test 111. Recreate original inputs
+#Test 111. Recreate original inputs and calculate average CR for an array of mics(Input data as 24 bits)
 
 
 #Initial values for tests
@@ -119,7 +120,19 @@ if test == 111:
 
     CodeWords = []
     OriginalInputs = []
-    memory = []
+
+
+    Order = 2
+    memory = [0] * Order
+    MetaAdjacantPredictor = MetaAdjacent(order=Order)
+    code_words = []
+    uncoded_words = []
+    mic_start = 64#sugested 64
+    mic_end = 127#Sugested 127
+    AllInputs = []
+    Plotted_Mic = 79#Have to be a value between mic_start and mic_end
+    if Plotted_Mic > mic_end or Plotted_Mic < mic_start:
+        raise ValueError(f"The mic you want to plot cant be less than the starting mic or larger than the ending mic")
 
 
 if test == 101:
@@ -626,10 +639,11 @@ if test == 43:
     uncoded_words = []
     mic_start = 64#sugested 64
     mic_end = 127#Sugested 127
+    
     k_array = []
     AllInputs = []
     sign = True
-
+    
 
 if test == 42:
     order = 2
@@ -1093,6 +1107,30 @@ for itter in range(len(test_data)):
     current_data = test_data[itter]
     print("Itteration #", itter)
 
+    if test == 111:
+        #Crate an loop that determines how many sampels that are going to be looked at
+        for sample in range(256):
+            #print(sample)
+            #create an array to save all mic values for current data sample
+            testInputs = []
+            for microphone in range(mic_start, mic_end+1):
+                testIn = current_data[microphone,sample]
+                testInputs.append(testIn)
+
+            CurrentCodeWord, memory = MetaAdjacantPredictor.In(testInputs, memory)
+
+            
+            uncoded_word = ""
+            for i in range(len(testInputs)):
+                #Saves binary value of input, represented in 24 bits
+                uncoded_word += np.binary_repr(testInputs[i],24)
+
+            #Saves codewords and binary input values arrays
+            code_words.append(CurrentCodeWord)
+            uncoded_words.append(uncoded_word)
+            AllInputs.append(testInputs)
+
+
     if test == 101:
         testInput = current_data[best_mic,:]#Input data used in test
 
@@ -1101,7 +1139,6 @@ for itter in range(len(test_data)):
         CodeWord, memory = MetaShortenPredcitor.In(testInput.copy(), memory)
 
         CodeWords.append(CodeWord)
-
 
 
     if test == 92:
@@ -3049,6 +3086,88 @@ for itter in range(len(test_data)):
 
 
 print("")
+
+if test == 111:
+    print("Test 111")
+    print("")
+    memoryOut = [0] * Order
+    compressionRateArray = []
+    recreatedInputs = []
+    for i in range(len(code_words)):
+        #Calculate compression rate for current itteration
+        cr = len(code_words[i]) / len(uncoded_words[i])
+        compressionRateArray.append(cr)
+        
+
+
+        #Recreate the original inputs
+        CurrentRecreatedInputs, memoryOut = MetaAdjacantPredictor.Out(code_words[i], memoryOut)
+        recreatedInputs.append(CurrentRecreatedInputs)
+
+    print("Average compression rate is: ", sum(compressionRateArray)/len(compressionRateArray))
+
+
+    print("len code words = ", len(code_words))
+
+    print("len recreatedInputs = ", len(recreatedInputs))
+
+    #Store original and recreated inputs from each mic in an array
+    #Start by creating the arrays
+    mics_og = []#Original inputs
+    mics_re = []#Recreated inputs
+    mics_zero = []#Original inputs - recreated inputs (Hopefully equals 0)
+    for i in range(mic_end+1 - mic_start):
+        mics_og.append([])
+        mics_re.append([])
+        mics_zero.append([])
+    
+    allCorrect = 0#Tacks how many values was failed to be recreated
+
+    #loops thorugh each input/recreated input block
+    for i in range(len(recreatedInputs)):
+        #Loop thorugh each mic for the current block
+        currentRe = recreatedInputs[i]
+        currentOg = AllInputs[i]
+        for microphone in range(len(currentRe)):
+            currentMicOg = currentOg[microphone]
+            currentMicRe = currentRe[microphone]
+            currentMicZero = currentMicOg - currentMicRe
+
+            #While looping throug each recreated value also check if any value was failed to be recreated:
+            if currentMicOg != currentMicRe:
+                #Increament the amount of errors by 1
+                allCorrect +=1
+                #Print out where the failed recreaten where
+                print("Failed recrating value at mic ",microphone,"at data block ",i,"Original value = ",currentMicOg,"Recreated value = ",currentMicRe)
+
+
+            mics_og[microphone].append(currentMicOg)
+            mics_re[microphone].append(currentMicRe)
+            mics_zero[microphone].append(currentMicZero)
+    
+    if allCorrect == 0:
+        print("All values where recreated succesfully")
+    else:
+        print("Failed to recreate ",allCorrect,"values")
+
+
+    figure_title = "Mic #" + str(Plotted_Mic)
+    fig = plt.figure(figure_title, layout = 'constrained')
+    ax = fig.add_subplot(211)
+    plt.plot(mics_og[Plotted_Mic - mic_start], 'b', label = "Original values")
+    plt.plot(mics_re[Plotted_Mic - mic_start], 'r-.', label = "Recreated values")
+    plt.legend(fontsize=25, loc = 'upper right')
+    plt.yticks(fontsize=20)
+    plt.xticks(fontsize=20)
+
+    ax = fig.add_subplot(212)
+    plt.plot(mics_zero[Plotted_Mic - mic_start], 'g', label = "Original values - Recreated values")
+    plt.legend(fontsize=25, loc = 'upper right')
+    plt.yticks(fontsize=20)
+    plt.xticks(fontsize=20)
+    plt.show()
+            
+
 if test == 101:
     print("Test 101")
     print("")
