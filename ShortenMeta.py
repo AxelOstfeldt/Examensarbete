@@ -1,6 +1,9 @@
+import numpy as np
+from Rice import RiceCoding
+
 class ShortenMeta:
 
-    def __init__(self, order: int = 3):
+    def __init__(self, order: int = 3, sign = True):
         #Order can only be between 0 and 3 for Shorten, and have to be an in
         if not (0 <= order <= 3) or not isinstance(order, int):
             raise ValueError(f"Order can only have integer values between 0 and 3. Current value of is {order}")
@@ -10,6 +13,7 @@ class ShortenMeta:
         all_coeficents = [[0],[1],[2, -1],[3, -3, 1]]
         #Assigns the coeificents to be used based on order
         self.coeficents = all_coeficents[order]
+        self.sign = sign
 
     def predict(self, memory):
         prediction = 0
@@ -66,15 +70,60 @@ class ShortenMeta:
             #saves residuals 
             residuals.append(residual)
 
+        #Calculate the k value to use for the Rice codes
+        k_value = self.kCalculator(residuals.copy())
+
+        if k_value > 32:
+            raise ValueError(f"k can not be larger than 32, current k value is {k_value}")
+
+
+        #Represent the k value in 5 bits
+        k_binary = np.binary_repr(k_value - 1, 5)
+
+        CodeWord = k_binary
+
+        for i in range(len(residuals)):
+            Rice_coder = RiceCoding(k_value, self.sign)
+            n = int(currentResidual[i])
+            kodOrd = Rice_coder.Encode(n)
+            CodeWord += kodOrd
+
+
+
         #returns residual. memory. and prediction array
         #The memory array can then be used for the next set of data inputs if the come in blocks
-        return residuals, memory, self.order
+        return CodeWord, memory
+
+    def kCalculator(self, residuals):
+        #Calculates the ideal k_vaule for the residuals
+        abs_res = np.absolute(residuals.copy())
+        abs_res_avg = np.mean(abs_res)
+        #if abs_res_avg is less than 4.7 it would give a k value less than 1.
+        #k needs tobe a int > 1. All abs_res_avg values bellow 6.64 will be set to 1 to avoid this issue
+        if abs_res_avg > 6.64:
+        #from testing it appears that the actual ideal k-value is larger by +1 than theory suggest,
+        #atleast for larger k-value. The exact limit is unknown but it have been true for all test except for when the lowest k, k =1 is best.
+        #Therefore th formula have been modified to increment k by 1 if abs_res_avg is larger than 6.64.
+            k = int(round(math.log(math.log(2,10) * abs_res_avg,2))) +1
+        else:
+            k = 1
+
+        return k
 
 
-    def Out(self, residuals, memory: list = [0] * 3):
+    def Out(self, CodeWord, memory: list = [0] * 3):
         
 
-        input = []
+        #The first 5 bits in the codeword is the k-value for the rice codes
+        k_binary = CodeWord[:5]
+        CodeWord = CodeWord[5:]
+        #k_value is decremented by 1 beffore being encoded and therefore need to be incremented by 1
+        k_value = int(k_binary,2) + 1
+        
+        Rice_decoder = RiceCoding(k_value, self.sign)
+        residuals = Rice_decoder.Decode(CodeWord)
+
+        RecreatedValues = []
         
         #loops through the residuals array 
         for i in range(len(residuals)):
@@ -90,7 +139,7 @@ class ShortenMeta:
                 memory[0] = current_input
             
             #saves residuals 
-            input.append(current_input)
+            RecreatedValues.append(current_input)
 
 
-        return input, memory
+        return RecreatedValues, memory
