@@ -8,18 +8,12 @@ import math
 
 
 if 1 > 0:
-    
 
-    tester = "123456789"
 
-    k = tester[:3]
-    tester = tester[3:]
+    print("Test")
 
-    print("k = ",k)
-    print("tester = ",tester)
  
 
-    
        
 
 if 1 < 0:
