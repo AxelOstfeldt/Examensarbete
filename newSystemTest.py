@@ -41,11 +41,12 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 111
+test = 3
 
 #General tests
 #Test 1. This test plots microphone data
 #Test 2. This test checks average binary len and max length of input data if every data point was written with minimal amount of bits
+#Test 3. Save data to .txt files, this test does not use recomended limit to stop, but when no new data is foun for 100 seconds it stops gathering data
 #Test 4. Try Rice and Golom codes on original inputs
 
 #Shorten tests
@@ -1047,7 +1048,10 @@ if test == 4:
 
 
 if test == 3:
-    loop_time = []
+    #Set the file name on the file to save values to
+    #remeber .txt!
+    FileName = "SetFileName.txt"
+    NumberOfDatablock = 0
 
 
 if test == 2:
@@ -1090,9 +1094,17 @@ while w_limit < recomnded_limit:
             print("")
         input_new = data2[best_mic,:]#This data choice is only to make sure to wait for a new available data value
         
-        
-        w_limit +=1
+        if test == 3:
+            start_time = time.time()
+
+        else:
+            w_limit +=1
+
+
         test_data.append(data2)
+
+    if time.time() - start_time > 100:
+        w_limit = 1000000
     
     
 
@@ -3035,6 +3047,10 @@ for itter in range(len(test_data)):
         uncoded_words_smal.append(uncoded_word_smal)
         uncoded_smal_max_array.append(uncoded_smal_max)
 
+
+    if test == 3:
+        print("")
+        NumberOfDatablock += 1
 
     #This test created arrays with minimum binary length for each input value
     if test == 2:
@@ -6826,6 +6842,60 @@ if test == 4:
     print("Average length of binary inputs: ", sum(avg_len_smal)/len(avg_len_smal))
     print("Largest binary representation of inputs: ", np.max(uncoded_smal_max_array))
         
+
+if test == 3:
+    print("Test 3")
+    print("")
+    print("Saveing ",NumberOfDatablock,"to the file ",FileName)
+    print("")
+    print("Len test data = ", len(test_data))
+    print("")
+
+    # Save all data to a single text file
+    with open(FileName, 'w') as file:
+        for data in test_data:
+            np.savetxt(file, data, fmt='%d')
+            # Add an empty line to separate arrays
+            file.write('\n')
+
+    print("All data saved to all_data.txt.")
+
+    #The code to load the data:
+    if 1 < 0:
+        # Create an empty list to store loaded data
+        loaded_data = []
+
+        # Open the file containing all data, remember to set correct filename
+        with open(FileName, 'r') as file:
+            array = []
+            for line in file:
+                # Check if the line is empty, indicating the end of an array
+                if not line.strip():
+                    # Convert the collected lines into a NumPy array and append to loaded_data
+                    loaded_data.append(np.array(array, dtype=int))
+                    # Reset the array for the next set of lines
+                    array = []
+                else:
+                    # Convert the line into integers and append to the array
+                    array.append([int(x) for x in line.split()])
+
+        # Append the last array since there's no empty line after it
+        if array:
+            loaded_data.append(np.array(array, dtype=int))
+
+
+        #This code is to test how correct the loaded data is:
+        if 1 < 0:
+            print("len loaded data = ",len(loaded_data))
+            for i in range(len(loaded_data)):
+                print("i = ",i)
+                datablock = loaded_data[i]
+                print("datablock shape = ",datablock.shape)
+
+                for mic in range(256):
+                    print("datablock[mic,0] = ", datablock[mic,:])
+
+
 
 #Test average length of binary representation for input data and the largest bit representation of input data
 if test == 2:
