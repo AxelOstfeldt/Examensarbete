@@ -34,6 +34,7 @@ blasted_mic = 217#From looking at the plots in test 1, seems to have realy high 
 silent_mic_1 = 20#From looking at the plots in test 1, allways 0
 silent_mic_2 = 19#From looking at the plots in test 1, allways [-1, 0]
 
+
 #Some inital values for Shorten
 memorys = [[],[0],[0,0],[0,0,0]]
 
@@ -1050,8 +1051,9 @@ if test == 4:
 if test == 3:
     #Set the file name on the file to save values to
     #remeber .txt!
-    FileName = "SetFileName.txt"
+    FileName = "StaticNoise.txt"
     NumberOfDatablock = 0
+    
 
 
 if test == 2:
@@ -1071,7 +1073,7 @@ if test == 1:
 #The data from the while loop is appended in the test_data array
 #It loops recomended_limit amount of time, this depends on the size of the sound file
 #23 was found to be a good number to use
-recomnded_limit = 2
+recomnded_limit = 39
 
 test_data = []
 data = np.empty((config.N_MICROPHONES, config.N_SAMPLES), dtype=np.float32)
@@ -1094,17 +1096,20 @@ while w_limit < recomnded_limit:
             print("")
         input_new = data2[best_mic,:]#This data choice is only to make sure to wait for a new available data value
         
-        if test == 3:
-            start_time = time.time()
-
-        else:
-            w_limit +=1
+        
+        w_limit +=1
 
 
         test_data.append(data2)
 
-    if time.time() - start_time > 100:
-        w_limit = 1000000
+        print("w_limit = ", w_limit)
+
+
+
+
+    
+
+    
     
     
 
@@ -6846,19 +6851,21 @@ if test == 4:
 if test == 3:
     print("Test 3")
     print("")
-    print("Saveing ",NumberOfDatablock,"to the file ",FileName)
+    print("Saveing ",NumberOfDatablock,"datablocks to the file ",FileName)
     print("")
     print("Len test data = ", len(test_data))
     print("")
+    if 1 > 0:
+        # Save all data to a single text file
+        with open(FileName, 'w') as file:
+            for data in test_data:
+                np.savetxt(file, data, fmt='%d')
+                # Add an empty line to separate arrays
+                file.write('\n')
 
-    # Save all data to a single text file
-    with open(FileName, 'w') as file:
-        for data in test_data:
-            np.savetxt(file, data, fmt='%d')
-            # Add an empty line to separate arrays
-            file.write('\n')
-
-    print("All data saved to all_data.txt.")
+        print("All data saved to all_data.txt.")
+    else:
+        print("No data saved because of if statement")
 
     #The code to load the data:
     if 1 < 0:
