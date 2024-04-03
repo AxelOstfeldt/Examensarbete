@@ -6903,7 +6903,6 @@ if test == 3:
                     print("datablock[mic,0] = ", datablock[mic,:])
 
 
-
 #Test average length of binary representation for input data and the largest bit representation of input data
 if test == 2:
     print("Test 2")
