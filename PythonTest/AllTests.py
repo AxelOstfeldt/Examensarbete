@@ -53,6 +53,41 @@ class TestFunctions:
             print('Test 18. Average speed to recreate values from codewords using FLAC.')
 
         #Adjacent tests
+        elif self.TestNr == 19:
+            print('Test 19. Compare original input with recreated values when using Adjacent with Rice codes to see if all values have been recreated correctly.')
+        elif self.TestNr == 20:
+            print('Test 20. Compare original input with recreated values when using Adjacent with Golomb codes to see if all values have been recreated correctly.')
+        elif self.TestNr == 21:
+            print('Test 21. Plots compression rate for differnte k-values when using Adjacent with Rice codes.')
+        elif self.TestNr == 22:
+            print('Test 22. Compression rate using Adjacent with Rice codes.')
+        elif self.TestNr == 23:
+            print('Test 23. Average speed to recreate values from codewords using Adjacent with Rice codes.')
+        elif self.TestNr == 24:
+            print('Test 24. Average speed to recreate values from codewords using Adjacent with Golomb codes.')
 
+        #FLAC-Modified tests
+        elif self.TestNr == 25:
+            print('Test 25. Compare original input with recreated values when using FLAC-Modified to see if all values have been recreated correctly.')
+        elif self.TestNr == 26:
+            print('Test 26. Test compression rate using FLAC-Modifed.')
+        elif self.TestNr == 27:
+            print('Test 27. Average speed to recreate values from codewords using FLAC-Modified.')
+
+        #DoubleCompression test
+        elif self.TestNr == 28:
+            print('Test 28. Compare original input with recreated values when using DoubleCompression to see if all values have been recreated correctly.')
+        elif self.TestNr == 29:
+            print('Test 29. Test compression rate using DoubleCompression.')
+        elif self.TestNr == 30:
+            print('Test 30. Average speed to recreate values from codewords using DoubleCompression.')
+
+        else:
+            raise ValueError(f"Test {self.TestNr} does not exist, please select a test between 1 and 30")
+        
+        pass
+
+        
+    def DataSelect
         
         

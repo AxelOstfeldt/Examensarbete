@@ -1,4 +1,5 @@
 import numpy as np
+from AllTests import TestFunctions
 
 #1 k Hz tone = 23 datablocks
 
@@ -17,10 +18,17 @@ Path = "/home/luigi/Desktop/DataTxt/"
 while DoTests:
 
     #Choose a test of info about the tests
-    StartTest = input('Choose Test (1-10), for test info typ info, to exit testing type quit: ')
+    StartTest = input('Choose Test (1-30), for test info typ info, to exit testing type quit: ')
+    print("")
 
     if StartTest.lower() == 'info':
         print("Test info")
+        #Loop trough all test numbers and call TestInfo function that prints test info for a tests but returns nothing
+        for TestNumber in range(1, 31):
+            print("")
+            CurrentTest = TestFunctions(TestNumber)
+            CurrentTest.TestInfo()
+
     elif StartTest.lower() == 'quit':
         print("Testing complete")
         DoTests = False
@@ -33,14 +41,15 @@ while DoTests:
             flag = False
         #If flag is true StartTest can be converted to int and is the test choosen
         if flag:
-            Test = int(StartTest)
+            TestNumber = int(StartTest)
         #If it can not be converted to int the user have choosen an invalid value
         else:
-            raise ValueError(f"Select an integer between 1-10 for a test or type info for test info")
+            raise ValueError(f"Select an integer between 1-30 for a test or type info for test info")
 
-
-        
-
+        #print info about the selected test
+        CurrentTest = TestFunctions(TestNumber)
+        CurrentTest.TestInfo()
+        print("")
 
         
         #Set the FileName to the name of the file with the data for the test
