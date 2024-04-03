@@ -133,8 +133,12 @@ while DoTests:
                 loaded_data.append(np.array(array, dtype=int))
 
 
+            CurrentTest.StartTest(loaded_data, DataBlocks)
+            #loaded_data = CurrentTest.DataSelect(loaded_data,64,64)
+
+
             #This code is to test how correct the loaded data is:
-            if 1 > 0:
+            if 1 < 0:
                 print("len loaded data = ",len(loaded_data))
                 for i in range(len(loaded_data)):
                     print("i = ",i)
