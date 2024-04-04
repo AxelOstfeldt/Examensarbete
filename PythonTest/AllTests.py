@@ -250,27 +250,363 @@ class TestFunctions:
                         #Also store the binary value of data in UncodedWord
                         UncodedWord += np.binary_repr(abs(CurrentTestData[sample]),24)
 
+                    #Calculate compression rate by dividing the length of the codeword with the uncoded data
+                    cr = len(CodeWord) / len(UncodedWord)
+                    cr_array.append(cr)
+
+            #Calculate the average CR
+            avg_cr = sum(cr_array)/len(cr_array)
+
+            print("Average compression rate is, cr = ", avg_cr)
+                       
+
+        elif self.TestNr == 3:
+            #Select what mics are going to be compressed
+            start_mic = input('Select what microhpone to start plotting from: ')
+            #Check if the start_mic value choosen can be converted to int
+            try:
+                int(start_mic)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                start_mic = int(start_mic)
+            else:
+                raise ValueError(f"The microphone value selected needs to be an integer.")
+            
+
+            end_mic = input('Select what microhpone to end plotting on (if only one mic is desired to plot choose the same value as start microphone): ')
+            #Check if the end_mic value choosen can be converted to int
+            try:
+                int(end_mic)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                end_mic = int(end_mic)
+            else:
+                raise ValueError(f"The microphone value selected needs to be an integer.")
+            
+            
+
+            
+            #Store the data from the desired microphones and datablocks in TestData
+            TestData = self.DataSelect(OriginalData, datablocks, start_mic, end_mic)
+            
+
+            cr_array = []
+            #loop thorugh all datablocks and select the data for the current datablock
+            for TestDataBlock in TestData:
+
+                #loop thorugh all microphones and select the data for the current microphone in the current datablock
+                for microhpone in range(end_mic + 1 - start_mic):
+                    CurrentTestData = TestDataBlock[microhpone,:].copy()
+                    #Codeword starts with 2⁵=32 bits to represent the metadata needed to decode it. This represent the m-value.
+                    CodeWord = np.binary_repr(0,32)
+                    #Uncoded word to story 24 bit representation of input values
+                    UncodedWord =""
+                    #Calculates the ideal k_vaule for the data
+                    abs_res = np.absolute(CurrentTestData.copy())
+                    abs_res_avg = np.mean(abs_res)
+                    #if abs_res_avg is less than 4.7 it would give a k value less than 1.
+                    #k needs tobe a int > 1. All abs_res_avg values bellow 6.64 will be set to 1 to avoid this issue
+                    if abs_res_avg > 6.64:
+                    #from testing it appears that the actual ideal k-value is larger by +1 than theory suggest,
+                    #atleast for larger k-value. The exact limit is unknown but it have been true for all test except for when the lowest k, k =1 is best.
+                    #Therefore th formula have been modified to increment k by 1 if abs_res_avg is larger than 6.64.
+                        k = int(round(math.log(math.log(2,10) * abs_res_avg,2))) +1
+                    else:
+                        k = 1
+
+                    #Calculate m value from k value by taking 2^k
+                        
+                    m = pow(2,k)
+                   
+                    
+                    #loop thorugh all 256 samples
+                    for sample in range(256):
+                         #Golomb code the input data and stor it in CodeWord
+                        Golomb_coder = GolombCoding(m, True)
+                        n = int(CurrentTestData[sample])
+                        kodOrd = Golomb_coder.Encode(n)
+                        CodeWord += kodOrd
+                        #Also store the binary value of data in UncodedWord
+                        UncodedWord += np.binary_repr(abs(CurrentTestData[sample]),24)
+
+                    #Calculate compression rate by dividing the length of the codeword with the uncoded data
+                    cr = len(CodeWord) / len(UncodedWord)
+                    cr_array.append(cr)
+
+            #Calculate the average CR
+            avg_cr = sum(cr_array)/len(cr_array)
+
+            print("Average compression rate is, cr = ", avg_cr)
 
 
+        #Shorten tests
+        elif self.TestNr == 4:
+            #Select what mics are going to be plotted
+            start_mic = input('Select what microhpone to plot: ')
+            #Check if the start_mic value choosen can be converted to int
+            try:
+                int(start_mic)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                start_mic = int(start_mic)
+            else:
+                raise ValueError(f"The microphone value selected needs to be an integer.")
+            
+            #Store the data from the desired microphone and datablocks in TestData
+            TestData = self.DataSelect(OriginalData, datablocks, start_mic, start_mic)
+
+            ShortenOrder = input('Select Shorten order (0-3): ')
+            #Check if the ShortenOrder value choosen can be converted to int
+            try:
+                int(ShortenOrder)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                ShortenOrder = int(ShortenOrder)
+            else:
+                raise ValueError(f"The Shorten order selected needs to be an integer.")
+            
+            ShortenAlgorithm = ShortenMeta(ShortenOrder)
+            
+            #Create memory array with appropriate length for selected order
+            if ShortenOrder == 0:
+                MemoryIn = []
+                MemoryOut = []
+            else:
+                MemoryIn = [0]*ShortenOrder
+                MemoryOut = [0]*ShortenOrder
+
+            #Array to store all CodeWords
+            CodeWords = []
+
+            
+            for CurrentBlock in range(len(TestData)):
+                #Use shorten to create the code words
+                CurrentTestData = TestData[CurrentBlock]
+                CurrentTestData = CurrentTestData[0]#I belive this is needed because of choosing the first mic even tho it is only 1 mic
+                CodeWord, MemoryIn = ShortenAlgorithm.In(CurrentTestData.copy(), MemoryIn)
+                #Save each codeword
+                CodeWords.append(CodeWord)
+
+            allCorrect = 0
+            #loop thorugh all CodeWords, there will be one codeword for every datablock
+            for i in range(len(CodeWords)):
+                zero = []
+                CodeWord = CodeWords[i]
+                #Decode the codeword fo every datablock
+                DecodedData, MemoryOut = ShortenAlgorithm.Out(CodeWord, MemoryOut)
+                #Grab the original data from every datablock
+                CurrentInputData = TestData[i]
+                CurrentInputData = CurrentInputData[0]#I belive the first mic needs to be choosen even though it is only 1 mic
+
+
+                #Go thorugh all samples in every datablock
+                for sample in range(len(CurrentInputData)):
+                    #Calculate the difference between the original data and decoded data,
+                    #This should be =0 if every thing has been done correctly
+                    currentZero = CurrentInputData[sample] - DecodedData[sample]
+                    zero.append(currentZero)
+                    
+                    #If the difference is not equal to 0 the code repports that there have been an error
+                    if currentZero != 0:
+                        allCorrect += 1
+                        print("Failed to decode value at datablock ",i,"sample #",sample)
+
+                #Plot the original, recretated, and the differential between them
+                #There will be one plot for every datablock
+                fig = plt.figure(i, layout = 'constrained')
+
+                ax = fig.add_subplot(211)
+                plt.plot(CurrentInputData, 'b', label = 'Original values')
+                plt.plot(DecodedData, 'r-.', label = 'Decoded values')
+
+                plt.legend(fontsize=25, loc = 'upper right')
+                plt.yticks(fontsize=20)
+                plt.xticks(fontsize=20)
+
+                ax = fig.add_subplot(212)
+                plt.plot(zero, label = 'Original values - Decoded values')
+
+                plt.legend(fontsize=25, loc = 'upper right')
+                plt.yticks(fontsize=20)
+                plt.xticks(fontsize=20)
                 
+                plt.show()
+
+            #If all values have been recreated correctly this will be printed out, 
+            #else print out how many was failed to be decoded
+            if allCorrect == 0:
+                print("All values where decoded succesfully")
+            else:
+                print("Failed decoding ", allCorrect,"values")
+
+
+        
+        elif self.TestNr == 5:
+            print('Test 5. Compare original input with recreated values when using Shorten with Golomb codes to see if all values have been recreated correctly.')
+            #Select what mics are going to be plotted
+            start_mic = input('Select what microhpone to plot: ')
+            #Check if the start_mic value choosen can be converted to int
+            try:
+                int(start_mic)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                start_mic = int(start_mic)
+            else:
+                raise ValueError(f"The microphone value selected needs to be an integer.")
+            
+            #Store the data from the desired microphone and datablocks in TestData
+            TestData = self.DataSelect(OriginalData, datablocks, start_mic, start_mic)
+
+            ShortenOrder = input('Select Shorten order (0-3): ')
+            #Check if the ShortenOrder value choosen can be converted to int
+            try:
+                int(ShortenOrder)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                ShortenOrder = int(ShortenOrder)
+            else:
+                raise ValueError(f"The Shorten order selected needs to be an integer.")
+            
+            ShortenAlgorithm = Shorten(ShortenOrder)
+            
+            #Create memory array with appropriate length for selected order
+            if ShortenOrder == 0:
+                MemoryIn = []
+                MemoryOut = []
+            else:
+                MemoryIn = [0]*ShortenOrder
+                MemoryOut = [0]*ShortenOrder
+
+            #Array to store all CodeWords
+            CodeWords = []
+            #Array to store m-values for encoding/decoding
+            m_array = []
+            for CurrentBlock in range(len(TestData)):
+                #Use shorten to create the code words
+                CurrentTestData = TestData[CurrentBlock]
+                CurrentTestData = CurrentTestData[0]#I belive this is needed because of choosing the first mic even tho it is only 1 mic
+                #Calculate the residuals using Shorten
+                residuals, MemoryIn, predictions = ShortenAlgorithm.In(CurrentTestData.copy(), MemoryIn)
+                #Calculate the ideal m value, by first calculating the ideal k value and taking 2^k
+                #Calculates the ideal k_vaule for the data
+                abs_res = np.absolute(residuals)
+                abs_res_avg = np.mean(abs_res)
+                #if abs_res_avg is less than 4.7 it would give a k value less than 1.
+                #k needs tobe a int > 1. All abs_res_avg values bellow 6.64 will be set to 1 to avoid this issue
+                if abs_res_avg > 6.64:
+                #from testing it appears that the actual ideal k-value is larger by +1 than theory suggest,
+                #atleast for larger k-value. The exact limit is unknown but it have been true for all test except for when the lowest k, k =1 is best.
+                #Therefore th formula have been modified to increment k by 1 if abs_res_avg is larger than 6.64.
+                    k = int(round(math.log(math.log(2,10) * abs_res_avg,2))) +1
+                else:
+                    k = 1
+
+                #Calculate m value from k value by taking 2^k
+                m = pow(2,k)
+                #Store the m-value
+                m_array.append(m)
+
+
+               
+                #Golomb codes the residuals from shorten and saves the code word in code_word
+                CodeWord = ""
+                for i in range(len(residuals)):
+                    Golomb_coder = GolombCoding(m, True)
+                    n = int(residuals[i])
+                    kodOrd = Golomb_coder.Encode(n)
+                    CodeWord += kodOrd
+
+                #Saves Rice coded residuals
+                CodeWords.append(CodeWord)
+
+            #Loops through all codewords to decode them and recreate all values, and compare them to the original values
+            #There is one codeword for every datablock
+            allCorrect = 0
+            for i in range(len(CodeWords)):
+                zero = []
+                #Grab the current codeword
+                CodeWord = CodeWords[i]
+                #Grab the m-value to decode the codeword
+                m = m_array[i]
+                #Decodes the residuals from the Golomb code
+                Golomb_coder = GolombCoding(m, True)
+                uncoded_residuals = Golomb_coder.Decode(CodeWord)
+                #Decode the codeword fo every datablock
+                DecodedData, MemoryOut, predictions = ShortenAlgorithm.Out(uncoded_residuals, MemoryOut)
+                #Grab the original data from every datablock
+                CurrentInputData = TestData[i]
+                CurrentInputData = CurrentInputData[0]#I belive the first mic needs to be choosen even though it is only 1 mic
+
+
+                #Go thorugh all samples in every datablock
+                for sample in range(len(CurrentInputData)):
+                    #Calculate the difference between the original data and decoded data,
+                    #This should be =0 if every thing has been done correctly
+                    currentZero = CurrentInputData[sample] - DecodedData[sample]
+                    zero.append(currentZero)
+                    
+                    #If the difference is not equal to 0 the code repports that there have been an error
+                    if currentZero != 0:
+                        allCorrect += 1
+                        print("Failed to decode value at datablock ",i,"sample #",sample)
+
+                #Plot the original, recretated, and the differential between them
+                #There will be one plot for every datablock
+                fig = plt.figure(i, layout = 'constrained')
+
+                ax = fig.add_subplot(211)
+                plt.plot(CurrentInputData, 'b', label = 'Original values')
+                plt.plot(DecodedData, 'r-.', label = 'Decoded values')
+
+                plt.legend(fontsize=25, loc = 'upper right')
+                plt.yticks(fontsize=20)
+                plt.xticks(fontsize=20)
+
+                ax = fig.add_subplot(212)
+                plt.plot(zero, label = 'Original values - Decoded values')
+
+                plt.legend(fontsize=25, loc = 'upper right')
+                plt.yticks(fontsize=20)
+                plt.xticks(fontsize=20)
+                
+                plt.show()
+
+            #If all values have been recreated correctly this will be printed out, 
+            #else print out how many was failed to be decoded
+            if allCorrect == 0:
+                print("All values where decoded succesfully")
+            else:
+                print("Failed decoding ", allCorrect,"values")
 
 
             
 
-                
 
 
 
-        elif self.TestNr == 3:
-            print('Test 3. Compression rate when using Golomb codes on raw data.')
-
-        #Shorten tests
-        elif self.TestNr == 4:
-            print('Test 4. Compare original input with recreated values when using Shorten with Rice codes to see if all values have been recreated correctly.')
-        elif self.TestNr == 5:
-            print('Test 5. Compare original input with recreated values when using Shorten with Golomb codes to see if all values have been recreated correctly.')
+    
         elif self.TestNr == 6:
             print('Test 6. Plots compression rate for differnte k-values when using Shorten with Rice codes.')
+
+
         elif self.TestNr == 7:
             print('Test 7. Compression rate using Shorten with Rice codes.')
         elif self.TestNr == 8:
