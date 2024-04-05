@@ -3,7 +3,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 import sys
-sys.path.insert(0, '/home/luigi/Desktop/GIT/Examensarbete')#Change this path to where all the files with the functions are stored
+import os
+#Hem dator:
+#sys.path.insert(0, 'C:\\Users\\axelo\\OneDrive\\Skrivbord\\Exjobb\\GIT\\Examensarbete\\')
+#Exjobb dator:
+#sys.path.insert(0, '/home/luigi/Desktop/GIT/Examensarbete')#Change this path to where all the files with the functions are stored
+
+# Add the parent directory to import compression classes
+parent_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.append(parent_dir)
 from Rice import RiceCoding
 from Golomb import GolombCoding
 from Shorten import Shorten
