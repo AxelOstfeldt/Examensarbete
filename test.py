@@ -10,8 +10,10 @@ import math
 if 1 > 0:
 
 
-    print(pow(1,2))
+    print("3.49 = ",round(3.49))
  
+    print("3.5 = ",round(3.5))
+    print("3.59 = ",round(3.59))
 
        
 

@@ -462,7 +462,6 @@ class TestFunctions:
 
         
         elif self.TestNr == 5:
-            print('Test 5. Compare original input with recreated values when using Shorten with Golomb codes to see if all values have been recreated correctly.')
             #Select what mics are going to be plotted
             start_mic = input('Select what microhpone to plot: ')
             #Check if the start_mic value choosen can be converted to int
@@ -612,7 +611,171 @@ class TestFunctions:
 
     
         elif self.TestNr == 6:
-            print('Test 6. Plots compression rate for differnte k-values when using Shorten with Rice codes.')
+            print('STILL NEED TO FIX PLOTS!!!!!')
+            
+            print('STILL NEED TO FIX PLOTS!!!!!')
+            
+            print('STILL NEED TO FIX PLOTS!!!!!')
+            
+            print('STILL NEED TO FIX PLOTS!!!!!')
+            #Select what mics are going to be plotted
+            start_mic = input('Select what microhpone to use: ')
+            #Check if the start_mic value choosen can be converted to int
+            try:
+                int(start_mic)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                start_mic = int(start_mic)
+            else:
+                raise ValueError(f"The microphone value selected needs to be an integer.")
+            
+            #Store the data from the desired microphone and datablocks in TestData
+            TestData = self.DataSelect(OriginalData, datablocks, start_mic, start_mic)
+
+            #Select startin k-value for the rice codes
+            k_start = input('Select k-value to start compressing from: ')
+            #Check if the k_start value choosen can be converted to int
+            try:
+                int(k_start)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                k_start = int(k_start)
+                if k_start < 1:
+                    raise ValueError(f"The k-value selected needs to be atleast 1.")
+
+            else:
+                raise ValueError(f"The k-value selected needs to be an integer.")
+            
+            #Select ending k-value for the rice codes
+            k_stop = input('Select k_value to stop compressing at: ')
+            #Check if the k_start value choosen can be converted to int
+            try:
+                int(k_stop)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                k_stop = int(k_stop)
+                if k_stop < k_start:
+                    raise ValueError(f"The k-value selected needs to be larger or equal to the starting k_value.")
+
+            else:
+                raise ValueError(f"The k-value selected needs to be an integer.")
+            
+            #crate array to store avg compression rates for all orders and k_values
+            All_avg_cr_array = []
+            #create array with all selected k_values
+            k_array = []
+            for k_values in range(k_start, k_stop+1):
+                k_array.append(k_values)
+
+            #Create array to store ideal k-value for each order
+            k_ideal_array = [[],[],[],[]]
+
+            #Array with memory for all orders of shorten
+            MemorysIn=[[],[0],[0,0],[0,0,0]]
+            #loop thorugh all orders of shorten
+            for order in range(4):
+                #Array to store compression rate for current order
+                cr_array = []
+                #loop thorugh all datablocks
+                for block in range(len(TestData)):
+                    #Grab the testdata for the current block
+                    CurrentTestData = TestData[block]
+                    #Need to grab from the first mic as well, even though it is only 1 mic
+                    CurrentTestData = CurrentTestData[0]
+
+                    #Calcualate the residuals with the shorten algorithm
+                    ShortenAlgorithm = Shorten(order)
+                    residual,  MemorysIn[order], predict = ShortenAlgorithm.In(CurrentTestData, MemorysIn[order])
+
+                    #Calculates the ideal k_vaule acording to Rice Theory
+                    abs_res = np.absolute(residual.copy())
+                    abs_res_avg = np.mean(abs_res)
+                    #if abs_res_avg is less than 4.7 it would give a k value less than 1.
+                    #k needs tobe a int > 1 and therefore if abs_res_avg < 5 k is set to 1
+                    #OBS. 4.7 < abs_res_avg < 5 would be rounded of to k=1 so setting the limit to 5 works well
+                    if abs_res_avg > 5:
+                        k_ideal = int(round(math.log(math.log(2,10) * abs_res_avg,2)))
+                    else:
+                        k_ideal = 1
+
+                    #Appends the ideal k vaule in the array matching the correct Shorten order
+                    k_ideal_array[order].append(k_ideal)
+
+                    #loop thorug all k-values
+                    for i in range(len(k_array)):
+                        CodeWord = ""
+                        if i == 0:
+                            UncodedWord = ""
+                        k = k_array[i]
+                        for q in range(len(residual)):
+                            #Rice code the residual for all k_values
+                            Rice_coder = RiceCoding(k, True)
+                            n = int(residual[q])
+                            kodOrd = Rice_coder.Encode(n)
+                            CodeWord += kodOrd
+                            if i == 0:
+                                #Represent the uncdoed word in 24 bits
+                                UncodedWord += np.binary_repr(abs(n),24)
+                        #calculate the compression rate for the current CodeWord
+                        cr = len(CodeWord) / len(UncodedWord)
+
+                        #Save the compression rate in an array, with cr_for specific k_values grouped together
+                        if block == 0:
+                            cr_array.append([])
+                        cr_array[i].append(cr)
+                    
+                
+
+                #Calculate the average cr for all k-value used for the current order
+                avg_cr_array = []
+                for current_cr_array in cr_array:
+                    avg_cr = sum(current_cr_array)/len(current_cr_array)
+                    avg_cr_array.append(avg_cr)
+
+                #Save the avg cr values from the current order
+                All_avg_cr_array.append(avg_cr_array)
+
+
+
+
+            #Print the k_array, ideal k-value for each order, and average compression rate for allorders
+            print("k-values: ",k_array)
+            print("")
+            for orders in range(4):
+                print("Average ideal k-value using Shorten order ",orders," (acording to Rice theory, rounded to closest int): ", round(sum(k_ideal_array[orders])/len(k_ideal_array[orders])))
+                print("Average compression rate using Shorten order ",orders,": ",All_avg_cr_array[orders])
+                print("")
+
+
+                       
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+
+
+            
+
+
 
 
         elif self.TestNr == 7:

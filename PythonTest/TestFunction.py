@@ -15,7 +15,7 @@ Path = "C:\\Users\\axelo\\OneDrive\\Skrivbord\\Exjobb\\GIT\\SoundData\\"
 while DoTests:
 
     #Choose a test of info about the tests
-    StartTest = input('Choose Test (1-30), for test info typ info, to exit testing type quit: ')
+    StartTest = input('Choose Test (1-30), for test info type info, to exit testing type quit: ')
     print("")
 
     if StartTest.lower() == 'info':
