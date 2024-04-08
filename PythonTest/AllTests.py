@@ -611,13 +611,6 @@ class TestFunctions:
 
     
         elif self.TestNr == 6:
-            print('STILL NEED TO FIX PLOTS!!!!!')
-            
-            print('STILL NEED TO FIX PLOTS!!!!!')
-            
-            print('STILL NEED TO FIX PLOTS!!!!!')
-            
-            print('STILL NEED TO FIX PLOTS!!!!!')
             #Select what mics are going to be plotted
             start_mic = input('Select what microhpone to use: ')
             #Check if the start_mic value choosen can be converted to int
@@ -744,7 +737,10 @@ class TestFunctions:
                 #Save the avg cr values from the current order
                 All_avg_cr_array.append(avg_cr_array)
 
-
+            
+            #Figure to plot all k-values in
+            plt.figure("Compression order for differente k-values using Shorten with Rice codes", layout = 'constrained')
+            plt_colors = ['yo', 'ro', 'bo', 'go']
 
 
             #Print the k_array, ideal k-value for each order, and average compression rate for allorders
@@ -754,6 +750,15 @@ class TestFunctions:
                 print("Average ideal k-value using Shorten order ",orders," (acording to Rice theory, rounded to closest int): ", round(sum(k_ideal_array[orders])/len(k_ideal_array[orders])))
                 print("Average compression rate using Shorten order ",orders,": ",All_avg_cr_array[orders])
                 print("")
+                plt_label = 'Order ' + str(orders)
+                plt.plot(k_array, All_avg_cr_array[orders], plt_colors[orders], label = plt_label)
+
+            plt.yticks(fontsize=25)
+            plt.xticks(fontsize=25)
+            plt.xlabel("k-value", fontsize=30)
+            plt.ylabel("Average compression ratio", fontsize=30)
+            plt.legend(fontsize=30, loc = 'upper right')
+            plt.show()
 
 
                        

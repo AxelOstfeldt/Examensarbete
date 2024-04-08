@@ -8,8 +8,8 @@ DoTests = True
 flag = True
 MaxDataBlocks = 20
 #Set the directory to the where the unziped files are saved(Can be blank if saved in the same folder as TestFunction)
-#Path = "/home/luigi/Desktop/DataTxt/"#Saab dator
-Path = "C:\\Users\\axelo\\OneDrive\\Skrivbord\\Exjobb\\GIT\\SoundData\\"
+Path = "/home/luigi/Desktop/DataTxt/"#Saab dator
+#Path = "C:\\Users\\axelo\\OneDrive\\Skrivbord\\Exjobb\\GIT\\SoundData\\"
 #Hem dator
 
 while DoTests:
