@@ -5,16 +5,32 @@ import random
 from Shorten import Shorten
 from LPC import LPC
 import math
+from Rice import RiceCoding
 
 
 if 1 > 0:
 
 
-    print("3.49 = ",round(3.49))
- 
-    print("3.5 = ",round(3.5))
-    print("3.59 = ",round(3.59))
+    max_val = pow(2,16) - 1
+    min_val = -1 * max_val
+    zero_val = 0
 
+    print("Max val: ", max_val)
+    print("Min val: ", min_val)
+    print("Zero val: ", zero_val)
+    for k in range(5, 32):
+        RiceEncoder = RiceCoding(k, True)
+        max_kodord = RiceEncoder.Encode(max_val)
+
+        min_kodord = RiceEncoder.Encode(min_val)
+
+        zero_kodord = RiceEncoder.Encode(zero_val)
+
+        print("k = ",k)
+        print("len max value = ", len(max_kodord))
+        print("len min value = ", len(min_kodord))
+        print("len 0 value = ", len(zero_kodord))
+        print("")
        
 
 if 1 < 0:
