@@ -180,7 +180,7 @@ begin
                   --The codeword is now finalised,
                   --set the output variables for codeword and codeword length
                   CodeWord       <= CurrentCodeWord;
-                  --CodeWordLength <= std_logic_vector(to_unsigned(LenCounter, 23));
+                  CodeWordLength <= std_logic_vector(to_unsigned(LenCounter, 5));
 
                   state <= Sending;
 
