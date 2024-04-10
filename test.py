@@ -11,7 +11,7 @@ from Rice import RiceCoding
 if 1 > 0:
 
 
-    max_val = pow(2,16) - 1
+    max_val = pow(2,23) - 1
     min_val = -1 * max_val
     zero_val = 0
 
