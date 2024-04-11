@@ -20,10 +20,19 @@ if 1 > 0:
     for i in range(425, 6966588):
         k = int(round(math.log(math.log(2,10) * i,2))) + 1
         if k > new_k:
+            print("")
+            print("")
+            print("elsif TotalSum < ",i*256,"then --",i,"*256")
+            print("k_val_int = ",new_k,";")
             new_k = k
+            print("")
+            print("")
             print("k = ", new_k)
             print("i = ", i)
             print("i * 256 (limit??) = ", i * 256)
+
+            if k == 22:
+                print("((i*256) + max_val) - max_val*256 = ", ((i*256) + max_val )- (max_val*256))
 
         
 
@@ -31,7 +40,7 @@ if 1 > 0:
 
     if 1 < 0:
 
-        print("Max val * 256 = ", max_val * 256)
+        
 
         for k in range(8, 23):
             summan = pow(2, k-1) * 256 / math.log10(2)
