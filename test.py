@@ -12,26 +12,68 @@ if 1 > 0:
 
 
     max_val = pow(2,23) - 1
-    min_val = -1 * max_val
+    min_val = -1 * (max_val +1)
     zero_val = 0
+    
+    #This For loop is used to find limits for k-values, it goes from k = 8 to k = 22
+    new_k = 7
+    for i in range(425, 6966588):
+        k = int(round(math.log(math.log(2,10) * i,2))) + 1
+        if k > new_k:
+            new_k = k
+            print("k = ", new_k)
+            print("i = ", i)
+            print("i * 256 (limit??) = ", i * 256)
 
-    print("Max val: ", max_val)
-    print("Min val: ", min_val)
-    print("Zero val: ", zero_val)
-    for k in range(5, 32):
-        RiceEncoder = RiceCoding(k, True)
-        max_kodord = RiceEncoder.Encode(max_val)
+        
 
-        min_kodord = RiceEncoder.Encode(min_val)
 
-        zero_kodord = RiceEncoder.Encode(zero_val)
 
-        print("k = ",k)
-        print("len max value = ", len(max_kodord))
-        print("len min value = ", len(min_kodord))
-        print("len 0 value = ", len(zero_kodord))
-        print("")
-       
+    if 1 < 0:
+
+        print("Max val * 256 = ", max_val * 256)
+
+        for k in range(8, 23):
+            summan = pow(2, k-1) * 256 / math.log10(2)
+
+            print("summan = ", summan," ger k = ", k)
+
+        
+
+        #Calculates the ideal k-value according to Rice theory
+        abs_res = np.absolute(max_val)
+        abs_res_avg = np.mean(abs_res)
+        
+        #if abs_res_avg is less than 4.7 it would give a k value less than 1.
+        #k needs tobe a int > 1 and therefore if abs_res_avg < 5 k is set to 1
+        #OBS. 4.7 < abs_res_avg < 5 would be rounded of to k=1 so setting the limit to 5 works well
+        if abs_res_avg > 5:
+            k = int(round(math.log(math.log(2,10) * abs_res_avg,2)))
+        else:
+            k = 1
+
+        print("Sugested k for this is, k = ", k)
+
+
+
+
+        print("Max val: ", max_val)
+        print("Min val: ", min_val)
+        print("Zero val: ", zero_val)
+        for k in range(5, 32):
+            RiceEncoder = RiceCoding(k, True)
+            max_kodord = RiceEncoder.Encode(max_val)
+
+            min_kodord = RiceEncoder.Encode(min_val)
+
+            zero_kodord = RiceEncoder.Encode(zero_val)
+
+            print("k = ",k)
+            print("len max value = ", len(max_kodord))
+            print("len min value = ", len(min_kodord))
+            print("len 0 value = ", len(zero_kodord))
+            print("")
+        
 
 if 1 < 0:
 
