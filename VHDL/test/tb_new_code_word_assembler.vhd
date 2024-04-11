@@ -80,16 +80,6 @@ begin
             CodeWord_tb(1011) <= CodeWordCreator_tb(0);
             CodeWord_tb(1010) <= '1';
 
-            if AssembleDone_tb = '1' then
-
-               if to_integer(unsigned(k_value_tb)) < 31 then
-                  k_value_tb <= std_logic_vector(unsigned(k_value_tb) + 1);
-
-               else
-                  k_value_tb <= "01000";--start at 8
-
-               end if;
-            end if;
 
             NewCodeWordIn_tb <= '0';
             StateDelay_tb    <= "11";
@@ -100,6 +90,18 @@ begin
             StateDelay_tb <= "00";
 
          else
+            
+            if AssembleDone_tb = '1' then
+
+               if to_integer(unsigned(k_value_tb)) < 31 then
+                  k_value_tb <= std_logic_vector(unsigned(k_value_tb) + 1);
+
+               else
+                  k_value_tb <= "01000";--start at 8
+
+               end if;
+            end if;
+               
             if ReadyToRecive_tb = '1' then
                StateDelay_tb    <= "01";
                NewCodeWordIn_tb <= '0';
