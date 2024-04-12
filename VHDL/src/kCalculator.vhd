@@ -7,15 +7,15 @@ use ieee.numeric_std.all;
 entity kCalculator is
 
    port (
-      reset         : in std_logic;
-      clk           : in std_logic;
-      OriginalValue : in std_logic_vector(23 downto 0);--value in to be encoded
-      NewDataIn     : in std_logic;--New data available for input
+      reset           : in std_logic;
+      clk             : in std_logic;
+      ResidualValueIn : in std_logic_vector(24 downto 0);--value in to be encoded
+      NewDataIn       : in std_logic;--New data available for input
 
-      ReadyToRecive : out std_logic;
-      NewKOut       : out std_logic;--New k-value to be sent
-      ErrorOut      : out std_logic;--Send an error signal when error state is reached
-      k_value       : out std_logic_vector(4 downto 0)--k-value between 0 and 31
+      ReadyToReciveOut : out std_logic;
+      NewKOut          : out std_logic;--New k-value to be sent
+      kValueOut        : out std_logic_vector(4 downto 0);--k-value between 0 and 31
+      ErrorOut         : out std_logic--Send an error signal when error state is reached
 
    );
 
@@ -26,9 +26,9 @@ architecture Behavioral of kCalculator is
    signal state : state_type;
 
    signal CheckState    : integer range 0 to 10;--to see what state is currently used for the simulation
-   signal CurrentValue  : signed(23 downto 0);
+   signal CurrentValue  : signed(24 downto 0);
    signal SampleCounter : integer range 0 to 256;--count how many samples have been recived, assuming 256 samples per datablock
-   signal TotalSum      : integer range 0 to 1286263056;
+   signal TotalSum      : integer range 0 to 1300000000;
 begin
    process (clk)
    begin
@@ -40,7 +40,7 @@ begin
 
                SampleCounter <= 0;
                TotalSum      <= 0;
-               ReadyToRecive <= '1';
+               ReadyToReciveOut <= '1';
                NewKOut       <= '0';
                ErrorOut      <= '0';
                CurrentValue  <= (others => '0');
@@ -52,8 +52,8 @@ begin
             when Reciving =>
                CheckState <= 1;
 
-               ReadyToRecive <= '0';
-               CurrentValue  <= signed(OriginalValue);
+               ReadyToReciveOut <= '0';
+               CurrentValue  <= signed(ResidualValueIn);
                SampleCounter <= SampleCounter + 1;
 
                state <= SumValues;
@@ -79,7 +79,7 @@ begin
 
             when WaitForValue =>
                CheckState    <= 3;
-               ReadyToRecive <= '1';
+               ReadyToReciveOut <= '1';
 
                if NewDataIn = '1' then
                   state <= Reciving;
@@ -95,49 +95,49 @@ begin
                --this is so that it will be easy to calculate new limits if the sample size per block where to change
 
                if TotalSum < 154112 then--602*256
-                  k_value <= "01000";--8
+                  kValueOut <= "01000";--8
 
                elsif TotalSum < 307968 then--1203*256
-                  k_value <= "01001";--9
+                  kValueOut <= "01001";--9
 
                elsif TotalSum < 615936 then--2406*256
-                  k_value <= "01010";--10
+                  kValueOut <= "01010";--10
 
                elsif TotalSum < 1231616 then--4811*256
-                  k_value <= "01011";--11
+                  kValueOut <= "01011";--11
 
                elsif TotalSum < 2463232 then--9622*256
-                  k_value <= "01100";--12
+                  kValueOut <= "01100";--12
 
                elsif TotalSum < 4926208 then--19243*256
-                  k_value <= "01101";--13
+                  kValueOut <= "01101";--13
 
                elsif TotalSum < 9852416 then--38486*256
-                  k_value <= "01110";--14
+                  kValueOut <= "01110";--14
 
                elsif TotalSum < 19704576 then--76971*256
-                  k_value <= "01111";--15
+                  kValueOut <= "01111";--15
 
                elsif TotalSum < 39409152 then--153942*256
-                  k_value <= "10000";--16
+                  kValueOut <= "10000";--16
 
                elsif TotalSum < 78818048 then--307883*256
-                  k_value <= "10001";--17
+                  kValueOut <= "10001";--17
 
                elsif TotalSum < 157636096 then--615766*256
-                  k_value <= "10010";--18
+                  kValueOut <= "10010";--18
 
                elsif TotalSum < 315271936 then--1231531*256
-                  k_value <= "10011";--19
+                  kValueOut <= "10011";--19
 
                elsif TotalSum < 630543616 then--2463061*256
-                  k_value <= "10100";--20
+                  kValueOut <= "10100";--20
 
                elsif TotalSum < 1261087232 then--4926122*256
-                  k_value <= "10101";--21
+                  kValueOut <= "10101";--21
 
                else
-                  k_value <= "10110";--22
+                  kValueOut <= "10110";--22
 
                end if;
 
@@ -152,7 +152,7 @@ begin
 
             when ErrorState =>
                CheckState <= 10;
-               ErrorOut <= '1';
+               ErrorOut   <= '1';
 
          end case;
 
@@ -160,11 +160,11 @@ begin
             state         <= Idle;
             SampleCounter <= 0;
             TotalSum      <= 0;
-            ReadyToRecive <= '0';
+            ReadyToReciveOut <= '0';
             NewKOut       <= '0';
             ErrorOut      <= '0';
-            k_value       <= (others => '0');
-            k_value       <= "01000";
+            kValueOut       <= (others => '0');
+            kValueOut       <= "01000";
             CurrentValue  <= (others => '0');
 
          end if;
