@@ -24,6 +24,7 @@ architecture calculate_k_value_arch of tb_calculate_k_value is
 
    signal ResidualValueIn_tb : std_logic_vector(24 downto 0);--value in to be encoded
    signal NewDataIn_tb       : std_logic;--New data available for input
+   signal ReadyToEncode_tb   : std_logic;
 
    signal ReadyToReciveOut_tb : std_logic;
    signal NewKOut_tb          : std_logic;--New k-value to be sent
@@ -41,6 +42,7 @@ begin
          clk             => clk_tb,
          ResidualValueIn => ResidualValueIn_tb,
          NewDataIn       => NewDataIn_tb,
+         ReadyToEncode   => ReadyToEncode_tb,
 
          ReadyToReciveOut => ReadyToReciveOut_tb,
          NewKOut          => NewKOut_tb,
@@ -67,12 +69,14 @@ begin
 
          elsif StateDelay_tb = "11" then
             NewDataIn_tb <= '1';
+            ReadyToEncode_tb <= '0';
 
             StateDelay_tb <= "00";
 
          else
 
             if NewKOut_tb = '1' then
+               ReadyToEncode_tb <= '1';
                if SetInputBits_tb < 22 then
                   SetInputBits_tb <= SetInputBits_tb + 1;
 
@@ -88,9 +92,11 @@ begin
             end if;
 
             NewDataIn_tb <= '0';
+            
 
          end if;
          if reset_tb = '1' then
+            ReadyToEncode_tb <= '1';
             StateDelay_tb      <= "01";
             NewDataIn_tb       <= '0';
             ResidualValueIn_tb <= (others => '1');--"0010010110010101010110010";--(others => '0');
