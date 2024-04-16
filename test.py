@@ -7,8 +7,68 @@ from LPC import LPC
 import math
 from Rice import RiceCoding
 
+if 1 < 0:
+    Path = "C:\\Users\\axelo\\OneDrive\\Skrivbord\\Exjobb\\GIT\\SoundData\\"
+    FileName = "1kHzTone.txt"
+    FullDirectory = Path+FileName
+    
 
-if 1 > 0:
+    # Create an empty list to store loaded data
+    loaded_data = []
+
+    # Open the file containing all data, remember to set correct filename
+    with open(FullDirectory, 'r') as file:
+        array = []
+        for line in file:
+            # Check if the line is empty, indicating the end of an array
+            if not line.strip():
+                # Convert the collected lines into a NumPy array and append to loaded_data
+                loaded_data.append(np.array(array, dtype=int))
+                # Reset the array for the next set of lines
+                array = []
+            else:
+                # Convert the line into integers and append to the array
+                array.append([int(x) for x in line.split()])
+
+    # Append the last array since there's no empty line after it
+    if array:
+        loaded_data.append(np.array(array, dtype=int))
+
+    print("len loaded data = ",len(loaded_data))
+    
+
+
+    FirstDatablock = loaded_data[0]
+
+    print("Shape FirstDatablock = ", FirstDatablock.shape)
+
+    Array2 = FirstDatablock[64:128,:]
+
+    print("SHape array2 = ",Array2.shape)
+
+    FirstSample = Array2[:,0]
+
+    print("FirstSample = ", len(FirstSample))
+
+    #Creates txt file for first sample in array
+    if 1 < 0:
+        with open("FirstSampleBinary.txt", "w") as file:
+            for value in FirstSample:
+                BinaryValue = np.binary_repr(value, 24)
+                file.write(str(BinaryValue) + "\n")
+
+
+
+    
+
+    
+
+    
+
+
+
+
+if 1 < 0:
 
 
     max_val = pow(2,23) - 1

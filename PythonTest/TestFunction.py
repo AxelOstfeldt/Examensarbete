@@ -129,7 +129,6 @@ while DoTests:
             if array:
                 loaded_data.append(np.array(array, dtype=int))
 
-
             CurrentTest.StartTest(loaded_data, DataBlocks)
             #loaded_data = CurrentTest.DataSelect(loaded_data,64,64)
 
