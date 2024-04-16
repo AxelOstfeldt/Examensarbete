@@ -7,11 +7,11 @@ use ieee.numeric_std.all;
 entity kCalculator is
 
    port (
-      reset           : in std_logic;
-      clk             : in std_logic;
-      ResidualValueIn : in std_logic_vector(24 downto 0);--value in to be encoded
-      NewDataIn       : in std_logic;--New data available for input
-      ReadyToEncode   : in std_logic;
+      reset                      : in std_logic;
+      clk                        : in std_logic;
+      ResidualValueIn            : in std_logic_vector(24 downto 0);--value in to be encoded
+      NewDataIn                  : in std_logic;--New data available for input
+      ReadyToEncodeInkCalculator : in std_logic;
 
       ReadyToReciveOut : out std_logic;
       NewKOut          : out std_logic;--New k-value to be sent
@@ -41,13 +41,17 @@ begin
 
                SampleCounter    <= 0;
                TotalSum         <= 0;
-               ReadyToReciveOut <= '1';
                NewKOut          <= '0';
                ErrorOut         <= '0';
                CurrentValue     <= (others => '0');
 
                if NewDataIn = '1' then
                   state <= Reciving;
+                  ReadyToReciveOut <= '0';
+
+               else
+                  ReadyToReciveOut <= '1';
+
                end if;
 
             when Reciving =>
@@ -84,10 +88,13 @@ begin
 
             when WaitForValue =>
                CheckState       <= 3;
-               ReadyToReciveOut <= '1';
 
                if NewDataIn = '1' then
                   state <= Reciving;
+                  ReadyToReciveOut <= '0';
+               else
+                  ReadyToReciveOut <= '1';
+
                end if;
 
             when CalculateK =>
@@ -104,7 +111,7 @@ begin
                if TotalSum < 38528 then--602*64 = 38 528, 602*256 = 154112
                   kValueOut <= "01000";--8
 
-               elsif TotalSum <  76992 then--1203 * 64 = 76 992, 1203*256 = 307968
+               elsif TotalSum < 76992 then--1203 * 64 = 76 992, 1203*256 = 307968
                   kValueOut <= "01001";--9
 
                elsif TotalSum < 153984 then--2406 * 64 = 153 984, 2406*256 = 615936
@@ -152,14 +159,16 @@ begin
 
             when Sending =>
                CheckState <= 5;
+               NewKOut <= '1';
 
                --New k value calculated, ready to be sent out
-               NewKOut <= '1';
+               
 
                --Once ready to encode is =1 RiceEncoder block is ready to recive the new k-value
                --When it have been sent return to idle state to wait for the next residuals to calculate new k-value
-               if ReadyToEncode = '1' then
+               if ReadyToEncodeInkCalculator = '1' then
                   state <= Idle;
+                  
                end if;
 
             when ErrorState =>

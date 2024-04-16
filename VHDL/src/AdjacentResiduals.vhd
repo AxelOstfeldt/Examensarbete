@@ -206,9 +206,12 @@ begin
                state <= SendCurrentResidual;
 
             when SendCurrentResidual =>
+
                CheckState <= 6;
+               NewDataOut <= '1';
+
                if ReadyToReciveIn = '1' then
-                  NewDataOut <= '0';
+                  
 
                   --Check if all mics residuals have been calculated
                   if mic = 64 then
@@ -221,22 +224,19 @@ begin
 
                   end if;
 
-               else
-                  NewDataOut <= '1';
+                  
 
                end if;
 
+
             when SendAllResiduals =>
                CheckState <= 7;
+               NewResidualOut <= '1';
 
                NewDataOut <= '0';
 
                if ReadyToEncodeIn = '1' then
-                  NewResidualOut <= '0';
                   state          <= Idle;
-
-               else
-                  NewResidualOut <= '1';
 
                end if;
 

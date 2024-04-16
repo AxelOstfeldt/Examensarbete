@@ -55,18 +55,27 @@ begin
                k_meta                   <= (others => '0');
                SampleCounter            <= 0;
                SampleCounter_meta       <= (others => '0');
-               ReadyToReciveCodeWordOut <= '1';
+               
 
                if NewCodeWordReadyIn = '1' then
+                  ReadyToReciveCodeWordOut <= '0';
                   state <= Reciving;
+
+               else
+                  ReadyToReciveCodeWordOut <= '1';
+
                end if;
 
             when WaitForCodeWord =>
                CheckState               <= 1;
-               ReadyToReciveCodeWordOut <= '1';
 
                if NewCodeWordReadyIn = '1' then
+                  ReadyToReciveCodeWordOut <= '0';
                   state <= Reciving;
+
+               else
+                  ReadyToReciveCodeWordOut <= '1';
+                  
                end if;
 
             when Reciving =>

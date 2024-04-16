@@ -17,9 +17,11 @@ entity NewRiceEncoder is
 
       NewCodeWordReady : out std_logic;--New CodeWord ready to be sent
       ReadyToEncode    : out std_logic;
-      ErrorOut         : out std_logic;--Send an error signal when error state is reached
       CodeWordLen      : out std_logic_vector(9 downto 0);--Bits used in the codeword
-      CodeWord         : out std_logic_vector(1023 downto 0)--CodeWord out
+      CodeWord         : out std_logic_vector(1023 downto 0);--CodeWord out
+      k_valueOut       : out std_logic_vector(4 downto 0);--Behvs den?
+
+      ErrorOut : out std_logic--Send an error signal when error state is reached
 
    );
 
@@ -51,6 +53,8 @@ architecture Behavioral of NewRiceEncoder is
    signal RleBits : std_logic_vector(24 downto 0);
    signal RleLoop : integer range 0 to 1023;
 
+
+
 begin
    process (clk)
    begin
@@ -79,16 +83,18 @@ begin
                AllCurrentResiduals <= (others => '0');
                ResidualBitCounter  <= 0;
                SampleCounter       <= 0;
-               ReadyToEncode       <= '1';
+               ReadyToEncode       <= '0';
 
                -- when new data is available go to reciving state
                if (NewKIn = '1') and (NewResidualsIn = '1') then
+                  ReadyToEncode <= '1';
                   state <= Reciving;
+                  k_valueOut <= kValueIn;
                end if;
 
             when Reciving =>
                --Indicate what the current state is in simulation
-               CheckState <= 1;
+               CheckState    <= 1;
                ReadyToEncode <= '0';
 
                -- load all residuals
@@ -97,7 +103,7 @@ begin
                state <= NewResidual;
 
             when NewResidual =>
-               CheckState <= 2;
+               CheckState    <= 2;
                ReadyToEncode <= '0';
 
                CurrentValue     <= (others => '0');
@@ -108,6 +114,12 @@ begin
                RleLoop          <= 0;
                abs_bits_set     <= 0;
                kBitsSet         <= 0;
+
+               --testing
+               LenCounter <= 0;
+               CurrentCodeWord <= (others => '0');
+
+
                --Set the current residual from the datablock with all residuals
                CurrentResidual(24) <= AllCurrentResiduals(1599 - ResidualBitCounter);
                CurrentResidual(23) <= AllCurrentResiduals(1598 - ResidualBitCounter);
@@ -157,7 +169,7 @@ begin
                state <= SetValue;
 
             when SetValue =>
-               CheckState <= 3;
+               CheckState    <= 3;
                ReadyToEncode <= '0';
 
                CurrentValue <= signed(CurrentResidual);
@@ -166,7 +178,7 @@ begin
 
             when SignBit =>
                --Indicate what the current state is in simulation
-               CheckState <= 4;
+               CheckState    <= 4;
                ReadyToEncode <= '0';
 
                --Check if CurrentValue is positive or negative, 
@@ -192,7 +204,7 @@ begin
 
             when FindKLastBits =>
                --Indicate what the current state is in simulation
-               CheckState <= 5;
+               CheckState    <= 5;
                ReadyToEncode <= '0';
 
                --set bits so that the k-last bits are saved to later be used in the codeword
@@ -209,7 +221,7 @@ begin
 
             when FindRleCode =>
                --Indicate what the current state is in simulation
-               CheckState <= 6;
+               CheckState    <= 6;
                ReadyToEncode <= '0';
 
                --set the remaining bits in Absolute value to the LSB:s in RleBits to later Run length encode the resulting value
@@ -233,7 +245,7 @@ begin
 
             when RleCoding =>
                --Indicate what the current state is in simulation
-               CheckState <= 7;
+               CheckState    <= 7;
                ReadyToEncode <= '0';
 
                --If RleLoop is larger than 0, append a 1 to the codeword and decrement RleLoop value
@@ -269,7 +281,7 @@ begin
 
             when SetKLastBits =>
                --Indicate what the current state is in simulation
-               CheckState <= 8;
+               CheckState    <= 8;
                ReadyToEncode <= '0';
 
                --set the k-last bits of the code word
@@ -301,7 +313,7 @@ begin
 
             when Sending =>
                --Indicate what the current state is in simulation
-               CheckState <= 9;
+               CheckState    <= 9;
                ReadyToEncode <= '0';
 
                --set NewDataOut to 1 to indicate that new data is ready to be sent
@@ -351,6 +363,7 @@ begin
             ResidualBitCounter  <= 0;
             SampleCounter       <= 0;
             ReadyToEncode       <= '0';
+            k_valueOut <= "01000";
 
          end if;
 
