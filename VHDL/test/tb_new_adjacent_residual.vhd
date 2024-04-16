@@ -39,8 +39,6 @@ begin
    clk_tb <= not(clk_tb) after C_SCK_CYKLE/2;--testbench clock
 
    reset_tb <= '1', '0' after 35 ns;
-   --the name on the left of : is the name seen for test bench signals in gtkwave
-   -- entity work."entity name in the file you want to test"
 
    --adjacentResiduals entity
    AdjacentResidualsTest : entity work.AdjacentResiduals
@@ -97,7 +95,8 @@ begin
             DataBlockIn_tb(1512 - InputCounter_tb) <= CreateInput_tb(0);
 
             --Increament Create Input
-            CreateInput_tb <= std_logic_vector(unsigned(CreateInput_tb) - 100);
+            CreateInput_tb <= std_logic_vector(signed(CreateInput_tb) + 1);
+
 
             --24*62 = 1488, so when 1488 this state is in its second to last lap and adds 24 more to pass the if statement limit
             if InputCounter_tb > 1488 then

@@ -103,6 +103,7 @@ begin
 
             else
                StateDelay_tb <= "001";
+               DataSavedIn_tb <= '0';
 
             end if;
 
@@ -139,6 +140,7 @@ begin
             NewCodeWordreadyIn_tb   <= '0';
             CodeWordLenIn_tb <= std_logic_vector(to_unsigned(13,10));
             k_valueIn_tb         <= "01000";--start at 8
+            DataSavedIn_tb <= '0';
          end if;
 
       end if;

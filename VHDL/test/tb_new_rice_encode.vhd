@@ -35,6 +35,7 @@ architecture new_rice_encode_arch of tb_new_rice_encode is
    signal CodeWord_tb         : std_logic_vector(1023 downto 0);--CodeWord out
    signal ErrorOut_tb         : std_logic;
    signal ReadyToEncode_tb    : std_logic;
+   signal k_valueOut_tb       : std_logic_vector(4 downto 0);
 
 begin
    clk_tb <= not(clk_tb) after C_CLK_CYKLE/2;
@@ -54,8 +55,10 @@ begin
          NewCodeWordReady => NewCodeWordReady_tb,
          CodeWordLen      => CodeWordLen_tb,
          CodeWord         => CodeWord_tb,
-         ErrorOut         => ErrorOut_tb,
-         ReadyToEncode    => ReadyToEncode_tb
+         ReadyToEncode    => ReadyToEncode_tb,
+         k_valueOut => k_valueOut_tb,
+
+         ErrorOut         => ErrorOut_tb
       );
    ws_process_1234 : process (clk_tb)
    begin
@@ -92,14 +95,16 @@ begin
             AllResidualsIn_tb(1576 - SetResidualsBit_tb) <= CreateResiduals_tb(1);
             AllResidualsIn_tb(1575 - SetResidualsBit_tb) <= CreateResiduals_tb(0);
             --increment so that the next residual in AllResidualsIn can be set
-            ResidualsCounter_tb <= ResidualsCounter_tb + 1;
-            CreateResiduals_tb  <= std_logic_vector(signed(CreateResiduals_tb) + 1);
-            SetResidualsBit_tb  <= SetResidualsBit_tb + 25;
+            if ResidualsCounter_tb < 63 then
+               ResidualsCounter_tb <= ResidualsCounter_tb + 1;
+               CreateResiduals_tb  <= std_logic_vector(signed(CreateResiduals_tb) + 1);
+               SetResidualsBit_tb  <= SetResidualsBit_tb + 25;
             -- when AllREsidualsIn bit are set go to next step
-            if ResidualsCounter_tb = 63 then
+            elsif ResidualsCounter_tb = 63 then
+               NewKIn_tb         <= '1';
+               NewResidualsIn_tb <= '1';--indicates all residuals have been set
                if ReadyToEncode_tb = '1' then
-                  NewKIn_tb         <= '1';
-                  NewResidualsIn_tb <= '1';--indicates all residuals have been set
+                  ResidualsCounter_tb <= ResidualsCounter_tb + 1;
                   StateDelay_tb     <= "01";
                end if;
 
@@ -118,14 +123,23 @@ begin
             ReadytoReciveCodeWordIn_tb <= '1';
 
             if NewCodeWordReady_tb = '0' then
-               --if ReadyToEncode is '1' then it is waiting for new residuals to encode, 
+               --if ResidualCounter = 0 all residuals have been encoded, 
                --go to state "00" to set new residuals
-               if ReadyToEncode_tb = '1' then
+               if ResidualsCounter_tb = 0 then
                   --Reset counters
                   SetResidualsBit_tb  <= 0;
                   ResidualsCounter_tb <= 0;
                   --set negative residuals by starting at -32
                   CreateResiduals_tb <= "1111111111111111111100000";
+
+                  if kValueIn_tb = "10100" then
+                     kValueIn_tb <= "01000";
+
+                  else
+                     kValueIn_tb <= std_logic_vector(unsigned(kValueIn_tb) + 1);
+
+                  end if;
+
                   StateDelay_tb      <= "00";
 
                   --if all residuals have not been encoded keep creating codewords until all residuals have been encoded
@@ -140,7 +154,9 @@ begin
             if NewCodeWordReady_tb = '1' then
                StateDelay_tb <= "10";
                --this line is to see how many residuals have been set
-               ResidualsCounter_tb <= ResidualsCounter_tb - 1;
+               if ResidualsCounter_tb > 0 then
+                  ResidualsCounter_tb <= ResidualsCounter_tb - 1;
+               end if;
             end if;
 
          end if;
@@ -148,13 +164,13 @@ begin
             ReadytoReciveCodeWordIn_tb <= '0';
             StateDelay_tb              <= "00";
             --Start residuals at 1
-            CreateResiduals_tb         <= "0000000000000000000000001";
-            ResidualsCounter_tb        <= 0;
-            NewResidualsIn_tb          <= '0';
-            NewKIn_tb                  <= '0';
-            AllResidualsIn_tb          <= (others => '0');
-            SetResidualsBit_tb         <= 0;
-            kValueIn_tb                <= "01000";--keep bit 3 as a '1', the lowest k-value that works is 8, highest is 22
+            CreateResiduals_tb  <= "0000000000000000000000001";
+            ResidualsCounter_tb <= 0;
+            NewResidualsIn_tb   <= '0';
+            NewKIn_tb           <= '0';
+            AllResidualsIn_tb   <= (others => '0');
+            SetResidualsBit_tb  <= 0;
+            kValueIn_tb         <= "01000";--keep bit 3 as a '1', the lowest k-value that works is 8, highest is 22
          end if;
 
       end if;

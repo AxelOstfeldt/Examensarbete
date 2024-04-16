@@ -22,9 +22,9 @@ architecture calculate_k_value_arch of tb_calculate_k_value is
    signal StateDelay_tb   : std_logic_vector(1 downto 0);
    signal SetInputBits_tb : integer range 0 to 23;
 
-   signal ResidualValueIn_tb : std_logic_vector(24 downto 0);--value in to be encoded
-   signal NewDataIn_tb       : std_logic;--New data available for input
-   signal ReadyToEncode_tb   : std_logic;
+   signal ResidualValueIn_tb            : std_logic_vector(24 downto 0);--value in to be encoded
+   signal NewDataIn_tb                  : std_logic;--New data available for input
+   signal ReadyToEncodeInkCalculator_tb : std_logic;
 
    signal ReadyToReciveOut_tb : std_logic;
    signal NewKOut_tb          : std_logic;--New k-value to be sent
@@ -38,11 +38,11 @@ begin
 
    TestkCalculator : entity work.kCalculator
       port map(
-         reset           => reset_tb,
-         clk             => clk_tb,
-         ResidualValueIn => ResidualValueIn_tb,
-         NewDataIn       => NewDataIn_tb,
-         ReadyToEncode   => ReadyToEncode_tb,
+         reset                      => reset_tb,
+         clk                        => clk_tb,
+         ResidualValueIn            => ResidualValueIn_tb,
+         NewDataIn                  => NewDataIn_tb,
+         ReadyToEncodeInkCalculator => ReadyToEncodeInkCalculator_tb,
 
          ReadyToReciveOut => ReadyToReciveOut_tb,
          NewKOut          => NewKOut_tb,
@@ -68,15 +68,15 @@ begin
             StateDelay_tb <= "11";
 
          elsif StateDelay_tb = "11" then
-            NewDataIn_tb <= '1';
-            ReadyToEncode_tb <= '0';
+            NewDataIn_tb                  <= '1';
+            ReadyToEncodeInkCalculator_tb <= '0';
 
             StateDelay_tb <= "00";
 
          else
 
             if NewKOut_tb = '1' then
-               ReadyToEncode_tb <= '1';
+               ReadyToEncodeInkCalculator_tb <= '1';
                if SetInputBits_tb < 22 then
                   SetInputBits_tb <= SetInputBits_tb + 1;
 
@@ -92,15 +92,13 @@ begin
             end if;
 
             NewDataIn_tb <= '0';
-            
-
          end if;
          if reset_tb = '1' then
-            ReadyToEncode_tb <= '1';
-            StateDelay_tb      <= "01";
-            NewDataIn_tb       <= '0';
-            ResidualValueIn_tb <= (others => '1');--"0010010110010101010110010";--(others => '0');
-            SetInputBits_tb    <= 8;
+            ReadyToEncodeInkCalculator_tb <= '1';
+            StateDelay_tb                 <= "01";
+            NewDataIn_tb                  <= '0';
+            ResidualValueIn_tb            <= (others => '1');--"0010010110010101010110010";--(others => '0');
+            SetInputBits_tb               <= 8;
          end if;
 
       end if;
