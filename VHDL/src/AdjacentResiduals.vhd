@@ -67,11 +67,8 @@ begin
 
                --Once a new datablock is available go to the next state
                if DataBlockReadyIn = '1' then
-                  ResidualsCalculatedOut <= '0';
                   state                  <= Reciving;
 
-               else
-                  ResidualsCalculatedOut <= '1';
 
                end if;
 
