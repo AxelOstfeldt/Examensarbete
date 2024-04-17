@@ -44,7 +44,8 @@ begin
       variable text_line : line;
       variable row_value : std_logic_vector(23 downto 0);
       --Make sure this directiory is correct!
-      file my_file : text open read_mode is "/home/toad/Projects/FPGA-sampling2/pl/test/first_sample_binary.txt";
+      --file my_file : text open read_mode is "/home/toad/Projects/FPGA-sampling2/pl/test/first_sample_binary.txt";
+      file my_file : text open read_mode is "/home/toad/Projects/FPGA-sampling2/pl/test/data_block_binary.txt";
 
    begin
       --test code
@@ -62,8 +63,9 @@ begin
 
                StateDelay_tb <= "10";
 
+
             else
-               StateDelay_tb       <= "00";
+               --StateDelay_tb       <= "00";
                EndOfFileReached_tb <= '1';
 
             end if;
@@ -164,6 +166,7 @@ begin
             DataBlockReadyOut_tb     <= '0';
             ResidualsCalculatedIn_tb <= '1';
 
+
          end if;
       end if;
 
@@ -176,7 +179,7 @@ begin
          if run("wave") then
             -- test 1 is so far only meant for gktwave
 
-            wait for 50000 ns; -- duration of test 1
+            wait for 300000 ns; -- duration of test 1
 
          elsif run("auto") then
 
