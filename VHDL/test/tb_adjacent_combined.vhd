@@ -85,6 +85,7 @@ architecture adjacent_combined_arch of tb_adjacent_combined is
    signal AllCodeWordsOut_tb          : std_logic_vector(8191 downto 0);--All codewords together, length is 2^13 - 1
    signal AssembleDoneOut_tb          : std_logic;--New CodeWord ready to be sent
    signal ReadyToReciveCodeWordOut_tb : std_logic;
+   signal AllCodeWordsLenOut_tb       : std_logic_vector(12 downto 0);
 
    signal ErrorOut_CodeWordAssmbler_tb : std_logic;
 
@@ -171,6 +172,7 @@ begin
          AllCodeWordsOut          => AllCodeWordsOut_tb,
          AssembleDoneOut          => AssembleDoneOut_tb,
          ReadyToReciveCodeWordOut => ReadyToReciveCodeWordOut_tb,
+         AllCodeWordsLenOut       => AllCodeWordsLenOut_tb,
 
          ErrorOut => ErrorOut_CodeWordAssmbler_tb
       );
