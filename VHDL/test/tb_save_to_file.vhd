@@ -120,7 +120,7 @@ begin
 
             end if;
 
-         elsif StateDelay_tb = "000" then
+         elsif StateDelay_tb = "00" then
             file_close(file_handler);
 
          end if;
