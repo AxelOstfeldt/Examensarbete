@@ -18,7 +18,7 @@ end tb_adjacent_combined;
 architecture adjacent_combined_arch of tb_adjacent_combined is
 
    --General signals used in all entitys
-   constant C_SCK_CYKLE : time      := 8 ns; -- 125 MHz
+   constant C_SCK_CYKLE : time      := 4 ns; -- 250 MHz
    signal clk_tb        : std_logic := '0';
    signal reset_tb      : std_logic := '1';
 
@@ -33,6 +33,12 @@ architecture adjacent_combined_arch of tb_adjacent_combined is
    signal DatablockOut_tb          : std_logic_vector(1535 downto 0);
    signal DataBlockReadyOut_tb     : std_logic;
    signal ResidualsCalculatedIn_tb : std_logic;
+
+   --Used for SaveToFile(Only testbench no entity)
+   signal NewRow_tb : std_logic;
+   signal BottomLimit_tb : integer range 0 to 8191;
+   signal RowCounter_tb : integer range 0 to 65535;
+   signal AllDone : std_logic;
 
    --Used in AdjacentResiduals
    signal DataBlockIn_tb      : std_logic_vector(1535 downto 0);
@@ -177,12 +183,19 @@ begin
          ErrorOut => ErrorOut_CodeWordAssmbler_tb
       );
    ws_process_12345 : process (clk_tb)
+
+      --For reading data
       variable text_line : line;
       variable row_value : std_logic_vector(23 downto 0);
       --Make sure this directiory is correct!
       --file my_file : text open read_mode is "/home/toad/Projects/FPGA-sampling2/pl/test/first_sample_binary.txt";--First sample for mic 64-127
       file my_file : text open read_mode is "/home/toad/Projects/FPGA-sampling2/pl/test/data_block_binary.txt";--First datablock, all 256 samples for mic 64-127
 
+      --For saving data
+      --Importent to check path /My/Path/MyFileName.txt
+      file file_handler     : text open write_mode is "/home/toad/Projects/FPGA-sampling2/pl/test/EncodedData.txt";
+      variable row          : line;
+      variable v_data_write : std_logic_vector(8191 downto 0);
 
 
    begin
@@ -286,10 +299,14 @@ begin
 
          if OutputState_tb <= "01" then
 
-            DataSavedIn_tb <= '0';
+            DataSavedIn_tb <= '1';
 
             --Once the full codeword is assembled and ready to be sent the next state is entered
             if AssembleDoneOut_tb = '1' then
+               --store All CodeWords and the length of them 
+               v_data_write := AllCodeWordsOut_tb;
+               BottomLimit_tb <= to_integer(unsigned(AllCodeWordsLenOut_tb));
+               
                OutputState_tb <= "10";
 
             end if;
@@ -298,18 +315,34 @@ begin
          elsif OutputState_tb <= "10" then
             
             --This indicated that the codeword can be saved and the next assemble can start
-            DataSavedIn_tb <= '1';
-
-            if AssembleDoneOut_tb = '0' then
-               OutputState_tb <= "01";
-               DataSavedIn_tb <= '0';
+            DataSavedIn_tb <= '0';
+            if NewRow_tb = '0' then
+               write(row, v_data_write(8191 downto 8191-BottomLimit_tb));
+               NewRow_tb <= '1';
+               RowCounter_tb <= RowCounter_tb + 1;
 
             else
-               DataSavedIn_tb <= '1';
-               
+               writeline(file_handler ,row);
+               NewRow_tb <= '0';
+
+               OutputState_tb <= "11";
 
             end if;
 
+         elsif OutputState_tb <= "11" then
+            --Check if all 256 samples have been written
+            if RowCounter_tb < 256 then
+            OutputState_tb <= "01";
+
+            else
+               OutputState_tb <= "00";
+
+            end if;
+
+         elsif OutputState_tb = "00" then
+            file_close(file_handler);
+
+            AllDone <= '1';
 
 
          end if;
@@ -342,6 +375,12 @@ begin
 
             EndOfFileReached_tb <= '0';
 
+            --SaveToFile initial values
+            NewRow_tb <= '0';
+            AllDone <= '0';
+            RowCounter_tb <= 0;
+            BottomLimit_tb <= 0;
+            DataSavedIn_tb <= '0';
 
             --AdjacentResidual initial values
             DataBlockIn_tb      <= (others => '0');
