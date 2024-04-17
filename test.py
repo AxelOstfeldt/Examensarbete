@@ -7,8 +7,9 @@ from LPC import LPC
 import math
 from Rice import RiceCoding
 
-if 1 < 0:
-    Path = "C:\\Users\\axelo\\OneDrive\\Skrivbord\\Exjobb\\GIT\\SoundData\\"
+if 1 > 0:
+    #Path = "C:\\Users\\axelo\\OneDrive\\Skrivbord\\Exjobb\\GIT\\SoundData\\"
+    Path = "/home/luigi/Desktop/DataTxt/"#Saab dator
     FileName = "1kHzTone.txt"
     FullDirectory = Path+FileName
     
@@ -50,12 +51,24 @@ if 1 < 0:
 
     print("FirstSample = ", len(FirstSample))
 
+    
+
     #Creates txt file for first sample in array
     if 1 < 0:
         with open("FirstSampleBinary.txt", "w") as file:
             for value in FirstSample:
                 BinaryValue = np.binary_repr(value, 24)
                 file.write(str(BinaryValue) + "\n")
+
+
+    #Creates txt file for datablock in array
+    if 1 < 0:
+        with open("data_block_binary.txt", "w") as file:
+            for sample in range(256):
+                for mic in range(64):
+                    value = Array2[mic,sample]
+                    BinaryValue = np.binary_repr(value, 24)
+                    file.write(str(BinaryValue) + "\n")
 
 
 
