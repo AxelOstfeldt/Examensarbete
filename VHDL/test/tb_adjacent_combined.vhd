@@ -1,6 +1,7 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 use ieee.numeric_std.all;
+use std.textio.all;
 
 library vunit_lib;
 context vunit_lib.vunit_context;
@@ -20,6 +21,18 @@ architecture adjacent_combined_arch of tb_adjacent_combined is
    constant C_SCK_CYKLE : time      := 8 ns; -- 125 MHz
    signal clk_tb        : std_logic := '0';
    signal reset_tb      : std_logic := '1';
+
+   --Used for LoadData(Only testbench no entity)
+   signal CurrentValue_tb  : std_logic_vector(23 downto 0);
+   signal SampleCounter_tb : integer range 0 to 65535;
+   signal MicCounter_tb    : integer range 0 to 65535;
+   signal InputCounter_tb  : integer range 0 to 1535;
+
+   signal EndOfFileReached_tb : std_logic;
+
+   signal DatablockOut_tb          : std_logic_vector(1535 downto 0);
+   signal DataBlockReadyOut_tb     : std_logic;
+   signal ResidualsCalculatedIn_tb : std_logic;
 
    --Used in AdjacentResiduals
    signal DataBlockIn_tb      : std_logic_vector(1535 downto 0);
@@ -76,14 +89,16 @@ architecture adjacent_combined_arch of tb_adjacent_combined is
    signal ErrorOut_CodeWordAssmbler_tb : std_logic;
 
    --Signals used in testbench
-   signal StateDelay_tb   : std_logic_vector(1 downto 0);
+   signal InputState_tb   : std_logic_vector(1 downto 0);
+   signal OutputState_tb  : std_logic_vector(1 downto 0);
    signal CreateInput_tb  : std_logic_vector(23 downto 0);
-   signal InputCounter_tb : integer range 0 to 1535;
 
 begin
    clk_tb <= not(clk_tb) after C_SCK_CYKLE/2;
 
    reset_tb <= '1', '0' after 35 ns;
+
+   
 
    --AdjacentResiduals entity
    AdjacentResidualsTest : entity work.AdjacentResiduals
@@ -160,79 +175,131 @@ begin
          ErrorOut => ErrorOut_CodeWordAssmbler_tb
       );
    ws_process_12345 : process (clk_tb)
+      variable text_line : line;
+      variable row_value : std_logic_vector(23 downto 0);
+      --Make sure this directiory is correct!
+      --file my_file : text open read_mode is "/home/toad/Projects/FPGA-sampling2/pl/test/first_sample_binary.txt";--First sample for mic 64-127
+      file my_file : text open read_mode is "/home/toad/Projects/FPGA-sampling2/pl/test/data_block_binary.txt";--First datablock, all 256 samples for mic 64-127
+
+
+
    begin
 
       if falling_edge(clk_tb) then
 
-         if StateDelay_tb = "01" then
 
-            --set input values for testbench
-            DataBlockIn_tb(1535 - InputCounter_tb) <= CreateInput_tb(23);
-            DataBlockIn_tb(1534 - InputCounter_tb) <= CreateInput_tb(22);
-            DataBlockIn_tb(1533 - InputCounter_tb) <= CreateInput_tb(21);
-            DataBlockIn_tb(1532 - InputCounter_tb) <= CreateInput_tb(20);
-            DataBlockIn_tb(1531 - InputCounter_tb) <= CreateInput_tb(19);
-            DataBlockIn_tb(1530 - InputCounter_tb) <= CreateInput_tb(18);
-            DataBlockIn_tb(1529 - InputCounter_tb) <= CreateInput_tb(17);
-            DataBlockIn_tb(1528 - InputCounter_tb) <= CreateInput_tb(16);
-            DataBlockIn_tb(1527 - InputCounter_tb) <= CreateInput_tb(15);
-            DataBlockIn_tb(1526 - InputCounter_tb) <= CreateInput_tb(14);
-            DataBlockIn_tb(1525 - InputCounter_tb) <= CreateInput_tb(13);
-            DataBlockIn_tb(1524 - InputCounter_tb) <= CreateInput_tb(12);
-            DataBlockIn_tb(1523 - InputCounter_tb) <= CreateInput_tb(11);
-            DataBlockIn_tb(1522 - InputCounter_tb) <= CreateInput_tb(10);
-            DataBlockIn_tb(1521 - InputCounter_tb) <= CreateInput_tb(9);
-            DataBlockIn_tb(1520 - InputCounter_tb) <= CreateInput_tb(8);
-            DataBlockIn_tb(1519 - InputCounter_tb) <= CreateInput_tb(7);
-            DataBlockIn_tb(1518 - InputCounter_tb) <= CreateInput_tb(6);
-            DataBlockIn_tb(1517 - InputCounter_tb) <= CreateInput_tb(5);
-            DataBlockIn_tb(1516 - InputCounter_tb) <= CreateInput_tb(4);
-            DataBlockIn_tb(1515 - InputCounter_tb) <= CreateInput_tb(3);
-            DataBlockIn_tb(1514 - InputCounter_tb) <= CreateInput_tb(2);
-            DataBlockIn_tb(1513 - InputCounter_tb) <= CreateInput_tb(1);
-            DataBlockIn_tb(1512 - InputCounter_tb) <= CreateInput_tb(0);
 
-            --Increament Create Input
-            CreateInput_tb <= std_logic_vector(signed(CreateInput_tb) + 1);
-            --24*62 = 1488, so when 1488 this state is in its second to last lap and adds 24 more to pass the if statement limit
-            if InputCounter_tb > 1488 then
-               StateDelay_tb <= "00";
+         if InputState_tb = "01" then
+            --This is the starting state when grabbing a datablock
+            DatablockOut_tb <= (others => '0');
+            DataBlockReadyOut_tb <= '0';
 
-            else
-               --increment InputCounter_tb to set the nxt 24 values for the next mic
-               InputCounter_tb     <= InputCounter_tb + 24;
-               DataBlockReadyIn_tb <= '0';
-
-            end if;
-
-         elsif StateDelay_tb = "10" then
-            --this state reset the CreateInput_tb and InputCounter_tb
+            CurrentValue_tb <= (others => '0');
+            MicCounter_tb <= 0;
             InputCounter_tb <= 0;
 
-            if CreateInput_tb(23) = '0' then
-               CreateInput_tb <= "111111111111110111111111";
+            InputState_tb <= "10";
 
-            else
-               CreateInput_tb <= "000000000000000010000000";
+         elsif InputState_tb = "10" then
+               --check that it is not end of file
+               if not endfile(my_file) then
+                  --point to the next line
+                  readline(my_file, text_line);
+                  --read the current lint
+                  read(text_line, row_value);
+
+
+
+               else
+                  EndOfFileReached_tb <= '1';
+
+               end if;
+
+
+              --assign CurrentValue_tb with the read value from text file
+              CurrentValue_tb <= row_value;-- only to see current value
+
+              --set input values for testbench
+              DataBlockOut_tb(1535 - InputCounter_tb) <= row_value(23);
+              DataBlockOut_tb(1534 - InputCounter_tb) <= row_value(22);
+              DataBlockOut_tb(1533 - InputCounter_tb) <= row_value(21);
+              DataBlockOut_tb(1532 - InputCounter_tb) <= row_value(20);
+              DataBlockOut_tb(1531 - InputCounter_tb) <= row_value(19);
+              DataBlockOut_tb(1530 - InputCounter_tb) <= row_value(18);
+              DataBlockOut_tb(1529 - InputCounter_tb) <= row_value(17);
+              DataBlockOut_tb(1528 - InputCounter_tb) <= row_value(16);
+              DataBlockOut_tb(1527 - InputCounter_tb) <= row_value(15);
+              DataBlockOut_tb(1526 - InputCounter_tb) <= row_value(14);
+              DataBlockOut_tb(1525 - InputCounter_tb) <= row_value(13);
+              DataBlockOut_tb(1524 - InputCounter_tb) <= row_value(12);
+              DataBlockOut_tb(1523 - InputCounter_tb) <= row_value(11);
+              DataBlockOut_tb(1522 - InputCounter_tb) <= row_value(10);
+              DataBlockOut_tb(1521 - InputCounter_tb) <= row_value(9);
+              DataBlockOut_tb(1520 - InputCounter_tb) <= row_value(8);
+              DataBlockOut_tb(1519 - InputCounter_tb) <= row_value(7);
+              DataBlockOut_tb(1518 - InputCounter_tb) <= row_value(6);
+              DataBlockOut_tb(1517 - InputCounter_tb) <= row_value(5);
+              DataBlockOut_tb(1516 - InputCounter_tb) <= row_value(4);
+              DataBlockOut_tb(1515 - InputCounter_tb) <= row_value(3);
+              DataBlockOut_tb(1514 - InputCounter_tb) <= row_value(2);
+              DataBlockOut_tb(1513 - InputCounter_tb) <= row_value(1);
+              DataBlockOut_tb(1512 - InputCounter_tb) <= row_value(0);
+  
+              if InputCounter_tb < 1489 then
+  
+                 --increment InputCounter_tb to set the nxt 24 values for the next mic
+                 InputCounter_tb <= InputCounter_tb + 24;
+              end if;
+  
+              --increment mic
+              if MicCounter_tb < 63 then
+                  --if all 63 mics have not been set grab the next mic value
+                  MicCounter_tb <= MicCounter_tb + 1;
+                  InputState_tb <= "10";
+
+              else
+                  InputState_tb <= "00";
+
+                  --increment the sample counter
+                  SampleCounter_tb <= SampleCounter_tb + 1;
+  
+                 --Set DataBlockReadyOut_tb to high to indicate that the datablock is done
+                 DataBlockReadyOut_tb <= '1';
+  
+              end if;
+
+         else
+
+            
+
+            if ResidualsCalculatedIn_tb = '1' then
+               --once AdjacentResidual have recived the datablock (ResidualsCalculatedIn_tb is high)
+               --start createing the next datablock
+               InputState_tb <= "01";
 
             end if;
 
-            if ResidualsCalculatedOut_tb = '0' then
-               DataBlockReadyIn_tb <= '0';
-               StateDelay_tb <= "00";
+         end if;
 
-            else
-               DataBlockReadyIn_tb <= '1';
-               
+
+         if OutputState_tb <= "01" then
+
+            DataSavedIn_tb <= '0';
+
+            --Once the full codeword is assembled and ready to be sent the next state is entered
+            if AssembleDoneOut_tb = '1' then
+               OutputState_tb <= "10";
+
             end if;
 
-         elsif StateDelay_tb = "11" then
-            --This stated is entered Once the full codeword is assembled and ready to be sent
+
+         elsif OutputState_tb <= "10" then
+            
             --This indicated that the codeword can be saved and the next assemble can start
             DataSavedIn_tb <= '1';
 
             if AssembleDoneOut_tb = '0' then
-               StateDelay_tb <= "00";
+               OutputState_tb <= "01";
                DataSavedIn_tb <= '0';
 
             else
@@ -243,28 +310,37 @@ begin
 
 
 
-         else
-            DataBlockReadyIn_tb <= '0';
-            DataSavedIn_tb <= '0';
-
-            if ResidualsCalculatedOut_tb = '1' then
-               StateDelay_tb <= "10";
-            
-            elsif AssembleDoneOut_tb = '1' then
-               StateDelay_tb <= "11";
-               
-
-            end if;
-            --DataSavedIn_tb        <= DataSavedOut_tb; MÅSTE FIXAS
-
          end if;
+
+          
+
+
+
+
+
+
 
          if reset_tb = '1' then
 
             --Tesbench signals initial values
-            StateDelay_tb   <= "01";
+            InputState_tb   <= "01";
+            OutputState_tb <= "01";
             CreateInput_tb  <= (others => '0');
             InputCounter_tb <= 0;
+            ResidualsCalculatedIn_tb <= '0';
+
+            --LoadData initial values
+            DatablockOut_tb <= (others => '0');
+            DataBlockReadyOut_tb <= '0';
+
+            CurrentValue_tb <= (others => '0');
+            SampleCounter_tb <= 0;
+            MicCounter_tb <= 0;
+            InputCounter_tb <= 0;
+
+            EndOfFileReached_tb <= '0';
+
+
             --AdjacentResidual initial values
             DataBlockIn_tb      <= (others => '0');
             ReadyToEncodeIn_tb  <= '0';
@@ -292,9 +368,15 @@ begin
 
             --in the else statement inputs for entitys that are driven by outputs from other entitys are specified
          else
+
+            --LoadData
+            ResidualsCalculatedIn_tb <= ResidualsCalculatedOut_tb;
+
             --AdjacentResidual
             ReadyToEncodeIn_tb <= ReadyToEncode_tb;
             ReadyToReciveIn_tb <= ReadyToReciveOut_tb;
+            DataBlockIn_tb <= DatablockOut_tb;
+            DataBlockReadyIn_tb <= DataBlockReadyOut_tb;
 
             --kCalculator
             ResidualValueIn_tb            <= ResidualValueOut_tb;
