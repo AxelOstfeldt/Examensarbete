@@ -18,6 +18,9 @@ entity CodeWordAssembler is
       AllCodeWordsOut          : out std_logic_vector(8191 downto 0);--All codewords together, length is 2^13 - 1
       AssembleDoneOut          : out std_logic;--New CodeWord ready to be sent
       ReadyToReciveCodeWordOut : out std_logic;--Indicates that it is ready to recive the next codeword to assemble
+      AllCodeWordsLenOut       : out std_logic_vector(12 downto 0);
+
+      
       ErrorOut                 : out std_logic--Send an error signal when error state is reached
 
    );
@@ -45,21 +48,20 @@ begin
             when Idle =>
                CheckState <= 0;
                --Reset all values
-               AllCodeWordsOut          <= (others => '0');
-               ErrorOut                 <= '0';
-               AssembleDoneOut          <= '0';
-               TotalLenCounter          <= 0;
-               CurrentCodeWordLen       <= 0;
-               AssembleLenCounter       <= 0;
-               CurrentCodeWord          <= (others => '0');
-               k_meta                   <= (others => '0');
-               SampleCounter            <= 0;
-               SampleCounter_meta       <= (others => '0');
-               
-
+               AllCodeWordsOut    <= (others => '0');
+               AllCodeWordsLenOut <= (others => '0');
+               ErrorOut           <= '0';
+               AssembleDoneOut    <= '0';
+               TotalLenCounter    <= 0;
+               CurrentCodeWordLen <= 0;
+               AssembleLenCounter <= 0;
+               CurrentCodeWord    <= (others => '0');
+               k_meta             <= (others => '0');
+               SampleCounter      <= 0;
+               SampleCounter_meta <= (others => '0');
                if NewCodeWordReadyIn = '1' then
                   ReadyToReciveCodeWordOut <= '0';
-                  state <= Reciving;
+                  state                    <= Reciving;
 
                else
                   ReadyToReciveCodeWordOut <= '1';
@@ -67,15 +69,15 @@ begin
                end if;
 
             when WaitForCodeWord =>
-               CheckState               <= 1;
+               CheckState <= 1;
 
                if NewCodeWordReadyIn = '1' then
                   ReadyToReciveCodeWordOut <= '0';
-                  state <= Reciving;
+                  state                    <= Reciving;
 
                else
                   ReadyToReciveCodeWordOut <= '1';
-                  
+
                end if;
 
             when Reciving =>
@@ -151,6 +153,9 @@ begin
             when SetMetaData =>
                CheckState <= 5;
 
+               --Set total len for codeword out
+               AllCodeWordsLenOut <= std_logic_vector(to_unsigned(TotalLenCounter, 13));
+
                --Set the k-value meta data
                AllCodeWordsOut(8191) <= k_meta(4);
                AllCodeWordsOut(8190) <= k_meta(3);
@@ -184,6 +189,7 @@ begin
          if reset = '1' then
             state                    <= Idle;
             AllCodeWordsOut          <= (others => '0');
+            AllCodeWordsLenOut       <= (others => '0');
             ErrorOut                 <= '0';
             AssembleDoneOut          <= '0';
             TotalLenCounter          <= 0;
