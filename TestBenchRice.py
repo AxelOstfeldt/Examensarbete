@@ -130,6 +130,7 @@ class RiceCoding:
 
             #One extra 0 have been encoded for all codewords, needs to be fixed
             if valueCounter == 64:
+                print("Code left = ", code)
                 return decoded_values
 
         #Returns array with decoded int values

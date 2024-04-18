@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import math
-from TestBenchRice import RiceCoding
+from Rice import RiceCoding
 from Adjacent import Adjacent
 
 
@@ -45,7 +45,7 @@ OrginalData = FirstDatablock[64:128,:]
 
 #Load the encoded data
 #File name
-EncodedFile = "EncodedData.txt"
+EncodedFile = "EncodedData2.txt"
 #Same path as previous file. May need to change path depending on where the file is saved
 EndocedDirectory = Path + EncodedFile
 # Create an empty list to store loaded data
@@ -156,8 +156,8 @@ if AllCorrect == 0:
         
 
 for mic in range(64):
-    if 1 < 0:#plots for report
-        print("For report")
+    if 1 > 0:#plots for report
+        testtesttest = 1*1
 
     else:
         figure_title = "Mic #" +str(64+mic)
