@@ -7,7 +7,10 @@ from LPC import LPC
 import math
 from Rice import RiceCoding
 
-if 1 > 0:
+
+
+
+if 1 < 0:
     #Path = "C:\\Users\\axelo\\OneDrive\\Skrivbord\\Exjobb\\GIT\\SoundData\\"
     Path = "/home/luigi/Desktop/DataTxt/"#Saab dator
     FileName = "1kHzTone.txt"
