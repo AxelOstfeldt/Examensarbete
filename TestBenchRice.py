@@ -72,7 +72,7 @@ class RiceCoding:
     
     def Decode(self, code):
         
-
+        valueCounter = 0
         decoded_values = []
 
         #Loops trough the code word to get all values in the code word
@@ -123,8 +123,14 @@ class RiceCoding:
                 value = -value
 
             #appends the decoded value in an array
-
+            valueCounter += 1
+            
             decoded_values.append(value)
+
+
+            #One extra 0 have been encoded for all codewords, needs to be fixed
+            if valueCounter == 64:
+                return decoded_values
 
         #Returns array with decoded int values
         return decoded_values
