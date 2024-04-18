@@ -45,7 +45,7 @@ OrginalData = FirstDatablock[64:128,:]
 
 #Load the encoded data
 #File name
-EncodedFile = "EncodedData2.txt"
+EncodedFile = "EncodedData.txt"
 #Same path as previous file. May need to change path depending on where the file is saved
 EndocedDirectory = Path + EncodedFile
 # Create an empty list to store loaded data
@@ -80,8 +80,8 @@ OrginalDataLen = 64*24
 
 cr_array=[]
 
-for datablock in range(256):
-    CodeWordLen = len(EncodedData[datablock])
+for datablock in EncodedData:
+    CodeWordLen = len(datablock)
     cr = CodeWordLen / OrginalDataLen
 
     cr_array.append(cr)
