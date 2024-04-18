@@ -20,7 +20,7 @@ entity CodeWordAssembler is
       ReadyToReciveCodeWordOut : out std_logic;--Indicates that it is ready to recive the next codeword to assemble
       AllCodeWordsLenOut       : out std_logic_vector(12 downto 0);
 
-      
+
       ErrorOut                 : out std_logic--Send an error signal when error state is reached
 
    );
@@ -60,25 +60,23 @@ begin
                SampleCounter      <= 0;
                SampleCounter_meta <= (others => '0');
                if NewCodeWordReadyIn = '1' then
-                  ReadyToReciveCodeWordOut <= '0';
                   state                    <= Reciving;
 
-               else
-                  ReadyToReciveCodeWordOut <= '1';
 
                end if;
+
+               ReadyToReciveCodeWordOut <= '1';
 
             when WaitForCodeWord =>
                CheckState <= 1;
 
                if NewCodeWordReadyIn = '1' then
-                  ReadyToReciveCodeWordOut <= '0';
                   state                    <= Reciving;
 
-               else
-                  ReadyToReciveCodeWordOut <= '1';
-
                end if;
+      
+               ReadyToReciveCodeWordOut <= '1';
+
 
             when Reciving =>
                CheckState               <= 2;
