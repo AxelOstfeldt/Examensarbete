@@ -33,6 +33,7 @@ architecture Behavioral of AdjacentResiduals is
    signal CurrentDataBlock    : std_logic_vector(1535 downto 0);
    signal mic                 : integer range 0 to 64;
    signal CurrentValue        : std_logic_vector(23 downto 0);
+   signal predict_first       : signed(23 downto 0);
    signal prediction          : signed(23 downto 0);
    signal prediction_row      : signed(23 downto 0);
    signal CurrentResidual     : std_logic_vector(24 downto 0);
@@ -67,9 +68,7 @@ begin
 
                --Once a new datablock is available go to the next state
                if DataBlockReadyIn = '1' then
-                  state                  <= Reciving;
-
-
+                  state <= Reciving;
                end if;
 
             when Reciving =>
@@ -125,9 +124,18 @@ begin
             when CalculateResidual =>
                CheckState <= 3;
 
+               --Check if its the first mic
+               --if it is use the memory from the previous datablock to predict the value
+               if mic = 0 then
+                  CurrentResidual <= std_logic_vector(to_signed(to_integer(signed(CurrentValue) - predict_first), 25));
+                  --update prediction row to the currentvalue (first mic is also the first in a row)
+                  prediction_row <= signed(CurrentValue);
+                  --update the first mic value
+                  predict_first <= signed(CurrentValue);
+
                --Check if the current mic is the first mic in a row,
                -- if mic % 8 = 0 it is the first mic in a row
-               if mic mod 8 = 0 then
+               elsif mic mod 8 = 0 then
                   --Calculate the residual, 
                   --if it is the first mic in the row calculate from the first mic in the previous row
                   CurrentResidual <= std_logic_vector(to_signed(to_integer(signed(CurrentValue) - prediction_row), 25));
@@ -208,8 +216,6 @@ begin
                NewDataOut <= '1';
 
                if ReadyToReciveIn = '1' then
-                  
-
                   --Check if all mics residuals have been calculated
                   if mic = 64 then
                      --If mic = 64 all mics residuals have been calculated and AllResidualsOut can be sent
@@ -221,19 +227,15 @@ begin
 
                   end if;
 
-                  
-
                end if;
-
-
             when SendAllResiduals =>
-               CheckState <= 7;
+               CheckState     <= 7;
                NewResidualOut <= '1';
 
                NewDataOut <= '0';
 
                if ReadyToEncodeIn = '1' then
-                  state          <= Idle;
+                  state <= Idle;
 
                end if;
 
@@ -260,6 +262,8 @@ begin
             CurrentResidual     <= (others => '0');
             ResidualCounter     <= 0;
             AllResidualsCounter <= 0;
+
+            predict_first <= (others => '0');
 
          end if;
 
