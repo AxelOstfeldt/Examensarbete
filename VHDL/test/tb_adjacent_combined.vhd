@@ -338,6 +338,7 @@ begin
             end if;
 
          elsif OutputState_tb = "00" then
+            report "I am done!";
             AllDone <= '1';
             file_close(file_handler);
 
@@ -439,8 +440,11 @@ begin
          if run("wave") then
             -- test 1 is so far only meant for gktwave
 
-            wait for 2950000 ns; -- duration for a full datablock
+            --wait for 2950000ns; -- duration for a full datablock
             --wait for 30000 ns;
+
+            wait until AllDone = '1' for 3 ms;
+            assert AllDone = '1' report"AllDone should be set HIGH" severity failure;
 
          elsif run("auto") then
 
