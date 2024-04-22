@@ -945,6 +945,8 @@ class TestFunctions:
             CodeWordArray = []
 
 
+
+            
             
             for CurrentBlock in range(len(TestData)):
                 #Use shorten to create the code words
@@ -972,33 +974,37 @@ class TestFunctions:
 
             #Array to store Decoding time
             TimeArray = []
-                        
-            for mic in range(len(CodeWordArray)):
-                #Grab all codewords for a specific microphone
-                CodeWordsMic = CodeWordArray[mic]
 
-                #loop thorugh all codewords for the selected mic
-                for i in range(len(CodeWordsMic)):
+            for i in range(datablocks):
+                #Start time
+                start_time = time.time()            
+                for mic in range(end_mic + 1 - start_mic):
+                        
+            
+                    #Grab all codewords for a specific microphone
+                    CodeWordsMic = CodeWordArray[mic]
+
+                    
+     
 
                     #Select a codeword
                     CurrentCodeWord = CodeWordsMic[i]
-                    #Start time
-                    start_time = time.time()
+                    
                     #Decode the codeword fo every datablock
                     DecodedData, MemorysOut[mic] = ShortenAlgorithm.Out(CurrentCodeWord, MemorysOut[mic])
-                    #Stop time
-                    stop_time = time.time()
+                #Stop time
+                stop_time = time.time()
 
-                    #Calculate totalt time
-                    total_time = stop_time - start_time
-                    
-                    #Store total time in array
-                    TimeArray.append(total_time)
+                #Calculate totalt time
+                total_time = stop_time - start_time
+                
+                #Store total time in array
+                TimeArray.append(total_time)
 
             #Calculate average time
             avg_time = sum(TimeArray) / len(TimeArray)
 
-            print("Average time (in seconds) to recreate values using Shorten order ", ShortenOrder, "with Rice codes is: ",avg_time," s")
+            print("Average time (in seconds) to recreate a full datablock using Shorten order ", ShortenOrder, "with Rice codes is: ",avg_time," s")
 
 
         elif self.TestNr == 9:
@@ -1120,40 +1126,44 @@ class TestFunctions:
 
             #Array to store Decoding time
             TimeArray = []
+
+
+            for i in range(datablocks):
+                #Start time
+                start_time = time.time()            
+                for mic in range(end_mic + 1 - start_mic):
+                    #Grab all codewords and m-values for a specific microphone
+                    CodeWordsMic = CodeWordArray[mic]
+                    MvaluesMic = m_array[mic]
+                    
+                    #loop thorugh all codewords for the selected mic
+                    for i in range(len(CodeWordsMic)):
                         
-            for mic in range(len(CodeWordArray)):
-                #Grab all codewords and m-values for a specific microphone
-                CodeWordsMic = CodeWordArray[mic]
-                MvaluesMic = m_array[mic]
+                        #Select a codeword and m-values
+                        CurrentCodeWord = CodeWordsMic[i]
+                        m_values = MvaluesMic[i]
+                        
+                        #Decode the residuals for every datablock
+                        Golomb_coder = GolombCoding(m_values, True)
+                        uncoded_residuals = Golomb_coder.Decode(CurrentCodeWord)
+                        #Recreate values
+                        DecodedData, MemorysOut[mic], predictions = ShortenAlgorithm.Out(uncoded_residuals, MemorysOut[mic])
+                        
+                        
+                #Stop time
+                stop_time = time.time()
 
-                #loop thorugh all codewords for the selected mic
-                for i in range(len(CodeWordsMic)):
-                    
-                    #Select a codeword and m-values
-                    CurrentCodeWord = CodeWordsMic[i]
-                    m_values = MvaluesMic[i]
-                    #Start time
-                    start_time = time.time()
-                    #Decode the residuals for every datablock
-                    Golomb_coder = GolombCoding(m_values, True)
-                    uncoded_residuals = Golomb_coder.Decode(CurrentCodeWord)
-                    #Recreate values
-                    DecodedData, MemorysOut[mic], predictions = ShortenAlgorithm.Out(uncoded_residuals, MemorysOut[mic])
-                    
-                    
-                    #Stop time
-                    stop_time = time.time()
-
-                    #Calculate totalt time
-                    total_time = stop_time - start_time
-                    
-                    #Store total time in array
-                    TimeArray.append(total_time)
+                #Calculate totalt time
+                total_time = stop_time - start_time
+                
+                #Store total time in array
+                TimeArray.append(total_time)
 
             #Calculate average time
             avg_time = sum(TimeArray) / len(TimeArray)
 
-            print("Average time (in seconds) to recreate values using Shorten order ", ShortenOrder, "with Golomb codes is: ",avg_time," s")
+
+            print("Average time (in seconds) to recreate a full datablock using Shorten order ", ShortenOrder, "with Golomb codes is: ",avg_time," s")
 
         #LPC tests
         elif self.TestNr == 10:

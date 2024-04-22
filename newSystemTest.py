@@ -42,7 +42,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 3
+test = 18
 
 #General tests
 #Test 1. This test plots microphone data
@@ -905,7 +905,7 @@ if test == 21:
 
 
 if test == 18:
-    Order = 2
+    Order = 3
     AllCodeWords = []
     UncodedWords = []
     OriginalInputs = []
@@ -1073,7 +1073,7 @@ if test == 1:
 #The data from the while loop is appended in the test_data array
 #It loops recomended_limit amount of time, this depends on the size of the sound file
 #23 was found to be a good number to use
-recomnded_limit = 39
+recomnded_limit = 20
 
 test_data = []
 data = np.empty((config.N_MICROPHONES, config.N_SAMPLES), dtype=np.float32)
@@ -1102,7 +1102,6 @@ while w_limit < recomnded_limit:
 
         test_data.append(data2)
 
-        print("w_limit = ", w_limit)
 
 
 
