@@ -42,7 +42,7 @@ memorys = [[],[0],[0,0],[0,0,0]]
 
 
 #Choose what test to do:
-test = 18
+test = 44
 
 #General tests
 #Test 1. This test plots microphone data
@@ -612,7 +612,7 @@ if test == 45:
 
 
 if test == 44:
-    order = 2
+    order = 0
     memoryIn = [0] * order
     Adjacant_predictor = Adjacent(order)
     code_words = []

@@ -1008,7 +1008,6 @@ class TestFunctions:
 
 
         elif self.TestNr == 9:
-            print('Test 9. Average speed to recreate values from codewords using Shorten with Golomb codes.')
             #Select what mics are going to be compressed
             start_mic = input('Select what microhpone to start from: ')
             #Check if the start_mic value choosen can be converted to int
@@ -1168,6 +1167,9 @@ class TestFunctions:
         #LPC tests
         elif self.TestNr == 10:
             print('Test 10. Compare original input with recreated values when using LPC with Rice codes to see if all values have been recreated correctly.')
+            
+
+
         elif self.TestNr == 11:
             print('Test 11. Compare original input with recreated values when using LPC with Golomb codes to see if all values have been recreated correctly.')
         elif self.TestNr == 12:
