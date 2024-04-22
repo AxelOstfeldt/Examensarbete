@@ -784,11 +784,376 @@ class TestFunctions:
 
 
         elif self.TestNr == 7:
-            print('Test 7. Compression rate using Shorten with Rice codes.')
+            #Select what mics are going to be compressed
+            start_mic = input('Select what microhpone to start from: ')
+            #Check if the start_mic value choosen can be converted to int
+            try:
+                int(start_mic)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                start_mic = int(start_mic)
+            else:
+                raise ValueError(f"The microphone value selected needs to be an integer.")
+            
+
+            end_mic = input('Select what microhpone to end at (if only one mic is desired choose the same value as start microphone): ')
+            #Check if the end_mic value choosen can be converted to int
+            try:
+                int(end_mic)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                end_mic = int(end_mic)
+            else:
+                raise ValueError(f"The microphone value selected needs to be an integer.")
+            
+            
+
+            
+            #Store the data from the desired microphones and datablocks in TestData
+            TestData = self.DataSelect(OriginalData, datablocks, start_mic, end_mic)
+
+
+
+            ShortenOrder = input('Select Shorten order (0-3): ')
+            #Check if the ShortenOrder value choosen can be converted to int
+            try:
+                int(ShortenOrder)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                ShortenOrder = int(ShortenOrder)
+            else:
+                raise ValueError(f"The Shorten order selected needs to be an integer.")
+            
+            ShortenAlgorithm = ShortenMeta(ShortenOrder)
+
+
+            #Create MemoryArray
+            Memorys = []
+
+            
+
+            #Array to store all compression rates
+            cr_array = []
+
+            
+            for CurrentBlock in range(len(TestData)):
+                #Use shorten to create the code words
+                CurrentTestData = TestData[CurrentBlock]
+                for mic in range(end_mic + 1 - start_mic):
+                    if CurrentBlock == 0:
+                        #Create memory array with appropriate length for selected order
+                        if ShortenOrder == 0:
+                            Memorys.append([])
+                            
+                        else:
+                            Memorys.append([0]*ShortenOrder)
+
+                    #Create codeword for current mic/datablock
+                    CurrentTestDataMic = CurrentTestData[mic]
+                    CodeWord, Memorys[mic] = ShortenAlgorithm.In(CurrentTestDataMic.copy(), Memorys[mic])
+
+                    #Create binary uncoded word for current input, original value represented in 24 bits
+                    UncodedWord = ""
+                    for sample in CurrentTestDataMic:
+                        UncodedWord += np.binary_repr(sample, 24)
+
+                    #Calculate CR for current codeword
+                    cr = len(CodeWord) / len(UncodedWord)
+                    #Save Cr in array
+                    cr_array.append(cr)
+
+            #Calculate average CR for all codewords
+            avg_cr = sum(cr_array) / len(cr_array)
+
+            print("Average compression rate using Shorte order ",ShortenOrder," is, CR = ",avg_cr)
+                        
+                
+
+            
+
+
         elif self.TestNr == 8:
             print('Test 8. Average speed to recreate values from codewords using Shorten with Rice codes.')
+            #Select what mics are going to be compressed
+            start_mic = input('Select what microhpone to start from: ')
+            #Check if the start_mic value choosen can be converted to int
+            try:
+                int(start_mic)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                start_mic = int(start_mic)
+            else:
+                raise ValueError(f"The microphone value selected needs to be an integer.")
+            
+
+            end_mic = input('Select what microhpone to end at (if only one mic is desired choose the same value as start microphone): ')
+            #Check if the end_mic value choosen can be converted to int
+            try:
+                int(end_mic)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                end_mic = int(end_mic)
+            else:
+                raise ValueError(f"The microphone value selected needs to be an integer.")
+            
+            
+
+            
+            #Store the data from the desired microphones and datablocks in TestData
+            TestData = self.DataSelect(OriginalData, datablocks, start_mic, end_mic)
+
+
+
+            ShortenOrder = input('Select Shorten order (0-3): ')
+            #Check if the ShortenOrder value choosen can be converted to int
+            try:
+                int(ShortenOrder)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                ShortenOrder = int(ShortenOrder)
+            else:
+                raise ValueError(f"The Shorten order selected needs to be an integer.")
+            
+            ShortenAlgorithm = ShortenMeta(ShortenOrder)
+
+
+            #Create MemoryArray
+            MemorysIn = []
+            MemorysOut = []
+
+            
+
+            #Array to store all CodeWords
+            CodeWordArray = []
+
+
+            
+            for CurrentBlock in range(len(TestData)):
+                #Use shorten to create the code words
+                CurrentTestData = TestData[CurrentBlock]
+                for mic in range(end_mic + 1 - start_mic):
+                    if CurrentBlock == 0:
+                        #Make sure all CodeWords are grouped by microphone
+                        CodeWordArray.append([])
+
+                        #Create memory array with appropriate length for selected order
+                        if ShortenOrder == 0:
+                            MemorysIn.append([])
+                            MemorysOut.append([])
+                            
+                        else:
+                            MemorysIn.append([0]*ShortenOrder)
+                            MemorysOut.append([0]*ShortenOrder)
+
+                    #Create codeword for current mic/datablock
+                    CurrentTestDataMic = CurrentTestData[mic]
+                    CodeWord, MemorysIn[mic] = ShortenAlgorithm.In(CurrentTestDataMic.copy(), MemorysIn[mic])
+
+                    #Save Codeword in array
+                    CodeWordArray[mic].append(CodeWord)
+
+            #Array to store Decoding time
+            TimeArray = []
+                        
+            for mic in range(len(CodeWordArray)):
+                #Grab all codewords for a specific microphone
+                CodeWordsMic = CodeWordArray[mic]
+
+                #loop thorugh all codewords for the selected mic
+                for i in range(len(CodeWordsMic)):
+
+                    #Select a codeword
+                    CurrentCodeWord = CodeWordsMic[i]
+                    #Start time
+                    start_time = time.time()
+                    #Decode the codeword fo every datablock
+                    DecodedData, MemorysOut[mic] = ShortenAlgorithm.Out(CurrentCodeWord, MemorysOut[mic])
+                    #Stop time
+                    stop_time = time.time()
+
+                    #Calculate totalt time
+                    total_time = stop_time - start_time
+                    
+                    #Store total time in array
+                    TimeArray.append(total_time)
+
+            #Calculate average time
+            avg_time = sum(TimeArray) / len(TimeArray)
+
+            print("Average time (in seconds) to recreate values using Shorten order ", ShortenOrder, "with Rice codes is: ",avg_time," s")
+
+
         elif self.TestNr == 9:
             print('Test 9. Average speed to recreate values from codewords using Shorten with Golomb codes.')
+            #Select what mics are going to be compressed
+            start_mic = input('Select what microhpone to start from: ')
+            #Check if the start_mic value choosen can be converted to int
+            try:
+                int(start_mic)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                start_mic = int(start_mic)
+            else:
+                raise ValueError(f"The microphone value selected needs to be an integer.")
+            
+
+            end_mic = input('Select what microhpone to end at (if only one mic is desired choose the same value as start microphone): ')
+            #Check if the end_mic value choosen can be converted to int
+            try:
+                int(end_mic)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                end_mic = int(end_mic)
+            else:
+                raise ValueError(f"The microphone value selected needs to be an integer.")
+            
+            
+
+            
+            #Store the data from the desired microphones and datablocks in TestData
+            TestData = self.DataSelect(OriginalData, datablocks, start_mic, end_mic)
+
+
+
+            ShortenOrder = input('Select Shorten order (0-3): ')
+            #Check if the ShortenOrder value choosen can be converted to int
+            try:
+                int(ShortenOrder)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                ShortenOrder = int(ShortenOrder)
+            else:
+                raise ValueError(f"The Shorten order selected needs to be an integer.")
+            
+            ShortenAlgorithm = Shorten(ShortenOrder)
+
+            #Create MemoryArray
+            MemorysIn = []
+            MemorysOut = []
+
+            #Array to store all CodeWords
+            CodeWordArray = []
+
+            #Array to store m-values
+            m_array = []
+
+            #Encode all input values
+            for CurrentBlock in range(len(TestData)):
+                #Use shorten to create the code words
+                CurrentTestData = TestData[CurrentBlock]
+                for mic in range(end_mic + 1 - start_mic):
+                    if CurrentBlock == 0:
+                        #Make sure all CodeWords and m_values are grouped by microphone
+                        CodeWordArray.append([])
+                        m_array.append([])
+
+
+                        #Create memory array with appropriate length for selected order
+                        if ShortenOrder == 0:
+                            MemorysIn.append([])
+                            MemorysOut.append([])
+                            
+                        else:
+                            MemorysIn.append([0]*ShortenOrder)
+                            MemorysOut.append([0]*ShortenOrder)
+
+                    #Create codeword for current mic/datablock
+                    CurrentTestDataMic = CurrentTestData[mic]
+                    residuals, MemorysIn[mic], predictions = ShortenAlgorithm.In(CurrentTestDataMic.copy(), MemorysIn[mic])
+                    
+                    #Calculate the ideal m value, by first calculating the ideal k value and taking 2^k
+                    #Calculates the ideal k_vaule for the data
+                    abs_res = np.absolute(residuals)
+                    abs_res_avg = np.mean(abs_res)
+                    #if abs_res_avg is less than 4.7 it would give a k value less than 1.
+                    #k needs tobe a int > 1. All abs_res_avg values bellow 6.64 will be set to 1 to avoid this issue
+                    if abs_res_avg > 6.64:
+                    #from testing it appears that the actual ideal k-value is larger by +1 than theory suggest,
+                    #atleast for larger k-value. The exact limit is unknown but it have been true for all test except for when the lowest k, k =1 is best.
+                    #Therefore th formula have been modified to increment k by 1 if abs_res_avg is larger than 6.64.
+                        k = int(round(math.log(math.log(2,10) * abs_res_avg,2))) +1
+                    else:
+                        k = 1
+
+                    #Calculate m value from k value by taking 2^k
+                    m = pow(2,k)
+                    #Store the m-value
+                    m_array[mic].append(m)
+
+                    #Golomb codes the residuals from shorten and saves the code word
+                    CodeWord = ""
+                    for i in range(len(residuals)):
+                        Golomb_coder = GolombCoding(m, True)
+                        n = int(residuals[i])
+                        kodOrd = Golomb_coder.Encode(n)
+                        CodeWord += kodOrd
+
+                    #Save Codeword in array
+                    CodeWordArray[mic].append(CodeWord)
+
+            #Array to store Decoding time
+            TimeArray = []
+                        
+            for mic in range(len(CodeWordArray)):
+                #Grab all codewords and m-values for a specific microphone
+                CodeWordsMic = CodeWordArray[mic]
+                MvaluesMic = m_array[mic]
+
+                #loop thorugh all codewords for the selected mic
+                for i in range(len(CodeWordsMic)):
+                    
+                    #Select a codeword and m-values
+                    CurrentCodeWord = CodeWordsMic[i]
+                    m_values = MvaluesMic[i]
+                    #Start time
+                    start_time = time.time()
+                    #Decode the residuals for every datablock
+                    Golomb_coder = GolombCoding(m_values, True)
+                    uncoded_residuals = Golomb_coder.Decode(CurrentCodeWord)
+                    #Recreate values
+                    DecodedData, MemorysOut[mic], predictions = ShortenAlgorithm.Out(uncoded_residuals, MemorysOut[mic])
+                    
+                    
+                    #Stop time
+                    stop_time = time.time()
+
+                    #Calculate totalt time
+                    total_time = stop_time - start_time
+                    
+                    #Store total time in array
+                    TimeArray.append(total_time)
+
+            #Calculate average time
+            avg_time = sum(TimeArray) / len(TimeArray)
+
+            print("Average time (in seconds) to recreate values using Shorten order ", ShortenOrder, "with Golomb codes is: ",avg_time," s")
 
         #LPC tests
         elif self.TestNr == 10:
