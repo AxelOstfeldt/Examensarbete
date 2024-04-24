@@ -10,8 +10,8 @@ from Adjacent import Adjacent
 # Create an empty list to store loaded data
 loaded_data = []
 # Open the file containing all data, remember to set correct filename
-#Path = "C:\\Users\\axelo\\OneDrive\\Skrivbord\\Exjobb\\GIT\\SoundData\\"
-Path = "/home/luigi/Desktop/DataTxt/"#Saab dator
+Path = "C:\\Users\\axelo\\OneDrive\\Skrivbord\\Exjobb\\GIT\\SoundData\\"
+#Path = "/home/luigi/Desktop/DataTxt/"#Saab dator
 FileName = "1kHzTone.txt"
 FullDirectory = Path+FileName
 with open(FullDirectory, 'r') as file:
@@ -155,28 +155,46 @@ if AllCorrect == 0:
 
         
 
-for mic in range(64):
-    if 1 < 0:#plots for report
-        testtesttest = 1*1
 
-    else:
-        figure_title = "Mic #" +str(64+mic)
-        fig = plt.figure(figure_title, layout = 'constrained')
-
-        ax = fig.add_subplot(311)
-        plt.plot(orgiginal_plot[mic])
-        ax.title.set_text("Original values")
-
-        ax = fig.add_subplot(312)
-        plt.plot(recreated_plot[mic])
-        ax.title.set_text("Recreated values")
-
-        ax = fig.add_subplot(313)
-        plt.plot(zero_plot[mic])
-        ax.title.set_text("Original values - Recreated values (Should always be 0)")
-
+    if 1 > 0:#plots for report
+    
+        fig = plt.figure("Testbench_Mic_79", layout = 'constrained')
+        plt.plot()
+        
+        plt.plot(orgiginal_plot[15], 'b', label='Original values')
+        plt.plot(recreated_plot[15], 'r-.', label='Recreated values')
+        plt.legend(fontsize=25, loc = 'upper right')
+        plt.yticks(fontsize=35)
+        plt.xticks(fontsize=35)
+        
+        
+        fig = plt.figure("Testbench_Mic_79_zero", layout = 'constrained')
+        plt.plot(zero_plot[15])
+        plt.yticks(fontsize=35)
+        plt.xticks(fontsize=35)
 
         plt.show()
+
+
+    else:
+        for mic in range(64):
+            figure_title = "Mic #" +str(64+mic)
+            fig = plt.figure(figure_title, layout = 'constrained')
+
+            ax = fig.add_subplot(311)
+            plt.plot(orgiginal_plot[mic])
+            ax.title.set_text("Original values")
+
+            ax = fig.add_subplot(312)
+            plt.plot(recreated_plot[mic])
+            ax.title.set_text("Recreated values")
+
+            ax = fig.add_subplot(313)
+            plt.plot(zero_plot[mic])
+            ax.title.set_text("Original values - Recreated values (Should always be 0)")
+
+
+            plt.show()
 
 
     
