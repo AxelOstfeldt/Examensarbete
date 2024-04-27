@@ -1,0 +1,1489 @@
+m255
+K4
+z2
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+Z0 dC:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL
+Eadjacent
+Z1 w1712088686
+Z2 DPx4 ieee 11 numeric_std 0 22 :ASDNFgHXf_ih3J@9F3Ze1
+Z3 DPx3 std 6 textio 0 22 zE1`LPoLg^DX3Oz^4Fj1K3
+Z4 DPx4 ieee 14 std_logic_1164 0 22 eNV`TJ_GofJTzYa?f<@Oe1
+R0
+Z5 8C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\Adjacent.vhd
+Z6 FC:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\Adjacent.vhd
+l0
+L7
+VYAD^h7iQk^Cc>PmkZ6<cB2
+!s100 bfN<K1Qi<oN`7^kSAVJ?>3
+Z7 OV;C;10.5b;63
+33
+Z8 !s110 1714216105
+!i10b 1
+Z9 !s108 1714216105.000000
+Z10 !s90 -quiet|-modelsimini|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\vunit_out\modelsim\modelsim.ini|-2008|-work|lib|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\Adjacent.vhd|
+Z11 !s107 C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\Adjacent.vhd|
+!i113 1
+Z12 o-quiet -2008 -work lib
+Z13 tExplicit 1 CvgOpt 0
+Abehavioral
+R2
+R3
+R4
+DEx4 work 8 adjacent 0 22 YAD^h7iQk^Cc>PmkZ6<cB2
+l36
+L19
+Vkn1E51@QTU@_Eh`BCh?E30
+!s100 6EMj5h;CoogWJW^1knUe<3
+R7
+33
+R8
+!i10b 1
+R9
+R10
+R11
+!i113 1
+R12
+R13
+Eadjacentrecreate
+Z14 w1712766483
+R2
+R3
+R4
+R0
+Z15 8C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\AdjacentRecreate.vhd
+Z16 FC:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\AdjacentRecreate.vhd
+l0
+L7
+VcFO_WA6B5aF`j[L0n2BN?3
+!s100 FWH9EYlGR30Yom4RTaXW>1
+R7
+33
+R8
+!i10b 1
+R9
+Z17 !s90 -quiet|-modelsimini|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\vunit_out\modelsim\modelsim.ini|-2008|-work|lib|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\AdjacentRecreate.vhd|
+Z18 !s107 C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\AdjacentRecreate.vhd|
+!i113 1
+R12
+R13
+Abehavioral
+R2
+R3
+R4
+Z19 DEx4 work 16 adjacentrecreate 0 22 cFO_WA6B5aF`j[L0n2BN?3
+l23
+L20
+V9_<G<?GDL_8obgi9i^hI=3
+!s100 ZTobl5]a90AS@oS4QKV=l0
+R7
+33
+R8
+!i10b 1
+R9
+R17
+R18
+!i113 1
+R12
+R13
+Eadjacentresiduals
+Z20 w1713511996
+R2
+R3
+R4
+R0
+Z21 8C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\AdjacentResiduals.vhd
+Z22 FC:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\AdjacentResiduals.vhd
+l0
+L7
+VIai1[>7g;OCBc3ndj2?Jn0
+!s100 ocPQ[I]8QQzNo^ocb;PUD2
+R7
+33
+R8
+!i10b 1
+R9
+Z23 !s90 -quiet|-modelsimini|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\vunit_out\modelsim\modelsim.ini|-2008|-work|lib|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\AdjacentResiduals.vhd|
+Z24 !s107 C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\AdjacentResiduals.vhd|
+!i113 1
+R12
+R13
+Abehavioral
+R2
+R3
+R4
+Z25 DEx4 work 17 adjacentresiduals 0 22 Iai1[>7g;OCBc3ndj2?Jn0
+l44
+L29
+VT<7TO=m2RmO[6b0M>g0PC3
+!s100 8;NgDRUaK8EEL[`8<_Vb20
+R7
+33
+R8
+!i10b 1
+R9
+R23
+R24
+!i113 1
+R12
+R13
+Ecodewordassembler
+R20
+R2
+R3
+R4
+R0
+Z26 8C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\CodeWordAssembler.vhd
+Z27 FC:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\CodeWordAssembler.vhd
+l0
+L7
+VAF>S:6<1S5b5fVCiaNi=72
+!s100 h2n`;O5MH4:>IkLS2`Q_o2
+R7
+33
+Z28 !s110 1714216104
+!i10b 1
+Z29 !s108 1714216104.000000
+Z30 !s90 -quiet|-modelsimini|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\vunit_out\modelsim\modelsim.ini|-2008|-work|lib|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\CodeWordAssembler.vhd|
+Z31 !s107 C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\CodeWordAssembler.vhd|
+!i113 1
+R12
+R13
+Abehavioral
+R2
+R3
+R4
+Z32 DEx4 work 17 codewordassembler 0 22 AF>S:6<1S5b5fVCiaNi=72
+l42
+L30
+VMLhX>bXPc>NM5_BP8ld7@2
+!s100 g0<2hCiFQgCbbZm;d;UDU0
+R7
+33
+R28
+!i10b 1
+R29
+R30
+R31
+!i113 1
+R12
+R13
+Ekcalculator
+Z33 w1713277822
+R2
+R3
+R4
+R0
+Z34 8C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\kCalculator.vhd
+Z35 FC:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\kCalculator.vhd
+l0
+L7
+VCHG`bmZVIbRQ=cO3UAF0Z0
+!s100 =dMlX@m<:QC4=^`MP97m:1
+R7
+33
+R28
+!i10b 1
+R29
+Z36 !s90 -quiet|-modelsimini|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\vunit_out\modelsim\modelsim.ini|-2008|-work|lib|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\kCalculator.vhd|
+Z37 !s107 C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\kCalculator.vhd|
+!i113 1
+R12
+R13
+Abehavioral
+R2
+R3
+R4
+Z38 DEx4 work 11 kcalculator 0 22 CHG`bmZVIbRQ=cO3UAF0Z0
+l33
+L25
+V[F3^I5aFAXJkUeB?dEQDM3
+!s100 l;AXlBnImV2iDBAZUUP;h3
+R7
+33
+R28
+!i10b 1
+R29
+R36
+R37
+!i113 1
+R12
+R13
+Pmatrix_type
+R3
+R4
+w1714214957
+R0
+8C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\matrix_package.vhd
+FC:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\matrix_package.vhd
+l0
+L4
+VOzFVizzF8JC0MhH7V>6cC1
+!s100 0aI8eeB?0LJFb=aNP7;UZ3
+R7
+33
+!s110 1714216103
+!i10b 1
+Z39 !s108 1714216103.000000
+!s90 -quiet|-modelsimini|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\vunit_out\modelsim\modelsim.ini|-2008|-work|lib|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\matrix_package.vhd|
+!s107 C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\matrix_package.vhd|
+!i113 1
+R12
+R13
+Enewriceencoder
+R33
+R2
+R3
+R4
+R0
+Z40 8C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\NewRiceEncode.vhd
+Z41 FC:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\NewRiceEncode.vhd
+l0
+L7
+Vz;6BAWh;^9@o3^W]>?K3c2
+!s100 7_A0NAi3b<XMJTI>oO>>M1
+R7
+33
+R28
+!i10b 1
+R29
+Z42 !s90 -quiet|-modelsimini|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\vunit_out\modelsim\modelsim.ini|-2008|-work|lib|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\NewRiceEncode.vhd|
+Z43 !s107 C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\NewRiceEncode.vhd|
+!i113 1
+R12
+R13
+Abehavioral
+R2
+R3
+R4
+Z44 DEx4 work 14 newriceencoder 0 22 z;6BAWh;^9@o3^W]>?K3c2
+l58
+L30
+V1Ejz0z4JDVX6E]bL6IRL<1
+!s100 lOEl6;V7J]GBJ<7fJh7mg2
+R7
+33
+R28
+!i10b 1
+R29
+R42
+R43
+!i113 1
+R12
+R13
+Esavetofile
+R20
+R2
+R3
+R4
+R0
+Z45 8C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\SaveToFile.vhd
+Z46 FC:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\SaveToFile.vhd
+l0
+L7
+VMmNT`bGLzkOLI2EBn[d<00
+!s100 W9G?^c1D<U<h5]2TNz1j<1
+R7
+33
+R28
+!i10b 1
+R29
+Z47 !s90 -quiet|-modelsimini|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\vunit_out\modelsim\modelsim.ini|-2008|-work|lib|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\SaveToFile.vhd|
+Z48 !s107 C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\SaveToFile.vhd|
+!i113 1
+R12
+R13
+Abehavioral
+R2
+R3
+R4
+Z49 DEx4 work 10 savetofile 0 22 MmNT`bGLzkOLI2EBn[d<00
+l36
+L25
+V3m9o[?b63m5Be8gnHEd[f3
+!s100 KH]M<dPboebnDKmA]cDdE3
+R7
+33
+R28
+!i10b 1
+R29
+R47
+R48
+!i113 1
+R12
+R13
+Etb_adjacent_combined
+Z50 w1714215843
+Z51 DPx4 work 11 matrix_type 0 22 OzFVizzF8JC0MhH7V>6cC1
+Z52 D^#x9 vunit_lib 13 vunit_context 0 22 E1eDC:YPF9F?CkC5@`Y4Z3
+Z53 DPx9 vunit_lib 9 event_pkg 0 22 ddma=zlXYD^V[j?6M^FW`1
+Z54 DPx9 vunit_lib 18 run_deprecated_pkg 0 22 06HHNn=l0Y?PoSLo8^<h00
+Z55 DPx9 vunit_lib 10 runner_pkg 0 22 X;C]S@ZS>2MQ@ED4GJ_D;3
+Z56 DPx9 vunit_lib 7 run_pkg 0 22 S;6MBFgPTlBz:X;OzeDhN2
+Z57 DPx9 vunit_lib 17 event_private_pkg 0 22 LY^g<DkfZ8A@]2T67iO3e3
+Z58 DPx9 vunit_lib 13 run_types_pkg 0 22 9^B1Rd5=VO<fSYklGe06K2
+Z59 DPx9 vunit_lib 20 check_deprecated_pkg 0 22 Y>TVz>[kI8XoP@P02gCOJ2
+Z60 DPx9 vunit_lib 16 event_common_pkg 0 22 CoAkGgY=ijY1e_dA]KCjc0
+Z61 DPx9 vunit_lib 9 check_pkg 0 22 8L:IJ9Pn5]Khc2NeiGX>U0
+Z62 DPx9 vunit_lib 12 location_pkg 0 22 eTR]aAMTZk5jVzX_>d^e^3
+Z63 DPx9 vunit_lib 11 checker_pkg 0 22 10:=gIeZ0T42U6IHFOI9L2
+Z64 DPx9 vunit_lib 18 log_deprecated_pkg 0 22 Q7[lfBh_WC:ca^W64YP1U2
+Z65 DPx9 vunit_lib 9 print_pkg 0 22 z3A9G[B4JdMci]Ub;PK=S3
+Z66 DPx9 vunit_lib 4 path 0 22 ]@TR:IFM`TWfiVL<ZjY=I3
+Z67 DPx9 vunit_lib 8 stop_pkg 0 22 UjKiHFdPQ97>_>m`nM3cg3
+Z68 DPx9 vunit_lib 8 core_pkg 0 22 0M7EG>QDghVT?B78KOYPn0
+Z69 DPx9 vunit_lib 6 id_pkg 0 22 HU`?MIdjo`3g6=idf7>XP1
+Z70 DPx9 vunit_lib 15 log_handler_pkg 0 22 nXdPa`1VHm?9d=UZ]cg`J0
+Z71 DPx9 vunit_lib 8 ansi_pkg 0 22 h9cG]NHf=IYSX>SV5U_OM1
+Z72 DPx9 vunit_lib 14 log_levels_pkg 0 22 jGUFnEUH1mU?HKm3YRPGj3
+Z73 DPx9 vunit_lib 10 logger_pkg 0 22 9nPheBS@bT874<hoS?FaX1
+Z74 DPx9 vunit_lib 10 dictionary 0 22 _W8>On_YoEFWEDP8TQC@R0
+Z75 D^#x9 vunit_lib 18 data_types_context 0 22 [Ik[<YbW8Ag;h5P``aP2g3
+Z76 DPx9 vunit_lib 8 dict_pkg 0 22 DZofdIDPKj^6>SCK2ibBP0
+Z77 DPx9 vunit_lib 19 byte_vector_ptr_pkg 0 22 nMb7G]QlQkbCia?ecQlOB1
+Z78 DPx9 vunit_lib 19 string_ptr_pool_pkg 0 22 TIY7i_LfUHjKb5_d2B;d83
+Z79 DPx9 vunit_lib 14 queue_pool_pkg 0 22 W_@1eWPT4E>cBF2g>m`PC0
+Z80 DPx9 vunit_lib 10 string_ops 0 22 g0i<P2ggC2:SG9QDGlY]L0
+Z81 DPx9 vunit_lib 22 data_types_private_pkg 0 22 =j2oKIJ>9=Cgn][?6oR7=3
+Z82 DPx9 vunit_lib 17 integer_array_pkg 0 22 BT87f0J6MiE^QUEHRhVn?2
+Z83 DPx9 vunit_lib 19 external_string_pkg 0 22 iE_JL@S7G[ScLPziLPH3]3
+Z84 DPx9 vunit_lib 14 string_ptr_pkg 0 22 n[AzFb_A:6S@HQFZYcL]h0
+Z85 DPx9 vunit_lib 9 queue_pkg 0 22 8UT9O0e]z@k9l=7oC[mfg3
+Z86 DPx9 vunit_lib 27 integer_vector_ptr_pool_pkg 0 22 ?CDRVU5zei43PK@m<9Bb<3
+Z87 DPx9 vunit_lib 17 codec_builder_pkg 0 22 lMzaQB]AGo[9c?7g60J_93
+Z88 DPx4 ieee 11 numeric_bit 0 22 d<O?S;AIQfOzoHU3FDK]23
+Z89 DPx4 ieee 9 math_real 0 22 Sk6CSihbPL<f[^Shm]=KX0
+Z90 DPx4 ieee 12 math_complex 0 22 5i:;_e<WQ2;?b7>BdkGQL0
+Z91 DPx9 vunit_lib 9 codec_pkg 0 22 VE]>YKnj@eiUJ<U1YSEXb3
+Z92 DPx9 vunit_lib 27 external_integer_vector_pkg 0 22 hl?S7F7[zeX8D09=mXj_W2
+Z93 DPx9 vunit_lib 22 integer_vector_ptr_pkg 0 22 dQHde;mb=n>VUWALE0?M33
+Z94 DPx9 vunit_lib 9 types_pkg 0 22 8X1EBI95Q8hI=Vi3D9DP;0
+R2
+R3
+R4
+R0
+Z95 8C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\test\tb_adjacent_combined.vhd
+Z96 FC:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\test\tb_adjacent_combined.vhd
+l0
+L11
+VoHCBQnjKZSmGQS`X>YdB02
+!s100 Q>FCo96U;U2^SdbU?S9Kb1
+R7
+33
+R8
+!i10b 1
+R9
+Z97 !s90 -quiet|-modelsimini|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\vunit_out\modelsim\modelsim.ini|-2008|-work|lib|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\test\tb_adjacent_combined.vhd|
+Z98 !s107 C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\test\tb_adjacent_combined.vhd|
+!i113 1
+R12
+R13
+Aadjacent_combined_arch
+R32
+R44
+R38
+R25
+R51
+R52
+R53
+R54
+R55
+R56
+R57
+R58
+R59
+R60
+R61
+R62
+R63
+R64
+R65
+R66
+R67
+R68
+R69
+R70
+R71
+R72
+R73
+R74
+R75
+R76
+R77
+R78
+R79
+R80
+R81
+R82
+R83
+R84
+R85
+R86
+R87
+R88
+R89
+R90
+R91
+R92
+R93
+R94
+R2
+R3
+R4
+DEx4 work 20 tb_adjacent_combined 0 22 oHCBQnjKZSmGQS`X>YdB02
+l104
+L18
+V0oc33S0gB0h;6E?z9^LEa1
+!s100 2EgD64jX1]P_;iz1Z0VL50
+R7
+33
+R8
+!i10b 1
+R9
+R97
+R98
+!i113 1
+R12
+R13
+Etb_calculate_k_value
+R33
+R51
+R52
+R53
+R54
+R55
+R56
+R57
+R58
+R59
+R60
+R61
+R62
+R63
+R64
+R65
+R66
+R67
+R68
+R69
+R70
+R71
+R72
+R73
+R74
+R75
+R76
+R77
+R78
+R79
+R80
+R81
+R82
+R83
+R84
+R85
+R86
+R87
+R88
+R89
+R90
+R91
+R92
+R93
+R94
+R2
+R3
+R4
+R0
+Z99 8C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\test\tb_calculate_k_value.vhd
+Z100 FC:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\test\tb_calculate_k_value.vhd
+l0
+L10
+VD`EilkjhiN<=GfXR<<Dhz3
+!s100 ;@ch=acLX`j`CVYji0:j=2
+R7
+33
+R28
+!i10b 1
+R29
+Z101 !s90 -quiet|-modelsimini|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\vunit_out\modelsim\modelsim.ini|-2008|-work|lib|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\test\tb_calculate_k_value.vhd|
+Z102 !s107 C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\test\tb_calculate_k_value.vhd|
+!i113 1
+R12
+R13
+Acalculate_k_value_arch
+R38
+R51
+R52
+R53
+R54
+R55
+R56
+R57
+R58
+R59
+R60
+R61
+R62
+R63
+R64
+R65
+R66
+R67
+R68
+R69
+R70
+R71
+R72
+R73
+R74
+R75
+R76
+R77
+R78
+R79
+R80
+R81
+R82
+R83
+R84
+R85
+R86
+R87
+R88
+R89
+R90
+R91
+R92
+R93
+R94
+R2
+R3
+R4
+DEx4 work 20 tb_calculate_k_value 0 22 D`EilkjhiN<=GfXR<<Dhz3
+l34
+L17
+VQ49Sb5VJ[k<eHeh23EBPJ3
+!s100 P69bWKWLi1l=JEBahAUo=2
+R7
+33
+R28
+!i10b 1
+R29
+R101
+R102
+!i113 1
+R12
+R13
+Etb_load_data
+Z103 w1714215844
+R51
+R52
+R53
+R54
+R55
+R56
+R57
+R58
+R59
+R60
+R61
+R62
+R63
+R64
+R65
+R66
+R67
+R68
+R69
+R70
+R71
+R72
+R73
+R74
+R75
+R76
+R77
+R78
+R79
+R80
+R81
+R82
+R83
+R84
+R85
+R86
+R87
+R88
+R89
+R90
+R91
+R92
+R93
+R94
+R2
+R3
+R4
+R0
+Z104 8C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\test\tb_load_data.vhd
+Z105 FC:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\test\tb_load_data.vhd
+l0
+L11
+V8@SzZT3`XniFfAMLaiQ9]3
+!s100 TI`:F1HU@>gX=Tf89:MDa2
+R7
+33
+R28
+!i10b 1
+R29
+Z106 !s90 -quiet|-modelsimini|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\vunit_out\modelsim\modelsim.ini|-2008|-work|lib|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\test\tb_load_data.vhd|
+Z107 !s107 C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\test\tb_load_data.vhd|
+!i113 1
+R12
+R13
+Aload_data_arch
+R51
+R52
+R53
+R54
+R55
+R56
+R57
+R58
+R59
+R60
+R61
+R62
+R63
+R64
+R65
+R66
+R67
+R68
+R69
+R70
+R71
+R72
+R73
+R74
+R75
+R76
+R77
+R78
+R79
+R80
+R81
+R82
+R83
+R84
+R85
+R86
+R87
+R88
+R89
+R90
+R91
+R92
+R93
+R94
+R2
+R3
+R4
+DEx4 work 12 tb_load_data 0 22 8@SzZT3`XniFfAMLaiQ9]3
+l39
+L18
+VoU`MRkZ:6iUon@PU>b><=0
+!s100 D5h?O9hS=7H0F6U_DP7@n2
+R7
+33
+R28
+!i10b 1
+R29
+R106
+R107
+!i113 1
+R12
+R13
+Etb_new_adjacent_recreate
+R14
+R51
+R52
+R53
+R54
+R55
+R56
+R57
+R58
+R59
+R60
+R61
+R62
+R63
+R64
+R65
+R66
+R67
+R68
+R69
+R70
+R71
+R72
+R73
+R74
+R75
+R76
+R77
+R78
+R79
+R80
+R81
+R82
+R83
+R84
+R85
+R86
+R87
+R88
+R89
+R90
+R91
+R92
+R93
+R94
+R2
+R3
+R4
+R0
+Z108 8C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\test\tb_new_adjacent_recreate.vhd
+Z109 FC:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\test\tb_new_adjacent_recreate.vhd
+l0
+L10
+V>mON@Zd[?WmDKZkB:6D9G1
+!s100 Z7lcFc0=Sa3AEgd5;QSCG0
+R7
+33
+R8
+!i10b 1
+R9
+Z110 !s90 -quiet|-modelsimini|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\vunit_out\modelsim\modelsim.ini|-2008|-work|lib|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\test\tb_new_adjacent_recreate.vhd|
+Z111 !s107 C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\test\tb_new_adjacent_recreate.vhd|
+!i113 1
+R12
+R13
+Anew_adjacent_recreate_arch
+R19
+R51
+R52
+R53
+R54
+R55
+R56
+R57
+R58
+R59
+R60
+R61
+R62
+R63
+R64
+R65
+R66
+R67
+R68
+R69
+R70
+R71
+R72
+R73
+R74
+R75
+R76
+R77
+R78
+R79
+R80
+R81
+R82
+R83
+R84
+R85
+R86
+R87
+R88
+R89
+R90
+R91
+R92
+R93
+R94
+R2
+R3
+R4
+DEx4 work 24 tb_new_adjacent_recreate 0 22 >mON@Zd[?WmDKZkB:6D9G1
+l27
+L17
+VoBVg9l<?zMIB9OFnmgW4E3
+!s100 _ze;d]8^_WKic=a10hHNH3
+R7
+33
+R8
+!i10b 1
+R9
+R110
+R111
+!i113 1
+R12
+R13
+Etb_new_adjacent_residual
+R33
+R51
+R52
+R53
+R54
+R55
+R56
+R57
+R58
+R59
+R60
+R61
+R62
+R63
+R64
+R65
+R66
+R67
+R68
+R69
+R70
+R71
+R72
+R73
+R74
+R75
+R76
+R77
+R78
+R79
+R80
+R81
+R82
+R83
+R84
+R85
+R86
+R87
+R88
+R89
+R90
+R91
+R92
+R93
+R94
+R2
+R3
+R4
+R0
+Z112 8C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\test\tb_new_adjacent_residual.vhd
+Z113 FC:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\test\tb_new_adjacent_residual.vhd
+l0
+L10
+Vf9gbL^@HghgHF8eo:Z;:g2
+!s100 `i]<[iSSS2i3XI_5`LHKl0
+R7
+33
+R8
+!i10b 1
+R9
+Z114 !s90 -quiet|-modelsimini|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\vunit_out\modelsim\modelsim.ini|-2008|-work|lib|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\test\tb_new_adjacent_residual.vhd|
+Z115 !s107 C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\test\tb_new_adjacent_residual.vhd|
+!i113 1
+R12
+R13
+Anew_adjacent_residual_arch
+R25
+R51
+R52
+R53
+R54
+R55
+R56
+R57
+R58
+R59
+R60
+R61
+R62
+R63
+R64
+R65
+R66
+R67
+R68
+R69
+R70
+R71
+R72
+R73
+R74
+R75
+R76
+R77
+R78
+R79
+R80
+R81
+R82
+R83
+R84
+R85
+R86
+R87
+R88
+R89
+R90
+R91
+R92
+R93
+R94
+R2
+R3
+R4
+DEx4 work 24 tb_new_adjacent_residual 0 22 f9gbL^@HghgHF8eo:Z;:g2
+l38
+L17
+VVS3JZSl6X]5XX:MELK4JQ2
+!s100 :@K:jAX2Tnz6TN?XE67<o0
+R7
+33
+R8
+!i10b 1
+R9
+R114
+R115
+!i113 1
+R12
+R13
+Etb_new_code_word_assembler
+R20
+R51
+R52
+R53
+R54
+R55
+R56
+R57
+R58
+R59
+R60
+R61
+R62
+R63
+R64
+R65
+R66
+R67
+R68
+R69
+R70
+R71
+R72
+R73
+R74
+R75
+R76
+R77
+R78
+R79
+R80
+R81
+R82
+R83
+R84
+R85
+R86
+R87
+R88
+R89
+R90
+R91
+R92
+R93
+R94
+R2
+R3
+R4
+R0
+Z116 8C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\test\tb_new_code_word_assembler.vhd
+Z117 FC:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\test\tb_new_code_word_assembler.vhd
+l0
+L10
+VP5B]BXCPE0?lWk280eQ;l1
+!s100 EU[2g``]aVQzRlZgV2h@30
+R7
+33
+R8
+!i10b 1
+R29
+Z118 !s90 -quiet|-modelsimini|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\vunit_out\modelsim\modelsim.ini|-2008|-work|lib|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\test\tb_new_code_word_assembler.vhd|
+Z119 !s107 C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\test\tb_new_code_word_assembler.vhd|
+!i113 1
+R12
+R13
+Anew_code_word_assembler_arch
+R32
+R51
+R52
+R53
+R54
+R55
+R56
+R57
+R58
+R59
+R60
+R61
+R62
+R63
+R64
+R65
+R66
+R67
+R68
+R69
+R70
+R71
+R72
+R73
+R74
+R75
+R76
+R77
+R78
+R79
+R80
+R81
+R82
+R83
+R84
+R85
+R86
+R87
+R88
+R89
+R90
+R91
+R92
+R93
+R94
+R2
+R3
+R4
+DEx4 work 26 tb_new_code_word_assembler 0 22 P5B]BXCPE0?lWk280eQ;l1
+l37
+L17
+VOJejk:JM5k>FI[_^zVBUa2
+!s100 ::]=hz<6FPGodSoFRiQX^2
+R7
+33
+R8
+!i10b 1
+R29
+R118
+R119
+!i113 1
+R12
+R13
+Etb_new_rice_encode
+R33
+R51
+R52
+R53
+R54
+R55
+R56
+R57
+R58
+R59
+R60
+R61
+R62
+R63
+R64
+R65
+R66
+R67
+R68
+R69
+R70
+R71
+R72
+R73
+R74
+R75
+R76
+R77
+R78
+R79
+R80
+R81
+R82
+R83
+R84
+R85
+R86
+R87
+R88
+R89
+R90
+R91
+R92
+R93
+R94
+R2
+R3
+R4
+R0
+Z120 8C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\test\tb_new_rice_encode.vhd
+Z121 FC:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\test\tb_new_rice_encode.vhd
+l0
+L10
+VjNH<noOSY4YR@>830l`F?2
+!s100 B7bJe0G92<344ejnXzPf20
+R7
+33
+R28
+!i10b 1
+R29
+Z122 !s90 -quiet|-modelsimini|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\vunit_out\modelsim\modelsim.ini|-2008|-work|lib|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\test\tb_new_rice_encode.vhd|
+Z123 !s107 C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\test\tb_new_rice_encode.vhd|
+!i113 1
+R12
+R13
+Anew_rice_encode_arch
+R44
+R51
+R52
+R53
+R54
+R55
+R56
+R57
+R58
+R59
+R60
+R61
+R62
+R63
+R64
+R65
+R66
+R67
+R68
+R69
+R70
+R71
+R72
+R73
+R74
+R75
+R76
+R77
+R78
+R79
+R80
+R81
+R82
+R83
+R84
+R85
+R86
+R87
+R88
+R89
+R90
+R91
+R92
+R93
+R94
+R2
+R3
+R4
+DEx4 work 18 tb_new_rice_encode 0 22 jNH<noOSY4YR@>830l`F?2
+l40
+L17
+V6P4mA2<B^H02MeKf98i3U0
+!s100 hEI8Kdg@@P6dcl=G<cgi`1
+R7
+33
+R28
+!i10b 1
+R29
+R122
+R123
+!i113 1
+R12
+R13
+Etb_new_save_to_file
+Z124 w1714215946
+R51
+R52
+R53
+R54
+R55
+R56
+R57
+R58
+R59
+R60
+R61
+R62
+R63
+R64
+R65
+R66
+R67
+R68
+R69
+R70
+R71
+R72
+R73
+R74
+R75
+R76
+R77
+R78
+R79
+R80
+R81
+R82
+R83
+R84
+R85
+R86
+R87
+R88
+R89
+R90
+R91
+R92
+R93
+R94
+R2
+R3
+R4
+R0
+Z125 8C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\test\tb_new_save_to_file.vhd
+Z126 FC:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\test\tb_new_save_to_file.vhd
+l0
+L11
+V92im7:MlaBA]ljHjhjbC72
+!s100 k747?;]]@_5VQ1U]nhc<:0
+R7
+33
+R28
+!i10b 1
+R39
+Z127 !s90 -quiet|-modelsimini|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\vunit_out\modelsim\modelsim.ini|-2008|-work|lib|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\test\tb_new_save_to_file.vhd|
+Z128 !s107 C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\test\tb_new_save_to_file.vhd|
+!i113 1
+R12
+R13
+Anew_save_to_file_arch
+R51
+R52
+R53
+R54
+R55
+R56
+R57
+R58
+R59
+R60
+R61
+R62
+R63
+R64
+R65
+R66
+R67
+R68
+R69
+R70
+R71
+R72
+R73
+R74
+R75
+R76
+R77
+R78
+R79
+R80
+R81
+R82
+R83
+R84
+R85
+R86
+R87
+R88
+R89
+R90
+R91
+R92
+R93
+R94
+R2
+R3
+R4
+DEx4 work 19 tb_new_save_to_file 0 22 92im7:MlaBA]ljHjhjbC72
+l41
+L18
+VBW:aZFSbQTI1Rj4VEcV4U1
+!s100 PJOWf<Vk5gJFnX;lKJ2Il3
+R7
+33
+R28
+!i10b 1
+R39
+R127
+R128
+!i113 1
+R12
+R13
+Etb_save_to_file
+Z129 w1714215841
+R51
+R52
+R53
+R54
+R55
+R56
+R57
+R58
+R59
+R60
+R61
+R62
+R63
+R64
+R65
+R66
+R67
+R68
+R69
+R70
+R71
+R72
+R73
+R74
+R75
+R76
+R77
+R78
+R79
+R80
+R81
+R82
+R83
+R84
+R85
+R86
+R87
+R88
+R89
+R90
+R91
+R92
+R93
+R94
+R2
+R3
+R4
+R0
+Z130 8C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\test\tb_save_to_file.vhd
+Z131 FC:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\test\tb_save_to_file.vhd
+l0
+L11
+VZ1LLzd0zl7:^^>f<W`h>@3
+!s100 NC:VFf]=Gol2XTnW24?3g1
+R7
+33
+R28
+!i10b 1
+R29
+Z132 !s90 -quiet|-modelsimini|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\vunit_out\modelsim\modelsim.ini|-2008|-work|lib|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\test\tb_save_to_file.vhd|
+Z133 !s107 C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\test\tb_save_to_file.vhd|
+!i113 1
+R12
+R13
+Asave_to_file_arch
+R49
+R51
+R52
+R53
+R54
+R55
+R56
+R57
+R58
+R59
+R60
+R61
+R62
+R63
+R64
+R65
+R66
+R67
+R68
+R69
+R70
+R71
+R72
+R73
+R74
+R75
+R76
+R77
+R78
+R79
+R80
+R81
+R82
+R83
+R84
+R85
+R86
+R87
+R88
+R89
+R90
+R91
+R92
+R93
+R94
+R2
+R3
+R4
+DEx4 work 15 tb_save_to_file 0 22 Z1LLzd0zl7:^^>f<W`h>@3
+l39
+L18
+VM=@E;RCMdSo6h5_6]I_9Q2
+!s100 F0Jh8n6EcZ3UoE2g@QEh]2
+R7
+33
+R28
+!i10b 1
+R29
+R132
+R133
+!i113 1
+R12
+R13

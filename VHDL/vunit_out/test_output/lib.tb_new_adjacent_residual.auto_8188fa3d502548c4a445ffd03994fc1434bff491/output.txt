@@ -1,0 +1,8 @@
+# End time: 13:08:56 on Apr 27,2024, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 1
+# vsim -modelsimini C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/vunit_out/modelsim/modelsim.ini -wlf C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/vunit_out/test_output/lib.tb_new_adjacent_residual.auto_8188fa3d502548c4a445ffd03994fc1434bff491/modelsim/vsim.wlf -quiet -t ps -onfinish stop lib.tb_new_adjacent_residual(new_adjacent_residual_arch) -L vunit_lib -L lib -g/tb_new_adjacent_residual/runner_cfg="active python runner : true,enabled_test_cases : auto,output path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/vunit_out/test_output/lib.tb_new_adjacent_residual.auto_8188fa3d502548c4a445ffd03994fc1434bff491/,tb path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/,use_color : true" 
+# Start time: 13:08:56 on Apr 27,2024
+# ** Warning: Design size of 26371 statements exceeds ModelSim-Intel FPGA Starter Edition recommended capacity.
+# Expect performance to be adversely affected.
+# Break in Subprogram stop at C:/Users/axelo/anaconda3/envs/prog2/Lib/site-packages/vunit/vhdl/core/src/stop_body_2008p.vhd line 13
+# Stopped at C:/Users/axelo/anaconda3/envs/prog2/Lib/site-packages/vunit/vhdl/core/src/stop_body_2008p.vhd line 13

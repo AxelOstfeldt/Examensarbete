@@ -1,0 +1,14 @@
+# End time: 13:08:50 on Apr 27,2024, Elapsed time: 0:00:24
+# Errors: 0, Warnings: 4
+# vsim -modelsimini C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/vunit_out/modelsim/modelsim.ini -wlf C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/vunit_out/test_output/lib.tb_adjacent_combined.auto_0310a4ae441b4b410f3273369bf792093461c0b0/modelsim/vsim.wlf -quiet -t ps -onfinish stop lib.tb_adjacent_combined(adjacent_combined_arch) -L vunit_lib -L lib -g/tb_adjacent_combined/runner_cfg="active python runner : true,enabled_test_cases : auto,output path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/vunit_out/test_output/lib.tb_adjacent_combined.auto_0310a4ae441b4b410f3273369bf792093461c0b0/,tb path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/,use_color : true" 
+# Start time: 13:08:50 on Apr 27,2024
+# ** Warning: Design size of 27499 statements exceeds ModelSim-Intel FPGA Starter Edition recommended capacity.
+# Expect performance to be adversely affected.
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 2 ns  Iteration: 0  Instance: /tb_adjacent_combined/RiceEncoderTest
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 2 ns  Iteration: 0  Instance: /tb_adjacent_combined/RiceEncoderTest
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 2 ns  Iteration: 0  Instance: /tb_adjacent_combined/RiceEncoderTest
+# Break in Subprogram stop at C:/Users/axelo/anaconda3/envs/prog2/Lib/site-packages/vunit/vhdl/core/src/stop_body_2008p.vhd line 13
+# Stopped at C:/Users/axelo/anaconda3/envs/prog2/Lib/site-packages/vunit/vhdl/core/src/stop_body_2008p.vhd line 13
