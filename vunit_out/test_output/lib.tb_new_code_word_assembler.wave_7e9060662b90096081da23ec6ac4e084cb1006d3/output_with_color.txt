@@ -1,7 +1,7 @@
-# End time: 12:51:44 on Apr 27,2024, Elapsed time: 0:00:00
+# End time: 13:06:57 on Apr 27,2024, Elapsed time: 0:00:01
 # Errors: 0, Warnings: 1
 # vsim -modelsimini C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/modelsim/modelsim.ini -wlf C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_new_code_word_assembler.wave_7e9060662b90096081da23ec6ac4e084cb1006d3/modelsim/vsim.wlf -quiet -t ps -onfinish stop lib.tb_new_code_word_assembler(new_code_word_assembler_arch) -L vunit_lib -L lib -g/tb_new_code_word_assembler/runner_cfg="active python runner : true,enabled_test_cases : wave,output path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_new_code_word_assembler.wave_7e9060662b90096081da23ec6ac4e084cb1006d3/,tb path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/,use_color : true" 
-# Start time: 12:51:44 on Apr 27,2024
+# Start time: 13:06:57 on Apr 27,2024
 # ** Warning: Design size of 26271 statements exceeds ModelSim-Intel FPGA Starter Edition recommended capacity.
 # Expect performance to be adversely affected.
 # Break in Subprogram stop at C:/Users/axelo/anaconda3/envs/prog2/Lib/site-packages/vunit/vhdl/core/src/stop_body_2008p.vhd line 13

@@ -45,8 +45,8 @@ begin
       variable row_value : std_logic_vector(23 downto 0);
       --Make sure this directiory is correct!
       --file my_file : text open read_mode is "/home/toad/Projects/FPGA-sampling2/pl/test/first_sample_binary.txt";
-      file my_file : text open read_mode is "/home/toad/Projects/FPGA-sampling2/pl/test/data_block_binary.txt";
-
+      --file my_file : text open read_mode is "/home/toad/Projects/FPGA-sampling2/pl/test/data_block_binary.txt";
+      file my_file : text open read_mode is "C:\\Users\\axelo\\OneDrive\\Skrivbord\\Exjobb\\GIT\\SoundData\\VHDL\\data_block_binary.txt";
    begin
       --test code
       if falling_edge(clk_tb) then

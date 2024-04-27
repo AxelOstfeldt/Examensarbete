@@ -48,7 +48,10 @@ begin
    ws_process_1234 : process (clk_tb)
       --Variables to write to txt file
       --Importent to check path /My/Path/MyFileName.txt
-      file file_handler     : text open write_mode is "/home/toad/Projects/FPGA-sampling2/pl/test/testtext.txt";
+      --file file_handler     : text open write_mode is "/home/toad/Projects/FPGA-sampling2/pl/test/testtext.txt";
+      
+      file file_handler     : text open write_mode is "C:\\Users\\axelo\\OneDrive\\Skrivbord\\Exjobb\\GIT\\SoundData\\VHDL\\new_save.txt";
+      
       variable row          : line;
 --      variable v_data_write : std_logic;
 

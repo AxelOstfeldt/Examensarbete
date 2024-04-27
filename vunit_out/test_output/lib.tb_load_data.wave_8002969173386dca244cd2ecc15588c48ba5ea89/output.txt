@@ -1,36 +1,8 @@
-# End time: 12:51:41 on Apr 27,2024, Elapsed time: 0:00:01
+# End time: 13:06:53 on Apr 27,2024, Elapsed time: 0:00:01
 # Errors: 0, Warnings: 1
 # vsim -modelsimini C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/modelsim/modelsim.ini -wlf C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_load_data.wave_8002969173386dca244cd2ecc15588c48ba5ea89/modelsim/vsim.wlf -quiet -t ps -onfinish stop lib.tb_load_data(load_data_arch) -L vunit_lib -L lib -g/tb_load_data/runner_cfg="active python runner : true,enabled_test_cases : wave,output path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_load_data.wave_8002969173386dca244cd2ecc15588c48ba5ea89/,tb path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/,use_color : true" 
-# Start time: 12:51:41 on Apr 27,2024
-# ** Warning: (vsim-7) Failed to open VHDL file "/home/toad/Projects/FPGA-sampling2/pl/test/data_block_binary.txt" in rb mode.
-# No such file or directory. (errno = ENOENT)
-#    Time: 0 ps  Iteration: 0  Instance: /tb_load_data
+# Start time: 13:06:53 on Apr 27,2024
 # ** Warning: Design size of 26035 statements exceeds ModelSim-Intel FPGA Starter Edition recommended capacity.
 # Expect performance to be adversely affected.
-# ** Fatal: (vsim-7) Failed to open VHDL file "/home/toad/Projects/FPGA-sampling2/pl/test/data_block_binary.txt" in rb mode.
-# No such file or directory. (errno = ENOENT)
-#    Time: 48 ns  Iteration: 0  Process: /tb_load_data/ws_process_1234 File: C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/tb_load_data.vhd
-# Fatal error in Process ws_process_1234 at C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/tb_load_data.vhd line 58
-# 
-# HDL call sequence:
-# Stopped at C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/tb_load_data.vhd 58 Process ws_process_1234
-# 
-# 
-# Test Run Failed!
-# 
-# Stack trace result from 'tb' command
-#  C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/tb_load_data.vhd 58 return [address 0xff5ce5cb] Process ws_process_1234
-# 
-# 
-# Surrounding code from 'see' command
-#   53 : 
-#   54 :          if StateDelay_tb = "01" then
-#   55 :             LastMicReached_tb <= '0';
-#   56 : 
-#   57 :             --check that it is not end of file
-# ->58 :             if not endfile(my_file) then
-#   59 :                --point to the next line
-#   60 :                readline(my_file, text_line);
-#   61 :                --read the current lint
-#   62 :                read(text_line, row_value);
-# 
+# Break in Subprogram stop at C:/Users/axelo/anaconda3/envs/prog2/Lib/site-packages/vunit/vhdl/core/src/stop_body_2008p.vhd line 13
+# Stopped at C:/Users/axelo/anaconda3/envs/prog2/Lib/site-packages/vunit/vhdl/core/src/stop_body_2008p.vhd line 13

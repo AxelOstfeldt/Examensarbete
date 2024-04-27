@@ -1,0 +1,293 @@
+# do {C:\Users\axelo\anaconda3\envs\prog2\Lib\site-packages\vunit\sim_if\tcl_read_eval_loop.tcl}
+# vsim -modelsimini C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/modelsim/modelsim.ini -wlf C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_adjacent_combined.wave_e201dbda19776bf90770e3ed4ebd13f62d6efd3d/modelsim/vsim.wlf -quiet -t ps -onfinish stop lib.tb_adjacent_combined(adjacent_combined_arch) -L vunit_lib -L lib -g/tb_adjacent_combined/runner_cfg="active python runner : true,enabled_test_cases : wave,output path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_adjacent_combined.wave_e201dbda19776bf90770e3ed4ebd13f62d6efd3d/,tb path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/,use_color : true" 
+# Start time: 12:59:08 on Apr 27,2024
+# ** Warning: (vsim-7) Failed to open VHDL file "C:\\Users\\axelo\\OneDrive\\Skrivbord\\Exjobb\\GIT\\SoundData\\data_block_binary.txt" in rb mode.
+# No such file or directory. (errno = ENOENT)
+#    Time: 0 ps  Iteration: 0  Instance: /tb_adjacent_combined
+# ** Warning: Design size of 27499 statements exceeds ModelSim-Intel FPGA Starter Edition recommended capacity.
+# Expect performance to be adversely affected.
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 2 ns  Iteration: 0  Instance: /tb_adjacent_combined/RiceEncoderTest
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 2 ns  Iteration: 0  Instance: /tb_adjacent_combined/RiceEncoderTest
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 2 ns  Iteration: 0  Instance: /tb_adjacent_combined/RiceEncoderTest
+# ** Fatal: (vsim-7) Failed to open VHDL file "C:\\Users\\axelo\\OneDrive\\Skrivbord\\Exjobb\\GIT\\SoundData\\data_block_binary.txt" in rb mode.
+# No such file or directory. (errno = ENOENT)
+#    Time: 40 ns  Iteration: 0  Process: /tb_adjacent_combined/ws_process_12345 File: C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/tb_adjacent_combined.vhd
+# Fatal error in Process ws_process_12345 at C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/tb_adjacent_combined.vhd line 217
+# 
+# HDL call sequence:
+# Stopped at C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/tb_adjacent_combined.vhd 217 Process ws_process_12345
+# 
+# 
+# Test Run Failed!
+# 
+# Stack trace result from 'tb' command
+#  C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/tb_adjacent_combined.vhd 217 return [address 0xff5cdee8] Process ws_process_12345
+# 
+# 
+# Surrounding code from 'see' command
+#   212 : 
+#   213 :             InputState_tb <= "10";
+#   214 : 
+#   215 :          elsif InputState_tb = "10" then
+#   216 :             --check that it is not end of file
+# ->217 :             if not endfile(my_file) then
+#   218 :                --point to the next line
+#   219 :                readline(my_file, text_line);
+#   220 :                --read the current lint
+#   221 :                read(text_line, row_value);
+# 
+# End time: 12:59:09 on Apr 27,2024, Elapsed time: 0:00:01
+# Errors: 2, Warnings: 5
+# vsim -modelsimini C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/modelsim/modelsim.ini -wlf C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_adjacent_combined.auto_0310a4ae441b4b410f3273369bf792093461c0b0/modelsim/vsim.wlf -quiet -t ps -onfinish stop lib.tb_adjacent_combined(adjacent_combined_arch) -L vunit_lib -L lib -g/tb_adjacent_combined/runner_cfg="active python runner : true,enabled_test_cases : auto,output path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_adjacent_combined.auto_0310a4ae441b4b410f3273369bf792093461c0b0/,tb path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/,use_color : true" 
+# Start time: 12:59:09 on Apr 27,2024
+# ** Warning: (vsim-7) Failed to open VHDL file "C:\\Users\\axelo\\OneDrive\\Skrivbord\\Exjobb\\GIT\\SoundData\\data_block_binary.txt" in rb mode.
+# No such file or directory. (errno = ENOENT)
+#    Time: 0 ps  Iteration: 0  Instance: /tb_adjacent_combined
+# ** Warning: Design size of 27499 statements exceeds ModelSim-Intel FPGA Starter Edition recommended capacity.
+# Expect performance to be adversely affected.
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 2 ns  Iteration: 0  Instance: /tb_adjacent_combined/RiceEncoderTest
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 2 ns  Iteration: 0  Instance: /tb_adjacent_combined/RiceEncoderTest
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 2 ns  Iteration: 0  Instance: /tb_adjacent_combined/RiceEncoderTest
+# Break in Subprogram stop at C:/Users/axelo/anaconda3/envs/prog2/Lib/site-packages/vunit/vhdl/core/src/stop_body_2008p.vhd line 13
+# Stopped at C:/Users/axelo/anaconda3/envs/prog2/Lib/site-packages/vunit/vhdl/core/src/stop_body_2008p.vhd line 13
+# End time: 12:59:10 on Apr 27,2024, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 5
+# vsim -modelsimini C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/modelsim/modelsim.ini -wlf C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_calculate_k_value.wave_67f6c1f74e15611b708f67d06dcc26cd93f86017/modelsim/vsim.wlf -quiet -t ps -onfinish stop lib.tb_calculate_k_value(calculate_k_value_arch) -L vunit_lib -L lib -g/tb_calculate_k_value/runner_cfg="active python runner : true,enabled_test_cases : wave,output path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_calculate_k_value.wave_67f6c1f74e15611b708f67d06dcc26cd93f86017/,tb path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/,use_color : true" 
+# Start time: 12:59:10 on Apr 27,2024
+# ** Warning: Design size of 26159 statements exceeds ModelSim-Intel FPGA Starter Edition recommended capacity.
+# Expect performance to be adversely affected.
+# Break in Subprogram stop at C:/Users/axelo/anaconda3/envs/prog2/Lib/site-packages/vunit/vhdl/core/src/stop_body_2008p.vhd line 13
+# Stopped at C:/Users/axelo/anaconda3/envs/prog2/Lib/site-packages/vunit/vhdl/core/src/stop_body_2008p.vhd line 13
+# End time: 12:59:10 on Apr 27,2024, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 1
+# vsim -modelsimini C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/modelsim/modelsim.ini -wlf C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_calculate_k_value.auto_2801381288ec82a1bc2c371390d6a664cad31460/modelsim/vsim.wlf -quiet -t ps -onfinish stop lib.tb_calculate_k_value(calculate_k_value_arch) -L vunit_lib -L lib -g/tb_calculate_k_value/runner_cfg="active python runner : true,enabled_test_cases : auto,output path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_calculate_k_value.auto_2801381288ec82a1bc2c371390d6a664cad31460/,tb path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/,use_color : true" 
+# Start time: 12:59:10 on Apr 27,2024
+# ** Warning: Design size of 26159 statements exceeds ModelSim-Intel FPGA Starter Edition recommended capacity.
+# Expect performance to be adversely affected.
+# Break in Subprogram stop at C:/Users/axelo/anaconda3/envs/prog2/Lib/site-packages/vunit/vhdl/core/src/stop_body_2008p.vhd line 13
+# Stopped at C:/Users/axelo/anaconda3/envs/prog2/Lib/site-packages/vunit/vhdl/core/src/stop_body_2008p.vhd line 13
+# End time: 12:59:11 on Apr 27,2024, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 1
+# vsim -modelsimini C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/modelsim/modelsim.ini -wlf C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_load_data.wave_8002969173386dca244cd2ecc15588c48ba5ea89/modelsim/vsim.wlf -quiet -t ps -onfinish stop lib.tb_load_data(load_data_arch) -L vunit_lib -L lib -g/tb_load_data/runner_cfg="active python runner : true,enabled_test_cases : wave,output path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_load_data.wave_8002969173386dca244cd2ecc15588c48ba5ea89/,tb path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/,use_color : true" 
+# Start time: 12:59:11 on Apr 27,2024
+# ** Warning: (vsim-7) Failed to open VHDL file "/home/toad/Projects/FPGA-sampling2/pl/test/data_block_binary.txt" in rb mode.
+# No such file or directory. (errno = ENOENT)
+#    Time: 0 ps  Iteration: 0  Instance: /tb_load_data
+# ** Warning: Design size of 26035 statements exceeds ModelSim-Intel FPGA Starter Edition recommended capacity.
+# Expect performance to be adversely affected.
+# ** Fatal: (vsim-7) Failed to open VHDL file "/home/toad/Projects/FPGA-sampling2/pl/test/data_block_binary.txt" in rb mode.
+# No such file or directory. (errno = ENOENT)
+#    Time: 48 ns  Iteration: 0  Process: /tb_load_data/ws_process_1234 File: C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/tb_load_data.vhd
+# Fatal error in Process ws_process_1234 at C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/tb_load_data.vhd line 58
+# 
+# HDL call sequence:
+# Stopped at C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/tb_load_data.vhd 58 Process ws_process_1234
+# 
+# 
+# Test Run Failed!
+# 
+# Stack trace result from 'tb' command
+#  C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/tb_load_data.vhd 58 return [address 0xff5ce5cb] Process ws_process_1234
+# 
+# 
+# Surrounding code from 'see' command
+#   53 : 
+#   54 :          if StateDelay_tb = "01" then
+#   55 :             LastMicReached_tb <= '0';
+#   56 : 
+#   57 :             --check that it is not end of file
+# ->58 :             if not endfile(my_file) then
+#   59 :                --point to the next line
+#   60 :                readline(my_file, text_line);
+#   61 :                --read the current lint
+#   62 :                read(text_line, row_value);
+# 
+# End time: 12:59:11 on Apr 27,2024, Elapsed time: 0:00:00
+# Errors: 2, Warnings: 2
+# vsim -modelsimini C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/modelsim/modelsim.ini -wlf C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_load_data.auto_94297e7d0f10a9908be28ea160dc9c497b5ad749/modelsim/vsim.wlf -quiet -t ps -onfinish stop lib.tb_load_data(load_data_arch) -L vunit_lib -L lib -g/tb_load_data/runner_cfg="active python runner : true,enabled_test_cases : auto,output path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_load_data.auto_94297e7d0f10a9908be28ea160dc9c497b5ad749/,tb path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/,use_color : true" 
+# Start time: 12:59:11 on Apr 27,2024
+# ** Warning: (vsim-7) Failed to open VHDL file "/home/toad/Projects/FPGA-sampling2/pl/test/data_block_binary.txt" in rb mode.
+# No such file or directory. (errno = ENOENT)
+#    Time: 0 ps  Iteration: 0  Instance: /tb_load_data
+# ** Warning: Design size of 26035 statements exceeds ModelSim-Intel FPGA Starter Edition recommended capacity.
+# Expect performance to be adversely affected.
+# Break in Subprogram stop at C:/Users/axelo/anaconda3/envs/prog2/Lib/site-packages/vunit/vhdl/core/src/stop_body_2008p.vhd line 13
+# Stopped at C:/Users/axelo/anaconda3/envs/prog2/Lib/site-packages/vunit/vhdl/core/src/stop_body_2008p.vhd line 13
+# End time: 12:59:12 on Apr 27,2024, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 2
+# vsim -modelsimini C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/modelsim/modelsim.ini -wlf C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_new_adjacent_recreate.wave_bd03dc5c1b4a7b80c962509378d9c8b24fd4debe/modelsim/vsim.wlf -quiet -t ps -onfinish stop lib.tb_new_adjacent_recreate(new_adjacent_recreate_arch) -L vunit_lib -L lib -g/tb_new_adjacent_recreate/runner_cfg="active python runner : true,enabled_test_cases : wave,output path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_new_adjacent_recreate.wave_bd03dc5c1b4a7b80c962509378d9c8b24fd4debe/,tb path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/,use_color : true" 
+# Start time: 12:59:12 on Apr 27,2024
+# ** Warning: Design size of 26007 statements exceeds ModelSim-Intel FPGA Starter Edition recommended capacity.
+# Expect performance to be adversely affected.
+# Break in Subprogram stop at C:/Users/axelo/anaconda3/envs/prog2/Lib/site-packages/vunit/vhdl/core/src/stop_body_2008p.vhd line 13
+# Stopped at C:/Users/axelo/anaconda3/envs/prog2/Lib/site-packages/vunit/vhdl/core/src/stop_body_2008p.vhd line 13
+# End time: 12:59:12 on Apr 27,2024, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 1
+# vsim -modelsimini C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/modelsim/modelsim.ini -wlf C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_new_adjacent_recreate.auto_20a029ff028c1afcce5248be4cd8145b32c54b94/modelsim/vsim.wlf -quiet -t ps -onfinish stop lib.tb_new_adjacent_recreate(new_adjacent_recreate_arch) -L vunit_lib -L lib -g/tb_new_adjacent_recreate/runner_cfg="active python runner : true,enabled_test_cases : auto,output path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_new_adjacent_recreate.auto_20a029ff028c1afcce5248be4cd8145b32c54b94/,tb path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/,use_color : true" 
+# Start time: 12:59:13 on Apr 27,2024
+# ** Warning: Design size of 26007 statements exceeds ModelSim-Intel FPGA Starter Edition recommended capacity.
+# Expect performance to be adversely affected.
+# Break in Subprogram stop at C:/Users/axelo/anaconda3/envs/prog2/Lib/site-packages/vunit/vhdl/core/src/stop_body_2008p.vhd line 13
+# Stopped at C:/Users/axelo/anaconda3/envs/prog2/Lib/site-packages/vunit/vhdl/core/src/stop_body_2008p.vhd line 13
+# End time: 12:59:13 on Apr 27,2024, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 1
+# vsim -modelsimini C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/modelsim/modelsim.ini -wlf C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_new_adjacent_residual.wave_064adc7b506b59ea46a8bf9bfdba44801acd557e/modelsim/vsim.wlf -quiet -t ps -onfinish stop lib.tb_new_adjacent_residual(new_adjacent_residual_arch) -L vunit_lib -L lib -g/tb_new_adjacent_residual/runner_cfg="active python runner : true,enabled_test_cases : wave,output path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_new_adjacent_residual.wave_064adc7b506b59ea46a8bf9bfdba44801acd557e/,tb path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/,use_color : true" 
+# Start time: 12:59:13 on Apr 27,2024
+# ** Warning: Design size of 26371 statements exceeds ModelSim-Intel FPGA Starter Edition recommended capacity.
+# Expect performance to be adversely affected.
+# Break in Subprogram stop at C:/Users/axelo/anaconda3/envs/prog2/Lib/site-packages/vunit/vhdl/core/src/stop_body_2008p.vhd line 13
+# Stopped at C:/Users/axelo/anaconda3/envs/prog2/Lib/site-packages/vunit/vhdl/core/src/stop_body_2008p.vhd line 13
+# End time: 12:59:14 on Apr 27,2024, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 1
+# vsim -modelsimini C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/modelsim/modelsim.ini -wlf C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_new_adjacent_residual.auto_8188fa3d502548c4a445ffd03994fc1434bff491/modelsim/vsim.wlf -quiet -t ps -onfinish stop lib.tb_new_adjacent_residual(new_adjacent_residual_arch) -L vunit_lib -L lib -g/tb_new_adjacent_residual/runner_cfg="active python runner : true,enabled_test_cases : auto,output path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_new_adjacent_residual.auto_8188fa3d502548c4a445ffd03994fc1434bff491/,tb path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/,use_color : true" 
+# Start time: 12:59:14 on Apr 27,2024
+# ** Warning: Design size of 26371 statements exceeds ModelSim-Intel FPGA Starter Edition recommended capacity.
+# Expect performance to be adversely affected.
+# Break in Subprogram stop at C:/Users/axelo/anaconda3/envs/prog2/Lib/site-packages/vunit/vhdl/core/src/stop_body_2008p.vhd line 13
+# Stopped at C:/Users/axelo/anaconda3/envs/prog2/Lib/site-packages/vunit/vhdl/core/src/stop_body_2008p.vhd line 13
+# End time: 12:59:14 on Apr 27,2024, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 1
+# vsim -modelsimini C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/modelsim/modelsim.ini -wlf C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_new_code_word_assembler.wave_7e9060662b90096081da23ec6ac4e084cb1006d3/modelsim/vsim.wlf -quiet -t ps -onfinish stop lib.tb_new_code_word_assembler(new_code_word_assembler_arch) -L vunit_lib -L lib -g/tb_new_code_word_assembler/runner_cfg="active python runner : true,enabled_test_cases : wave,output path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_new_code_word_assembler.wave_7e9060662b90096081da23ec6ac4e084cb1006d3/,tb path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/,use_color : true" 
+# Start time: 12:59:14 on Apr 27,2024
+# ** Warning: Design size of 26271 statements exceeds ModelSim-Intel FPGA Starter Edition recommended capacity.
+# Expect performance to be adversely affected.
+# Break in Subprogram stop at C:/Users/axelo/anaconda3/envs/prog2/Lib/site-packages/vunit/vhdl/core/src/stop_body_2008p.vhd line 13
+# Stopped at C:/Users/axelo/anaconda3/envs/prog2/Lib/site-packages/vunit/vhdl/core/src/stop_body_2008p.vhd line 13
+# End time: 12:59:15 on Apr 27,2024, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 1
+# vsim -modelsimini C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/modelsim/modelsim.ini -wlf C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_new_code_word_assembler.auto_40b197e82b9286b6c0881b64c6604d24d6adc6bb/modelsim/vsim.wlf -quiet -t ps -onfinish stop lib.tb_new_code_word_assembler(new_code_word_assembler_arch) -L vunit_lib -L lib -g/tb_new_code_word_assembler/runner_cfg="active python runner : true,enabled_test_cases : auto,output path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_new_code_word_assembler.auto_40b197e82b9286b6c0881b64c6604d24d6adc6bb/,tb path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/,use_color : true" 
+# Start time: 12:59:15 on Apr 27,2024
+# ** Warning: Design size of 26271 statements exceeds ModelSim-Intel FPGA Starter Edition recommended capacity.
+# Expect performance to be adversely affected.
+# Break in Subprogram stop at C:/Users/axelo/anaconda3/envs/prog2/Lib/site-packages/vunit/vhdl/core/src/stop_body_2008p.vhd line 13
+# Stopped at C:/Users/axelo/anaconda3/envs/prog2/Lib/site-packages/vunit/vhdl/core/src/stop_body_2008p.vhd line 13
+# End time: 12:59:15 on Apr 27,2024, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 1
+# vsim -modelsimini C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/modelsim/modelsim.ini -wlf C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_new_rice_encode.wave_9aba78dd9db0d1d9ad713bbe12aec4d2acd6b344/modelsim/vsim.wlf -quiet -t ps -onfinish stop lib.tb_new_rice_encode(new_rice_encode_arch) -L vunit_lib -L lib -g/tb_new_rice_encode/runner_cfg="active python runner : true,enabled_test_cases : wave,output path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_new_rice_encode.wave_9aba78dd9db0d1d9ad713bbe12aec4d2acd6b344/,tb path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/,use_color : true" 
+# Start time: 12:59:15 on Apr 27,2024
+# ** Warning: Design size of 26460 statements exceeds ModelSim-Intel FPGA Starter Edition recommended capacity.
+# Expect performance to be adversely affected.
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 4 ns  Iteration: 0  Instance: /tb_new_rice_encode/RiceEncoderTest
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 4 ns  Iteration: 0  Instance: /tb_new_rice_encode/RiceEncoderTest
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 4 ns  Iteration: 0  Instance: /tb_new_rice_encode/RiceEncoderTest
+# Break in Subprogram stop at C:/Users/axelo/anaconda3/envs/prog2/Lib/site-packages/vunit/vhdl/core/src/stop_body_2008p.vhd line 13
+# Stopped at C:/Users/axelo/anaconda3/envs/prog2/Lib/site-packages/vunit/vhdl/core/src/stop_body_2008p.vhd line 13
+# End time: 12:59:16 on Apr 27,2024, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 4
+# vsim -modelsimini C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/modelsim/modelsim.ini -wlf C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_new_rice_encode.auto_4ee1ae69615349cc6b440bc63f3fb85431a74f06/modelsim/vsim.wlf -quiet -t ps -onfinish stop lib.tb_new_rice_encode(new_rice_encode_arch) -L vunit_lib -L lib -g/tb_new_rice_encode/runner_cfg="active python runner : true,enabled_test_cases : auto,output path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_new_rice_encode.auto_4ee1ae69615349cc6b440bc63f3fb85431a74f06/,tb path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/,use_color : true" 
+# Start time: 12:59:16 on Apr 27,2024
+# ** Warning: Design size of 26460 statements exceeds ModelSim-Intel FPGA Starter Edition recommended capacity.
+# Expect performance to be adversely affected.
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 4 ns  Iteration: 0  Instance: /tb_new_rice_encode/RiceEncoderTest
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 4 ns  Iteration: 0  Instance: /tb_new_rice_encode/RiceEncoderTest
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 4 ns  Iteration: 0  Instance: /tb_new_rice_encode/RiceEncoderTest
+# Break in Subprogram stop at C:/Users/axelo/anaconda3/envs/prog2/Lib/site-packages/vunit/vhdl/core/src/stop_body_2008p.vhd line 13
+# Stopped at C:/Users/axelo/anaconda3/envs/prog2/Lib/site-packages/vunit/vhdl/core/src/stop_body_2008p.vhd line 13
+# End time: 12:59:16 on Apr 27,2024, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 4
+# vsim -modelsimini C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/modelsim/modelsim.ini -wlf C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_new_save_to_file.wave_dbcb698758a5f6a7bc64fe541d7e1d2f2910bb96/modelsim/vsim.wlf -quiet -t ps -onfinish stop lib.tb_new_save_to_file(new_save_to_file_arch) -L vunit_lib -L lib -g/tb_new_save_to_file/runner_cfg="active python runner : true,enabled_test_cases : wave,output path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_new_save_to_file.wave_dbcb698758a5f6a7bc64fe541d7e1d2f2910bb96/,tb path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/,use_color : true" 
+# Start time: 12:59:16 on Apr 27,2024
+# ** Warning: (vsim-7) Failed to open VHDL file "/home/toad/Projects/FPGA-sampling2/pl/test/testtext.txt" in r+ mode.
+# No such file or directory. (errno = ENOENT)
+#    Time: 0 ps  Iteration: 0  Instance: /tb_new_save_to_file
+# ** Warning: Design size of 26039 statements exceeds ModelSim-Intel FPGA Starter Edition recommended capacity.
+# Expect performance to be adversely affected.
+# ** Fatal: (vsim-7) Failed to open VHDL file "/home/toad/Projects/FPGA-sampling2/pl/test/testtext.txt" in r+ mode.
+# No such file or directory. (errno = ENOENT)
+#    Time: 56 ns  Iteration: 0  Process: /tb_new_save_to_file/ws_process_1234 File: C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/tb_new_save_to_file.vhd
+# Fatal error in Process ws_process_1234 at C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/tb_new_save_to_file.vhd line 87
+# 
+# HDL call sequence:
+# Stopped at C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/tb_new_save_to_file.vhd 87 Process ws_process_1234
+# 
+# 
+# Test Run Failed!
+# 
+# Stack trace result from 'tb' command
+#  C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/tb_new_save_to_file.vhd 87 return [address 0xff5cdc60] Process ws_process_1234
+# 
+# 
+# Surrounding code from 'see' command
+#   82 :                write(row, v_data_write(8191 downto 8191-BottomLimit_tb));
+#   83 :                NewRow_tb <= '1';
+#   84 :                RowCounter_tb <= RowCounter_tb + 1;
+#   85 : 
+#   86 :             else
+# ->87 :                writeline(file_handler ,row);
+#   88 :                NewRow_tb <= '0';
+#   89 : 
+#   90 :                StateDelay_tb <= "11";
+#   91 : 
+# 
+# End time: 12:59:17 on Apr 27,2024, Elapsed time: 0:00:01
+# Errors: 2, Warnings: 2
+# vsim -modelsimini C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/modelsim/modelsim.ini -wlf C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_new_save_to_file.auto_abe544397fa7549e33639e73b9695af0813c6f1a/modelsim/vsim.wlf -quiet -t ps -onfinish stop lib.tb_new_save_to_file(new_save_to_file_arch) -L vunit_lib -L lib -g/tb_new_save_to_file/runner_cfg="active python runner : true,enabled_test_cases : auto,output path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_new_save_to_file.auto_abe544397fa7549e33639e73b9695af0813c6f1a/,tb path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/,use_color : true" 
+# Start time: 12:59:17 on Apr 27,2024
+# ** Warning: (vsim-7) Failed to open VHDL file "/home/toad/Projects/FPGA-sampling2/pl/test/testtext.txt" in r+ mode.
+# No such file or directory. (errno = ENOENT)
+#    Time: 0 ps  Iteration: 0  Instance: /tb_new_save_to_file
+# ** Warning: Design size of 26039 statements exceeds ModelSim-Intel FPGA Starter Edition recommended capacity.
+# Expect performance to be adversely affected.
+# Break in Subprogram stop at C:/Users/axelo/anaconda3/envs/prog2/Lib/site-packages/vunit/vhdl/core/src/stop_body_2008p.vhd line 13
+# Stopped at C:/Users/axelo/anaconda3/envs/prog2/Lib/site-packages/vunit/vhdl/core/src/stop_body_2008p.vhd line 13
+# End time: 12:59:18 on Apr 27,2024, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 2
+# vsim -modelsimini C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/modelsim/modelsim.ini -wlf C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_save_to_file.wave_e3da1678f7d0939ae24cf6e4680eb057eaebe589/modelsim/vsim.wlf -quiet -t ps -onfinish stop lib.tb_save_to_file(save_to_file_arch) -L vunit_lib -L lib -g/tb_save_to_file/runner_cfg="active python runner : true,enabled_test_cases : wave,output path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_save_to_file.wave_e3da1678f7d0939ae24cf6e4680eb057eaebe589/,tb path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/,use_color : true" 
+# Start time: 12:59:18 on Apr 27,2024
+# ** Warning: (vsim-7) Failed to open VHDL file "/home/toad/Projects/FPGA-sampling2/pl/test/testtext.txt" in r+ mode.
+# No such file or directory. (errno = ENOENT)
+#    Time: 0 ps  Iteration: 0  Instance: /tb_save_to_file
+# ** Warning: Design size of 26164 statements exceeds ModelSim-Intel FPGA Starter Edition recommended capacity.
+# Expect performance to be adversely affected.
+# ** Fatal: (vsim-7) Failed to open VHDL file "/home/toad/Projects/FPGA-sampling2/pl/test/testtext.txt" in r+ mode.
+# No such file or directory. (errno = ENOENT)
+#    Time: 152 ns  Iteration: 0  Process: /tb_save_to_file/ws_process_1234 File: C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/tb_save_to_file.vhd
+# Fatal error in Process ws_process_1234 at C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/tb_save_to_file.vhd line 114
+# 
+# HDL call sequence:
+# Stopped at C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/tb_save_to_file.vhd 114 Process ws_process_1234
+# 
+# 
+# Test Run Failed!
+# 
+# Stack trace result from 'tb' command
+#  C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/tb_save_to_file.vhd 114 return [address 0xff5cdf78] Process ws_process_1234
+# 
+# 
+# Surrounding code from 'see' command
+#   109 :                write(row, v_data_write);
+#   110 :                NewRow <= '1';
+#   111 :                
+#   112 : 
+#   113 :             elsif NewRow = '1' then
+# ->114 :                writeline(file_handler ,row);
+#   115 :                NewRow <= '0';
+#   116 : 
+#   117 :                StateDelay_tb <= "10";
+#   118 :                
+# 
+# End time: 12:59:18 on Apr 27,2024, Elapsed time: 0:00:00
+# Errors: 2, Warnings: 2
+# vsim -modelsimini C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/modelsim/modelsim.ini -wlf C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_save_to_file.auto_3a25e16ce962d6cadb7ae49b736d71982009cf88/modelsim/vsim.wlf -quiet -t ps -onfinish stop lib.tb_save_to_file(save_to_file_arch) -L vunit_lib -L lib -g/tb_save_to_file/runner_cfg="active python runner : true,enabled_test_cases : auto,output path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_save_to_file.auto_3a25e16ce962d6cadb7ae49b736d71982009cf88/,tb path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/,use_color : true" 
+# Start time: 12:59:18 on Apr 27,2024
+# ** Warning: (vsim-7) Failed to open VHDL file "/home/toad/Projects/FPGA-sampling2/pl/test/testtext.txt" in r+ mode.
+# No such file or directory. (errno = ENOENT)
+#    Time: 0 ps  Iteration: 0  Instance: /tb_save_to_file
+# ** Warning: Design size of 26164 statements exceeds ModelSim-Intel FPGA Starter Edition recommended capacity.
+# Expect performance to be adversely affected.
+# Break in Subprogram stop at C:/Users/axelo/anaconda3/envs/prog2/Lib/site-packages/vunit/vhdl/core/src/stop_body_2008p.vhd line 13
+# Stopped at C:/Users/axelo/anaconda3/envs/prog2/Lib/site-packages/vunit/vhdl/core/src/stop_body_2008p.vhd line 13
+# End time: 12:59:19 on Apr 27,2024, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 2

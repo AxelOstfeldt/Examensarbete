@@ -1,3 +1,13 @@
+#install vunit useing: pip install vunit_hdl
+
+#In order to run the following test enter test file and ensure the pathing of the files to read/write is correct:
+#tb_adjacent_combined
+#tb_load_data
+#tb_new_sate_to_file
+#tb_save_to_file
+
+
+
 from pathlib import Path
 from vunit import VUnit
 

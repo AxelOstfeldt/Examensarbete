@@ -1,7 +1,7 @@
-# End time: 12:51:46 on Apr 27,2024, Elapsed time: 0:00:00
+# End time: 13:06:58 on Apr 27,2024, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 4
 # vsim -modelsimini C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/modelsim/modelsim.ini -wlf C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_new_rice_encode.auto_4ee1ae69615349cc6b440bc63f3fb85431a74f06/modelsim/vsim.wlf -quiet -t ps -onfinish stop lib.tb_new_rice_encode(new_rice_encode_arch) -L vunit_lib -L lib -g/tb_new_rice_encode/runner_cfg="active python runner : true,enabled_test_cases : auto,output path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_new_rice_encode.auto_4ee1ae69615349cc6b440bc63f3fb85431a74f06/,tb path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/,use_color : true" 
-# Start time: 12:51:46 on Apr 27,2024
+# Start time: 13:06:58 on Apr 27,2024
 # ** Warning: Design size of 26460 statements exceeds ModelSim-Intel FPGA Starter Edition recommended capacity.
 # Expect performance to be adversely affected.
 # ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0

@@ -188,11 +188,13 @@ begin
       variable row_value : std_logic_vector(23 downto 0);
       --Make sure this directiory is correct!
       --file my_file : text open read_mode is "/home/toad/Projects/FPGA-sampling2/pl/test/first_sample_binary.txt";--First sample for mic 64-127
-      file my_file : text open read_mode is "/home/toad/Projects/FPGA-sampling2/pl/test/data_block_binary.txt";--First datablock, all 256 samples for mic 64-127
-
+      --file my_file : text open read_mode is "/home/toad/Projects/FPGA-sampling2/pl/test/data_block_binary.txt";--First datablock, all 256 samples for mic 64-12
+      file my_file : text open read_mode is "C:\\Users\\axelo\\OneDrive\\Skrivbord\\Exjobb\\GIT\\SoundData\\VHDL\\data_block_binary.txt";--First datablock, all 256 samples for mic 64-12
+      
       --For saving data
       --Importent to check path /My/Path/MyFileName.txt
-      file file_handler     : text open write_mode is "/home/toad/Projects/FPGA-sampling2/pl/test/EncodedData.txt";
+      --file file_handler     : text open write_mode is "/home/toad/Projects/FPGA-sampling2/pl/test/EncodedData.txt";
+      file file_handler     : text open write_mode is "C:\\Users\\axelo\\OneDrive\\Skrivbord\\Exjobb\\GIT\\SoundData\\VHDL\\EncodedData.txt";
       variable row          : line;
       variable v_data_write : std_logic_vector(8191 downto 0);
    begin
