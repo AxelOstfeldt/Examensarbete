@@ -1,0 +1,215 @@
+m255
+K4
+z2
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+Z0 dC:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete
+Eadjacentresiduals
+Z1 w1713511996
+Z2 DPx4 ieee 11 numeric_std 0 22 :ASDNFgHXf_ih3J@9F3Ze1
+Z3 DPx3 std 6 textio 0 22 zE1`LPoLg^DX3Oz^4Fj1K3
+Z4 DPx4 ieee 14 std_logic_1164 0 22 eNV`TJ_GofJTzYa?f<@Oe1
+R0
+Z5 8C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\AdjacentResiduals.vhd
+Z6 FC:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\AdjacentResiduals.vhd
+l0
+L7
+VIai1[>7g;OCBc3ndj2?Jn0
+!s100 ocPQ[I]8QQzNo^ocb;PUD2
+Z7 OV;C;10.5b;63
+33
+Z8 !s110 1714214535
+!i10b 1
+Z9 !s108 1714214535.000000
+Z10 !s90 -quiet|-modelsimini|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\vunit_out\modelsim\modelsim.ini|-2008|-work|lib|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\AdjacentResiduals.vhd|
+Z11 !s107 C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\AdjacentResiduals.vhd|
+!i113 1
+Z12 o-quiet -2008 -work lib
+Z13 tExplicit 1 CvgOpt 0
+Abehavioral
+R2
+R3
+R4
+DEx4 work 17 adjacentresiduals 0 22 Iai1[>7g;OCBc3ndj2?Jn0
+l44
+L29
+VT<7TO=m2RmO[6b0M>g0PC3
+!s100 8;NgDRUaK8EEL[`8<_Vb20
+R7
+33
+R8
+!i10b 1
+R9
+R10
+R11
+!i113 1
+R12
+R13
+Ecodewordassembler
+R1
+R2
+R3
+R4
+R0
+Z14 8C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\CodeWordAssembler.vhd
+Z15 FC:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\CodeWordAssembler.vhd
+l0
+L7
+VAF>S:6<1S5b5fVCiaNi=72
+!s100 h2n`;O5MH4:>IkLS2`Q_o2
+R7
+33
+R8
+!i10b 1
+R9
+Z16 !s90 -quiet|-modelsimini|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\vunit_out\modelsim\modelsim.ini|-2008|-work|lib|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\CodeWordAssembler.vhd|
+Z17 !s107 C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\CodeWordAssembler.vhd|
+!i113 1
+R12
+R13
+Abehavioral
+R2
+R3
+R4
+DEx4 work 17 codewordassembler 0 22 AF>S:6<1S5b5fVCiaNi=72
+l42
+L30
+VMLhX>bXPc>NM5_BP8ld7@2
+!s100 g0<2hCiFQgCbbZm;d;UDU0
+R7
+33
+R8
+!i10b 1
+R9
+R16
+R17
+!i113 1
+R12
+R13
+Ekcalculator
+Z18 w1713277822
+R2
+R3
+R4
+R0
+Z19 8C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\kCalculator.vhd
+Z20 FC:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\kCalculator.vhd
+l0
+L7
+VCHG`bmZVIbRQ=cO3UAF0Z0
+!s100 =dMlX@m<:QC4=^`MP97m:1
+R7
+33
+R8
+!i10b 1
+R9
+Z21 !s90 -quiet|-modelsimini|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\vunit_out\modelsim\modelsim.ini|-2008|-work|lib|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\kCalculator.vhd|
+Z22 !s107 C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\kCalculator.vhd|
+!i113 1
+R12
+R13
+Abehavioral
+R2
+R3
+R4
+DEx4 work 11 kcalculator 0 22 CHG`bmZVIbRQ=cO3UAF0Z0
+l33
+L25
+V[F3^I5aFAXJkUeB?dEQDM3
+!s100 l;AXlBnImV2iDBAZUUP;h3
+R7
+33
+R8
+!i10b 1
+R9
+R21
+R22
+!i113 1
+R12
+R13
+Enewriceencoder
+R18
+R2
+R3
+R4
+R0
+Z23 8C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\NewRiceEncode.vhd
+Z24 FC:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\NewRiceEncode.vhd
+l0
+L7
+Vz;6BAWh;^9@o3^W]>?K3c2
+!s100 7_A0NAi3b<XMJTI>oO>>M1
+R7
+33
+R8
+!i10b 1
+R9
+Z25 !s90 -quiet|-modelsimini|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\vunit_out\modelsim\modelsim.ini|-2008|-work|lib|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\NewRiceEncode.vhd|
+Z26 !s107 C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\NewRiceEncode.vhd|
+!i113 1
+R12
+R13
+Abehavioral
+R2
+R3
+R4
+DEx4 work 14 newriceencoder 0 22 z;6BAWh;^9@o3^W]>?K3c2
+l58
+L30
+V1Ejz0z4JDVX6E]bL6IRL<1
+!s100 lOEl6;V7J]GBJ<7fJh7mg2
+R7
+33
+R8
+!i10b 1
+R9
+R25
+R26
+!i113 1
+R12
+R13
+Esavetofile
+R1
+R2
+R3
+R4
+R0
+Z27 8C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\SaveToFile.vhd
+Z28 FC:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\SaveToFile.vhd
+l0
+L7
+VMmNT`bGLzkOLI2EBn[d<00
+!s100 W9G?^c1D<U<h5]2TNz1j<1
+R7
+33
+R8
+!i10b 1
+R9
+Z29 !s90 -quiet|-modelsimini|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\vunit_out\modelsim\modelsim.ini|-2008|-work|lib|C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\SaveToFile.vhd|
+Z30 !s107 C:\Users\axelo\OneDrive\Skrivbord\Exjobb\GIT\Examensarbete\VHDL\src\SaveToFile.vhd|
+!i113 1
+R12
+R13
+Abehavioral
+R2
+R3
+R4
+DEx4 work 10 savetofile 0 22 MmNT`bGLzkOLI2EBn[d<00
+l36
+L25
+V3m9o[?b63m5Be8gnHEd[f3
+!s100 KH]M<dPboebnDKmA]cDdE3
+R7
+33
+R8
+!i10b 1
+R9
+R29
+R30
+!i113 1
+R12
+R13
