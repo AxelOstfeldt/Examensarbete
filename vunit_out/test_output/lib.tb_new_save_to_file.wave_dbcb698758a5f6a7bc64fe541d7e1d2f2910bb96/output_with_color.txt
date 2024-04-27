@@ -1,0 +1,36 @@
+# End time: 12:51:47 on Apr 27,2024, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 4
+# vsim -modelsimini C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/modelsim/modelsim.ini -wlf C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_new_save_to_file.wave_dbcb698758a5f6a7bc64fe541d7e1d2f2910bb96/modelsim/vsim.wlf -quiet -t ps -onfinish stop lib.tb_new_save_to_file(new_save_to_file_arch) -L vunit_lib -L lib -g/tb_new_save_to_file/runner_cfg="active python runner : true,enabled_test_cases : wave,output path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_new_save_to_file.wave_dbcb698758a5f6a7bc64fe541d7e1d2f2910bb96/,tb path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/,use_color : true" 
+# Start time: 12:51:47 on Apr 27,2024
+# ** Warning: (vsim-7) Failed to open VHDL file "/home/toad/Projects/FPGA-sampling2/pl/test/testtext.txt" in r+ mode.
+# No such file or directory. (errno = ENOENT)
+#    Time: 0 ps  Iteration: 0  Instance: /tb_new_save_to_file
+# ** Warning: Design size of 26039 statements exceeds ModelSim-Intel FPGA Starter Edition recommended capacity.
+# Expect performance to be adversely affected.
+# ** Fatal: (vsim-7) Failed to open VHDL file "/home/toad/Projects/FPGA-sampling2/pl/test/testtext.txt" in r+ mode.
+# No such file or directory. (errno = ENOENT)
+#    Time: 56 ns  Iteration: 0  Process: /tb_new_save_to_file/ws_process_1234 File: C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/tb_new_save_to_file.vhd
+# Fatal error in Process ws_process_1234 at C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/tb_new_save_to_file.vhd line 87
+# 
+# HDL call sequence:
+# Stopped at C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/tb_new_save_to_file.vhd 87 Process ws_process_1234
+# 
+# 
+# Test Run Failed!
+# 
+# Stack trace result from 'tb' command
+#  C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/tb_new_save_to_file.vhd 87 return [address 0xff5cdc60] Process ws_process_1234
+# 
+# 
+# Surrounding code from 'see' command
+#   82 :                write(row, v_data_write(8191 downto 8191-BottomLimit_tb));
+#   83 :                NewRow_tb <= '1';
+#   84 :                RowCounter_tb <= RowCounter_tb + 1;
+#   85 : 
+#   86 :             else
+# ->87 :                writeline(file_handler ,row);
+#   88 :                NewRow_tb <= '0';
+#   89 : 
+#   90 :                StateDelay_tb <= "11";
+#   91 : 
+# 

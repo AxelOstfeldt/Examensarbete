@@ -1,0 +1,8 @@
+# End time: 12:51:40 on Apr 27,2024, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 1
+# vsim -modelsimini C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/modelsim/modelsim.ini -wlf C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_calculate_k_value.auto_2801381288ec82a1bc2c371390d6a664cad31460/modelsim/vsim.wlf -quiet -t ps -onfinish stop lib.tb_calculate_k_value(calculate_k_value_arch) -L vunit_lib -L lib -g/tb_calculate_k_value/runner_cfg="active python runner : true,enabled_test_cases : auto,output path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_calculate_k_value.auto_2801381288ec82a1bc2c371390d6a664cad31460/,tb path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/,use_color : true" 
+# Start time: 12:51:40 on Apr 27,2024
+# ** Warning: Design size of 26159 statements exceeds ModelSim-Intel FPGA Starter Edition recommended capacity.
+# Expect performance to be adversely affected.
+# Break in Subprogram stop at C:/Users/axelo/anaconda3/envs/prog2/Lib/site-packages/vunit/vhdl/core/src/stop_body_2008p.vhd line 13
+# Stopped at C:/Users/axelo/anaconda3/envs/prog2/Lib/site-packages/vunit/vhdl/core/src/stop_body_2008p.vhd line 13

@@ -1,0 +1,36 @@
+# End time: 12:51:48 on Apr 27,2024, Elapsed time: 0:00:01
+# Errors: 0, Warnings: 2
+# vsim -modelsimini C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/modelsim/modelsim.ini -wlf C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_save_to_file.wave_e3da1678f7d0939ae24cf6e4680eb057eaebe589/modelsim/vsim.wlf -quiet -t ps -onfinish stop lib.tb_save_to_file(save_to_file_arch) -L vunit_lib -L lib -g/tb_save_to_file/runner_cfg="active python runner : true,enabled_test_cases : wave,output path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_save_to_file.wave_e3da1678f7d0939ae24cf6e4680eb057eaebe589/,tb path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/,use_color : true" 
+# Start time: 12:51:48 on Apr 27,2024
+# ** Warning: (vsim-7) Failed to open VHDL file "/home/toad/Projects/FPGA-sampling2/pl/test/testtext.txt" in r+ mode.
+# No such file or directory. (errno = ENOENT)
+#    Time: 0 ps  Iteration: 0  Instance: /tb_save_to_file
+# ** Warning: Design size of 26164 statements exceeds ModelSim-Intel FPGA Starter Edition recommended capacity.
+# Expect performance to be adversely affected.
+# ** Fatal: (vsim-7) Failed to open VHDL file "/home/toad/Projects/FPGA-sampling2/pl/test/testtext.txt" in r+ mode.
+# No such file or directory. (errno = ENOENT)
+#    Time: 152 ns  Iteration: 0  Process: /tb_save_to_file/ws_process_1234 File: C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/tb_save_to_file.vhd
+# Fatal error in Process ws_process_1234 at C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/tb_save_to_file.vhd line 114
+# 
+# HDL call sequence:
+# Stopped at C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/tb_save_to_file.vhd 114 Process ws_process_1234
+# 
+# 
+# Test Run Failed!
+# 
+# Stack trace result from 'tb' command
+#  C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/tb_save_to_file.vhd 114 return [address 0xff5cdf78] Process ws_process_1234
+# 
+# 
+# Surrounding code from 'see' command
+#   109 :                write(row, v_data_write);
+#   110 :                NewRow <= '1';
+#   111 :                
+#   112 : 
+#   113 :             elsif NewRow = '1' then
+# ->114 :                writeline(file_handler ,row);
+#   115 :                NewRow <= '0';
+#   116 : 
+#   117 :                StateDelay_tb <= "10";
+#   118 :                
+# 

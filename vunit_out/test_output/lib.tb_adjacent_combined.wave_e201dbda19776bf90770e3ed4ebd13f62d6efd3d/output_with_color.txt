@@ -1,0 +1,43 @@
+# vsim -modelsimini C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/modelsim/modelsim.ini -wlf C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_adjacent_combined.wave_e201dbda19776bf90770e3ed4ebd13f62d6efd3d/modelsim/vsim.wlf -quiet -t ps -onfinish stop lib.tb_adjacent_combined(adjacent_combined_arch) -L vunit_lib -L lib -g/tb_adjacent_combined/runner_cfg="active python runner : true,enabled_test_cases : wave,output path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/vunit_out/test_output/lib.tb_adjacent_combined.wave_e201dbda19776bf90770e3ed4ebd13f62d6efd3d/,tb path : C::/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/,use_color : true" 
+# Start time: 12:51:39 on Apr 27,2024
+# ** Warning: (vsim-7) Failed to open VHDL file "/home/toad/Projects/FPGA-sampling2/pl/test/data_block_binary.txt" in rb mode.
+# No such file or directory. (errno = ENOENT)
+#    Time: 0 ps  Iteration: 0  Instance: /tb_adjacent_combined
+# ** Warning: (vsim-7) Failed to open VHDL file "/home/toad/Projects/FPGA-sampling2/pl/test/EncodedData.txt" in r+ mode.
+# No such file or directory. (errno = ENOENT)
+#    Time: 0 ps  Iteration: 0  Instance: /tb_adjacent_combined
+# ** Warning: Design size of 27499 statements exceeds ModelSim-Intel FPGA Starter Edition recommended capacity.
+# Expect performance to be adversely affected.
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 2 ns  Iteration: 0  Instance: /tb_adjacent_combined/RiceEncoderTest
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 2 ns  Iteration: 0  Instance: /tb_adjacent_combined/RiceEncoderTest
+# ** Warning: NUMERIC_STD.TO_INTEGER: metavalue detected, returning 0
+#    Time: 2 ns  Iteration: 0  Instance: /tb_adjacent_combined/RiceEncoderTest
+# ** Fatal: (vsim-7) Failed to open VHDL file "/home/toad/Projects/FPGA-sampling2/pl/test/data_block_binary.txt" in rb mode.
+# No such file or directory. (errno = ENOENT)
+#    Time: 40 ns  Iteration: 0  Process: /tb_adjacent_combined/ws_process_12345 File: C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/tb_adjacent_combined.vhd
+# Fatal error in Process ws_process_12345 at C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/tb_adjacent_combined.vhd line 215
+# 
+# HDL call sequence:
+# Stopped at C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/tb_adjacent_combined.vhd 215 Process ws_process_12345
+# 
+# 
+# Test Run Failed!
+# 
+# Stack trace result from 'tb' command
+#  C:/Users/axelo/OneDrive/Skrivbord/Exjobb/GIT/Examensarbete/VHDL/test/tb_adjacent_combined.vhd 215 return [address 0xff5cdee8] Process ws_process_12345
+# 
+# 
+# Surrounding code from 'see' command
+#   210 : 
+#   211 :             InputState_tb <= "10";
+#   212 : 
+#   213 :          elsif InputState_tb = "10" then
+#   214 :             --check that it is not end of file
+# ->215 :             if not endfile(my_file) then
+#   216 :                --point to the next line
+#   217 :                readline(my_file, text_line);
+#   218 :                --read the current lint
+#   219 :                read(text_line, row_value);
+# 

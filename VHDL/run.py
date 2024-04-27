@@ -9,7 +9,7 @@ vu = VUnit.from_argv(compile_builtins=False)  # Stop using the builtins ahead of
 vu.add_vhdl_builtins() #new for version 5 VUnit
 
 lib = vu.add_library("lib")
-lib.add_source_files(ROOT.glob("test/tb_adjacent_combined.vhd"))
+lib.add_source_files(ROOT.glob("test/**/*.vhd"))
 
 
 lib.add_source_files(ROOT.glob("src/**/*.vhd"))
