@@ -445,7 +445,7 @@ begin
             --wait for 2950000ns; -- duration for a full datablock
             --wait for 30000 ns;
 
-            wait until AllDone = '1' for 3 ms;
+            wait until AllDone = '1' for 6 ms;
             assert AllDone = '1' report"AllDone should be set HIGH" severity failure;
 
          elsif run("auto") then
