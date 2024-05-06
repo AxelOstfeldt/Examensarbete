@@ -18,7 +18,7 @@ end tb_adjacent_combined;
 architecture adjacent_combined_arch of tb_adjacent_combined is
 
    --General signals used in all entitys
-   constant C_SCK_CYKLE : time      := 4 ns; -- 250 MHz
+   constant C_SCK_CYKLE : time      := 8 ns; -- 125 MHz
    signal clk_tb        : std_logic := '0';
    signal reset_tb      : std_logic := '1';
 
