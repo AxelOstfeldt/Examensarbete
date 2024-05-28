@@ -1167,7 +1167,108 @@ class TestFunctions:
         #LPC tests
         elif self.TestNr == 10:
             print('Test 10. Compare original input with recreated values when using LPC with Rice codes to see if all values have been recreated correctly.')
+            #Select what mics are going to be plotted
+            start_mic = input('Select what microhpone to plot: ')
+            #Check if the start_mic value choosen can be converted to int
+            try:
+                int(start_mic)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                start_mic = int(start_mic)
+            else:
+                raise ValueError(f"The microphone value selected needs to be an integer.")
             
+            #Store the data from the desired microphone and datablocks in TestData
+            TestData = self.DataSelect(OriginalData, datablocks, start_mic, start_mic)
+
+            LpcOrder = input('Select LPC order (1-32): ')
+            #Check if the LpcOrder value choosen can be converted to int
+            try:
+                int(LpcOrder)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                LpcOrder = int(LpcOrder)
+            else:
+                raise ValueError(f"The LPC order selected needs to be an integer.")
+            
+            if LpcOrder > 32 or LpcOrder < 1:
+                raise ValueError(f"The LPC order selected needs to be between 1 and 32.")
+            
+            LpcAlgorithm = MetaLPC(LpcOrder)
+            
+            #Create memory array with appropriate length for selected order
+            MemoryIn = [0]*LpcOrder
+            MemoryOut = [0]*LpcOrder
+
+            #Array to store all CodeWords
+            CodeWords = []
+
+            
+            for CurrentBlock in range(len(TestData)):
+                #Use shorten to create the code words
+                CurrentTestData = TestData[CurrentBlock]
+                CurrentTestData = CurrentTestData[0]#I belive this is needed because of choosing the first mic even tho it is only 1 mic
+                CodeWord, MemoryIn, coef = LpcAlgorithm.In(CurrentTestData.copy(), MemoryIn)
+                #Save each codeword
+                CodeWords.append(CodeWord)
+
+            allCorrect = 0
+            #loop thorugh all CodeWords, there will be one codeword for every datablock
+            for i in range(len(CodeWords)):
+                zero = []
+                CodeWord = CodeWords[i]
+                #Decode the codeword fo every datablock
+                DecodedData, MemoryOut = LpcAlgorithm.Out(CodeWord, MemoryOut)
+                #Grab the original data from every datablock
+                CurrentInputData = TestData[i]
+                CurrentInputData = CurrentInputData[0]#I belive the first mic needs to be choosen even though it is only 1 mic
+
+
+                #Go thorugh all samples in every datablock
+                for sample in range(len(CurrentInputData)):
+                    #Calculate the difference between the original data and decoded data,
+                    #This should be =0 if every thing has been done correctly
+                    currentZero = CurrentInputData[sample] - DecodedData[sample]
+                    zero.append(currentZero)
+                    
+                    #If the difference is not equal to 0 the code repports that there have been an error
+                    if currentZero != 0:
+                        allCorrect += 1
+
+                #Plot the original, recretated, and the differential between them
+                #There will be one plot for every datablock
+                fig = plt.figure(i, layout = 'constrained')
+
+                ax = fig.add_subplot(211)
+                plt.plot(CurrentInputData, 'b', label = 'Original values')
+                plt.plot(DecodedData, 'r-.', label = 'Decoded values')
+
+                plt.legend(fontsize=25, loc = 'upper right')
+                plt.yticks(fontsize=20)
+                plt.xticks(fontsize=20)
+
+                ax = fig.add_subplot(212)
+                plt.plot(zero, label = 'Original values - Decoded values')
+
+                plt.legend(fontsize=25, loc = 'upper right')
+                plt.yticks(fontsize=20)
+                plt.xticks(fontsize=20)
+                
+                plt.show()
+
+                #If all values have been recreated correctly this will be printed out, 
+                #else print out how many was failed to be decoded
+                if allCorrect == 0:
+                    print("All values where decoded succesfully")
+                else:
+                    print("Failed decoding ", allCorrect,"values")
+
 
 
         elif self.TestNr == 11:

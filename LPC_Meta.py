@@ -4,7 +4,7 @@ import math
 
 class MetaLPC:
 
-    def __init__(self, order, sign = True, CoefficentDecimalBits: int = 10):
+    def __init__(self, order, sign = True, CoefficentDecimalBits: int = 20):
         #Order have to be an integer of size 1 or larger for LPC
         #No upperlimit exist other than when the order is larger than the number of inputs the lag when caluclating autocorrelation will raise an error
         if  order < 0 or not isinstance(order, int):
