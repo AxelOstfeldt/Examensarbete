@@ -74,11 +74,9 @@ class TestFunctions:
 
         #FLAC tests
         elif self.TestNr == 16:
-            print('Test 16. Compare original input with recreated values when using FLAC to see if all values have been recreated correctly.')
+            print('Test 16. Test compression rate using FLAC.')
         elif self.TestNr == 17:
-            print('Test 17. Test compression rate using FLAC.')
-        elif self.TestNr == 18:
-            print('Test 18. Average speed to recreate values from codewords using FLAC.')
+            print('Test 17. Average speed to recreate values from codewords using FLAC.')
 
         #Adjacent tests
         elif self.TestNr == 19:
@@ -1714,9 +1712,6 @@ class TestFunctions:
             print("Average compression rate using LPC order ",LpcOrder," is, CR = ",avg_cr)
                         
 
-
-
-
         elif self.TestNr == 14:
             #Select what mics are going to be compressed
             start_mic = input('Select what microhpone to start from: ')
@@ -2013,11 +2008,100 @@ class TestFunctions:
 
         #FLAC tests
         elif self.TestNr == 16:
-            print('Test 16. Compare original input with recreated values when using FLAC to see if all values have been recreated correctly.')
+            #Select what mics are going to be compressed
+            start_mic = input('Select what microhpone to start from: ')
+            #Check if the start_mic value choosen can be converted to int
+            try:
+                int(start_mic)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                start_mic = int(start_mic)
+            else:
+                raise ValueError(f"The microphone value selected needs to be an integer.")
+            
+
+            end_mic = input('Select what microhpone to end at (if only one mic is desired choose the same value as start microphone): ')
+            #Check if the end_mic value choosen can be converted to int
+            try:
+                int(end_mic)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                end_mic = int(end_mic)
+            else:
+                raise ValueError(f"The microphone value selected needs to be an integer.")
+            
+            
+
+            
+            #Store the data from the desired microphones and datablocks in TestData
+            TestData = self.DataSelect(OriginalData, datablocks, start_mic, end_mic)
+
+
+
+            ShortenOrder = input('Select Shorten order (0-3): ')
+            #Check if the ShortenOrder value choosen can be converted to int
+            try:
+                int(ShortenOrder)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                ShortenOrder = int(ShortenOrder)
+            else:
+                raise ValueError(f"The Shorten order selected needs to be an integer.")
+            
+            ShortenAlgorithm = ShortenMeta(ShortenOrder)
+
+
+            #Create MemoryArray
+            Memorys = []
+
+            
+
+            #Array to store all compression rates
+            cr_array = []
+
+            
+            for CurrentBlock in range(len(TestData)):
+                #Use shorten to create the code words
+                CurrentTestData = TestData[CurrentBlock]
+                for mic in range(end_mic + 1 - start_mic):
+                    if CurrentBlock == 0:
+                        #Create memory array with appropriate length for selected order
+                        if ShortenOrder == 0:
+                            Memorys.append([])
+                            
+                        else:
+                            Memorys.append([0]*ShortenOrder)
+
+                    #Create codeword for current mic/datablock
+                    CurrentTestDataMic = CurrentTestData[mic]
+                    CodeWord, Memorys[mic] = ShortenAlgorithm.In(CurrentTestDataMic.copy(), Memorys[mic])
+
+                    #Create binary uncoded word for current input, original value represented in 24 bits
+                    UncodedWord = ""
+                    for sample in CurrentTestDataMic:
+                        UncodedWord += np.binary_repr(sample, 24)
+
+                    #Calculate CR for current codeword
+                    cr = len(CodeWord) / len(UncodedWord)
+                    #Save Cr in array
+                    cr_array.append(cr)
+
+            #Calculate average CR for all codewords
+            avg_cr = sum(cr_array) / len(cr_array)
+
+            print("Average compression rate using Shorte order ",ShortenOrder," is, CR = ",avg_cr)
+               
         elif self.TestNr == 17:
-            print('Test 17. Test compression rate using FLAC.')
-        elif self.TestNr == 18:
-            print('Test 18. Average speed to recreate values from codewords using FLAC.')
+            print('Test 17. Average speed to recreate values from codewords using FLAC.')
 
         #Adjacent tests
         elif self.TestNr == 19:
