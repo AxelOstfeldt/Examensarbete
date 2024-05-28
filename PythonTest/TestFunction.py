@@ -15,13 +15,13 @@ Path = "C:\\Users\\axelo\\OneDrive\\Skrivbord\\Exjobb\\GIT\\SoundData\\"
 while DoTests:
 
     #Choose a test of info about the tests
-    StartTest = input('Choose Test (1-30), for test info type info, to exit testing type quit: ')
+    StartTest = input('Choose Test (1-28), for test info type info, to exit testing type quit: ')
     print("")
 
     if StartTest.lower() == 'info':
         print("Test info")
         #Loop trough all test numbers and call TestInfo function that prints test info for a tests but returns nothing
-        for TestNumber in range(1, 31):
+        for TestNumber in range(1, 29):
             print("")
             CurrentTest = TestFunctions(TestNumber)
             CurrentTest.TestInfo()
@@ -41,7 +41,7 @@ while DoTests:
             TestNumber = int(StartTest)
         #If it can not be converted to int the user have choosen an invalid value
         else:
-            raise ValueError(f"Select an integer between 1-30 for a test or type info for test info")
+            raise ValueError(f"Select an integer between 1-28 for a test or type info for test info")
 
         #print info about the selected test
         CurrentTest = TestFunctions(TestNumber)

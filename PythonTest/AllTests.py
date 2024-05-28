@@ -99,12 +99,12 @@ class TestFunctions:
             print('Test 25. Average speed to recreate values from codewords using FLAC-Modified.')
 
         #DoubleCompression test
+        elif self.TestNr == 26:
+            print('Test 26. Compare original input with recreated values when using DoubleCompression to see if all values have been recreated correctly.')
+        elif self.TestNr == 27:
+            print('Test 27. Test compression rate using DoubleCompression.')
         elif self.TestNr == 28:
-            print('Test 28. Compare original input with recreated values when using DoubleCompression to see if all values have been recreated correctly.')
-        elif self.TestNr == 29:
-            print('Test 29. Test compression rate using DoubleCompression.')
-        elif self.TestNr == 30:
-            print('Test 30. Average speed to recreate values from codewords using DoubleCompression.')
+            print('Test 28. Average speed to recreate values from codewords using DoubleCompression.')
 
         else:
             raise ValueError(f"Test {self.TestNr} does not exist, please select a test between 1 and 30")
@@ -2384,15 +2384,15 @@ class TestFunctions:
             print("Average time (in seconds) to recreate a full datablock using FLAC is: ",avg_time," s")
 
         #DoubleCompression test
+        elif self.TestNr == 26:
+            print('Test 26. Compare original input with recreated values when using DoubleCompression to see if all values have been recreated correctly.')
+        elif self.TestNr == 27:
+            print('Test 27. Test compression rate using DoubleCompression.')
         elif self.TestNr == 28:
-            print('Test 28. Compare original input with recreated values when using DoubleCompression to see if all values have been recreated correctly.')
-        elif self.TestNr == 29:
-            print('Test 29. Test compression rate using DoubleCompression.')
-        elif self.TestNr == 30:
-            print('Test 30. Average speed to recreate values from codewords using DoubleCompression.')
+            print('Test 28. Average speed to recreate values from codewords using DoubleCompression.')
 
         else:
-            raise ValueError(f"Test {self.TestNr} does not exist, please select a test between 1 and 30")
+            raise ValueError(f"Test {self.TestNr} does not exist, please select a test between 1 and 28")
         
         pass
 
