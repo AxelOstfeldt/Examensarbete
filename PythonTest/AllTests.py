@@ -882,7 +882,6 @@ class TestFunctions:
 
 
         elif self.TestNr == 8:
-            print('Test 8. Average speed to recreate values from codewords using Shorten with Rice codes.')
             #Select what mics are going to be compressed
             start_mic = input('Select what microhpone to start from: ')
             #Check if the start_mic value choosen can be converted to int
@@ -1211,16 +1210,17 @@ class TestFunctions:
 
             
             for CurrentBlock in range(len(TestData)):
-                #Use shorten to create the code words
+                #Use LPC to create the code words
                 CurrentTestData = TestData[CurrentBlock]
                 CurrentTestData = CurrentTestData[0]#I belive this is needed because of choosing the first mic even tho it is only 1 mic
                 CodeWord, MemoryIn, coef = LpcAlgorithm.In(CurrentTestData.copy(), MemoryIn)
                 #Save each codeword
                 CodeWords.append(CodeWord)
 
-            allCorrect = 0
+            
             #loop thorugh all CodeWords, there will be one codeword for every datablock
             for i in range(len(CodeWords)):
+                allCorrect = 0
                 zero = []
                 CodeWord = CodeWords[i]
                 #Decode the codeword fo every datablock
@@ -1272,15 +1272,744 @@ class TestFunctions:
 
 
         elif self.TestNr == 11:
-            print('Test 11. Compare original input with recreated values when using LPC with Golomb codes to see if all values have been recreated correctly.')
+            #Select what mics are going to be plotted
+            start_mic = input('Select what microhpone to plot: ')
+            #Check if the start_mic value choosen can be converted to int
+            try:
+                int(start_mic)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                start_mic = int(start_mic)
+            else:
+                raise ValueError(f"The microphone value selected needs to be an integer.")
+            
+            #Store the data from the desired microphone and datablocks in TestData
+            TestData = self.DataSelect(OriginalData, datablocks, start_mic, start_mic)
+
+            LpcOrder = input('Select LPC order (1-32): ')
+            #Check if the LpcOrder value choosen can be converted to int
+            try:
+                int(LpcOrder)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                LpcOrder = int(LpcOrder)
+            else:
+                raise ValueError(f"The LPC order selected needs to be an integer.")
+            
+            if LpcOrder > 32 or LpcOrder < 1:
+                raise ValueError(f"The LPC order selected needs to be between 1 and 32.")
+            
+            LpcAlgorithm = LPC(LpcOrder)
+            
+            #Create memory array with appropriate length for selected order
+            MemoryIn = [0]*LpcOrder
+            MemoryOut = [0]*LpcOrder
+
+            #Array to store all CodeWords
+            CodeWords = []
+            #Array to store all Coefficents
+            Coefficents = []
+            #Array to store m-values for encoding/decoding
+            m_array = []
+            for CurrentBlock in range(len(TestData)):
+                #Use LPC to create the code words
+                CurrentTestData = TestData[CurrentBlock]
+                CurrentTestData = CurrentTestData[0]#I belive this is needed because of choosing the first mic even tho it is only 1 mic
+                #Calculate the residuals using LPC
+                coef, residuals, MemoryIn, predictions = LpcAlgorithm.In(CurrentTestData.copy(), MemoryIn)
+                #Calculate the ideal m value, by first calculating the ideal k value and taking 2^k
+                #Calculates the ideal k_vaule for the data
+                abs_res = np.absolute(residuals)
+                abs_res_avg = np.mean(abs_res)
+                #if abs_res_avg is less than 4.7 it would give a k value less than 1.
+                #k needs tobe a int > 1. All abs_res_avg values bellow 6.64 will be set to 1 to avoid this issue
+                if abs_res_avg > 6.64:
+                #from testing it appears that the actual ideal k-value is larger by +1 than theory suggest,
+                #atleast for larger k-value. The exact limit is unknown but it have been true for all test except for when the lowest k, k =1 is best.
+                #Therefore th formula have been modified to increment k by 1 if abs_res_avg is larger than 6.64.
+                    k = int(round(math.log(math.log(2,10) * abs_res_avg,2))) +1
+                else:
+                    k = 1
+
+                #Calculate m value from k value by taking 2^k
+                m = pow(2,k)
+                #Store the m-value
+                m_array.append(m)
+
+                #Store coefficents
+                Coefficents.append(coef)
+
+
+               
+                #Golomb codes the residuals from LPC and saves the code word in code_word
+                CodeWord = ""
+                for i in range(len(residuals)):
+                    Golomb_coder = GolombCoding(m, True)
+                    n = int(residuals[i])
+                    kodOrd = Golomb_coder.Encode(n)
+                    CodeWord += kodOrd
+
+                #Saves Rice coded residuals
+                CodeWords.append(CodeWord)
+
+            #Loops through all codewords to decode them and recreate all values, and compare them to the original values
+            #There is one codeword for every datablock
+            for i in range(len(CodeWords)):
+                allCorrect = 0
+                zero = []
+                #Grab the current codeword
+                CodeWord = CodeWords[i]
+                #Grab the m-value to decode the codeword
+                m = m_array[i]
+                #Decodes the residuals from the Golomb code
+                Golomb_coder = GolombCoding(m, True)
+                uncoded_residuals = Golomb_coder.Decode(CodeWord)
+                #Grab current coefficents
+                coef = Coefficents[i]
+                #Decode the codeword fo every datablock
+                DecodedData, MemoryOut, predictions = LpcAlgorithm.Out(coef, uncoded_residuals, MemoryOut)
+                #Grab the original data from every datablock
+                CurrentInputData = TestData[i]
+                CurrentInputData = CurrentInputData[0]#I belive the first mic needs to be choosen even though it is only 1 mic
+
+
+                #Go thorugh all samples in every datablock
+                for sample in range(len(CurrentInputData)):
+                    #Calculate the difference between the original data and decoded data,
+                    #This should be =0 if every thing has been done correctly
+                    currentZero = CurrentInputData[sample] - DecodedData[sample]
+                    zero.append(currentZero)
+                    
+                    #If the difference is not equal to 0 the code records that there have been an error
+                    if currentZero != 0:
+                        allCorrect += 1
+
+                #Plot the original, recretated, and the differential between them
+                #There will be one plot for every datablock
+                fig = plt.figure(i, layout = 'constrained')
+
+                ax = fig.add_subplot(211)
+                plt.plot(CurrentInputData, 'b', label = 'Original values')
+                plt.plot(DecodedData, 'r-.', label = 'Decoded values')
+
+                plt.legend(fontsize=25, loc = 'upper right')
+                plt.yticks(fontsize=20)
+                plt.xticks(fontsize=20)
+
+                ax = fig.add_subplot(212)
+                plt.plot(zero, label = 'Original values - Decoded values')
+
+                plt.legend(fontsize=25, loc = 'upper right')
+                plt.yticks(fontsize=20)
+                plt.xticks(fontsize=20)
+                
+                plt.show()
+
+                #If all values have been recreated correctly this will be printed out, 
+                #else print out how many was failed to be decoded
+                if allCorrect == 0:
+                    print("All values where decoded succesfully")
+                else:
+                    print("Failed decoding ", allCorrect,"values")
+
+
         elif self.TestNr == 12:
-            print('Test 12. Plots compression rate for differnte k-values when using LPC with Rice codes.')
+            #Select what mics are going to be plotted
+            start_mic = input('Select what microhpone to use: ')
+            #Check if the start_mic value choosen can be converted to int
+            try:
+                int(start_mic)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                start_mic = int(start_mic)
+            else:
+                raise ValueError(f"The microphone value selected needs to be an integer.")
+            
+            #Store the data from the desired microphone and datablocks in TestData
+            TestData = self.DataSelect(OriginalData, datablocks, start_mic, start_mic)
+
+            #Select startin k-value for the rice codes
+            k_start = input('Select k-value to start compressing from: ')
+            #Check if the k_start value choosen can be converted to int
+            try:
+                int(k_start)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                k_start = int(k_start)
+                if k_start < 1:
+                    raise ValueError(f"The k-value selected needs to be atleast 1.")
+
+            else:
+                raise ValueError(f"The k-value selected needs to be an integer.")
+            
+            #Select ending k-value for the rice codes
+            k_stop = input('Select k_value to stop compressing at: ')
+            #Check if the k_start value choosen can be converted to int
+            try:
+                int(k_stop)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                k_stop = int(k_stop)
+                if k_stop < k_start:
+                    raise ValueError(f"The k-value selected needs to be larger or equal to the starting k_value.")
+
+            else:
+                raise ValueError(f"The k-value selected needs to be an integer.")
+            
+            #crate array to store avg compression rates for all orders and k_values
+            All_avg_cr_array = []
+            #create array with all selected k_values
+            k_array = []
+            for k_values in range(k_start, k_stop+1):
+                k_array.append(k_values)
+
+            
+            #Select startin LPC order
+            order_start = input('Select LPC order to start from (minimum is 1, maximum is 32): ')
+            #Check if the LPC value choosen can be converted to int
+            try:
+                int(order_start)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                order_start = int(order_start)
+                if order_start < 1:
+                    raise ValueError(f"The LPC order selected needs to be atleast 1.")
+                elif order_start > 32:
+                    raise ValueError(f"The LPC order max order is 32.")
+
+            else:
+                raise ValueError(f"The LPC order selected needs to be an integer.")
+            
+            #Select ending k-value for the rice codes
+            order_stop = input('Select LPC order to stop at (maximum 32): ')
+            #Check if the order_stop value choosen can be converted to int
+            try:
+                int(order_stop)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                order_stop = int(order_stop)
+                if order_stop < order_start:
+                    raise ValueError(f"The order selected needs to be larger or equal to the starting order value.")
+                elif order_stop > 32:
+                    raise ValueError(f"The LPC order max order is 32.")
+                
+
+            else:
+                raise ValueError(f"The order selected needs to be an integer.")
+
+
+            k_ideal_array = []
+            MemorysIn = []
+                
+
+
+            #loop thorugh all orders of LPC
+            for order in range(order_start, order_stop+1):
+                #Create array to store memory for each order
+                MemorysIn.append([0]*order)
+                #Create array to store ideal k-value for each order
+                k_ideal_array.append([])
+                #Array to store compression rate for current order
+                cr_array = []
+                #loop thorugh all datablocks
+                for block in range(len(TestData)):
+                    #Grab the testdata for the current block
+                    CurrentTestData = TestData[block]
+                    #Need to grab from the first mic as well, even though it is only 1 mic
+                    CurrentTestData = CurrentTestData[0]
+
+                    #Calcualate the residuals with the LPC algorithm
+                    LpcAlgorithm = LPC(order)
+                    coef, residual, MemorysIn[order-order_start], predict = LpcAlgorithm.In(CurrentTestData, MemorysIn[order-order_start])
+
+                    #Calculates the ideal k_vaule acording to Rice Theory
+                    abs_res = np.absolute(residual.copy())
+                    abs_res_avg = np.mean(abs_res)
+                    #if abs_res_avg is less than 4.7 it would give a k value less than 1.
+                    #k needs tobe a int > 1 and therefore if abs_res_avg < 5 k is set to 1
+                    #OBS. 4.7 < abs_res_avg < 5 would be rounded of to k=1 so setting the limit to 5 works well
+                    if abs_res_avg > 5:
+                        k_ideal = int(round(math.log(math.log(2,10) * abs_res_avg,2)))
+                    else:
+                        k_ideal = 1
+
+                    #Appends the ideal k vaule in the array matching the correct LPC order
+                    k_ideal_array[order-order_start].append(k_ideal)
+
+                    #loop thorug all k-values
+                    for i in range(len(k_array)):
+                        CodeWord = ""
+                        if i == 0:
+                            UncodedWord = ""
+                        k = k_array[i]
+                        for q in range(len(residual)):
+                            #Rice code the residual for all k_values
+                            Rice_coder = RiceCoding(k, True)
+                            n = int(residual[q])
+                            kodOrd = Rice_coder.Encode(n)
+                            CodeWord += kodOrd
+                            if i == 0:
+                                #Represent the uncdoed word in 24 bits
+                                UncodedWord += np.binary_repr(abs(n),24)
+                        #calculate the compression rate for the current CodeWord
+                        cr = len(CodeWord) / len(UncodedWord)
+
+                        #Save the compression rate in an array, with cr_for specific k_values grouped together
+                        if block == 0:
+                            cr_array.append([])
+                        cr_array[i].append(cr)
+                    
+                
+
+                #Calculate the average cr for all k-value used for the current order
+                avg_cr_array = []
+                for current_cr_array in cr_array:
+                    avg_cr = sum(current_cr_array)/len(current_cr_array)
+                    avg_cr_array.append(avg_cr)
+
+                #Save the avg cr values from the current order
+                All_avg_cr_array.append(avg_cr_array)
+
+            
+            #Figure to plot all k-values in
+            plt.figure("Compression order for differente k-values using LPC with Rice codes", layout = 'constrained')
+            plt_colors = ['yo', 'ro', 'bo', 'go', 'co', 'ko', 'mo',
+                          'yv', 'rv', 'bv', 'gv', 'cv', 'kv', 'mv',
+                          'ys', 'rs', 'bs', 'gs', 'cs', 'ks', 'ms',
+                          'y*', 'r*', 'b*', 'g*', 'c*', 'k*', 'm*',
+                          'yD', 'rD', 'bD', 'gD', 'cD', 'kD', 'mD']
+
+
+            #Print the k_array, ideal k-value for each order, and average compression rate for allorders
+            print("k-values: ",k_array)
+            print("")
+            for orders in range(order_start, order_stop+1):
+                print("Average ideal k-value using LPC order ",orders," (acording to Rice theory, rounded to closest int): ", round(sum(k_ideal_array[orders-order_start])/len(k_ideal_array[orders-order_start])))
+                print("Average compression rate using LPC order ",orders,": ",All_avg_cr_array[orders-order_start])
+                print("")
+                plt_label = 'Order ' + str(orders)
+                plt.plot(k_array, All_avg_cr_array[orders-order_start], plt_colors[orders-order_start], label = plt_label)
+
+            plt.yticks(fontsize=25)
+            plt.xticks(fontsize=25)
+            plt.xlabel("k-value", fontsize=30)
+            plt.ylabel("Average compression ratio", fontsize=30)
+            plt.legend(fontsize=30, loc = 'upper right')
+            plt.show()
+
+
         elif self.TestNr == 13:
-            print('Test 13. Compression rate using LPC with Rice codes.')
+            #Select what mics are going to be compressed
+            start_mic = input('Select what microhpone to start from: ')
+            #Check if the start_mic value choosen can be converted to int
+            try:
+                int(start_mic)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                start_mic = int(start_mic)
+            else:
+                raise ValueError(f"The microphone value selected needs to be an integer.")
+            
+
+            end_mic = input('Select what microhpone to end at (if only one mic is desired choose the same value as start microphone): ')
+            #Check if the end_mic value choosen can be converted to int
+            try:
+                int(end_mic)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                end_mic = int(end_mic)
+            else:
+                raise ValueError(f"The microphone value selected needs to be an integer.")
+            
+            
+
+            
+            #Store the data from the desired microphones and datablocks in TestData
+            TestData = self.DataSelect(OriginalData, datablocks, start_mic, end_mic)
+
+
+
+            LpcOrder = input('Select LPC order (1-32): ')
+            #Check if the LpcOrder value choosen can be converted to int
+            try:
+                int(LpcOrder)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                LpcOrder = int(LpcOrder)
+                if LpcOrder < 1:
+                    raise ValueError(f"The LPC order selected needs to be an atleast 1.")
+                elif LpcOrder > 32:
+                    raise ValueError(f"The LPC order can not be larger than 32.")
+
+            else:
+                raise ValueError(f"The LPC order selected needs to be an integer.")
+            
+            LpcAlgorithm = MetaLPC(LpcOrder)
+
+
+            #Create MemoryArray
+            Memorys = []
+
+            
+
+            #Array to store all compression rates
+            cr_array = []
+
+            for CurrentBlock in range(len(TestData)):
+                #Use LPC to create the code words
+                CurrentTestData = TestData[CurrentBlock]
+                for mic in range(end_mic + 1 - start_mic):
+                    if CurrentBlock == 0:
+                        #Create memory array with appropriate length for selected order
+                        Memorys.append([0]*LpcOrder)
+                        
+
+                    #Create codeword for current mic/datablock
+                    CurrentTestDataMic = CurrentTestData[mic]
+                    CodeWord, Memorys[mic], coef = LpcAlgorithm.In(CurrentTestDataMic.copy(), Memorys[mic])
+
+                    #Create binary uncoded word for current input, original value represented in 24 bits
+                    UncodedWord = ""
+                    for sample in CurrentTestDataMic:
+                        UncodedWord += np.binary_repr(sample, 24)
+
+                    #Calculate CR for current codeword
+                    cr = len(CodeWord) / len(UncodedWord)
+                    #Save Cr in array
+                    cr_array.append(cr)
+
+            #Calculate average CR for all codewords
+            avg_cr = sum(cr_array) / len(cr_array)
+
+            print("Average compression rate using LPC order ",LpcOrder," is, CR = ",avg_cr)
+                        
+
+
+
+
         elif self.TestNr == 14:
-            print('Test 14. Average speed to recreate values from codewords using LPC with Rice codes.')
+            #Select what mics are going to be compressed
+            start_mic = input('Select what microhpone to start from: ')
+            #Check if the start_mic value choosen can be converted to int
+            try:
+                int(start_mic)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                start_mic = int(start_mic)
+            else:
+                raise ValueError(f"The microphone value selected needs to be an integer.")
+            
+
+            end_mic = input('Select what microhpone to end at (if only one mic is desired choose the same value as start microphone): ')
+            #Check if the end_mic value choosen can be converted to int
+            try:
+                int(end_mic)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                end_mic = int(end_mic)
+            else:
+                raise ValueError(f"The microphone value selected needs to be an integer.")
+            
+            
+
+            
+            #Store the data from the desired microphones and datablocks in TestData
+            TestData = self.DataSelect(OriginalData, datablocks, start_mic, end_mic)
+
+            LpcOrder = input('Select LPC order (1-32): ')
+            #Check if the LpcOrder value choosen can be converted to int
+            try:
+                int(LpcOrder)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                LpcOrder = int(LpcOrder)
+                if LpcOrder < 1:
+                    raise ValueError(f"The LPC order selected needs to be an atleast 1.")
+                elif LpcOrder > 32:
+                    raise ValueError(f"The LPC order can not be larger than 32.")
+
+            else:
+                raise ValueError(f"The LPC order selected needs to be an integer.")
+            
+            LpcAlgorithm = MetaLPC(LpcOrder)
+
+
+
+            #Create MemoryArray
+            MemorysIn = []
+            MemorysOut = []
+
+            
+
+            #Array to store all CodeWords
+            CodeWordArray = []
+
+
+
+            
+            
+            for CurrentBlock in range(len(TestData)):
+                #Use LPC to create the code words
+                CurrentTestData = TestData[CurrentBlock]
+                for mic in range(end_mic + 1 - start_mic):
+                    if CurrentBlock == 0:
+                        #Make sure all CodeWords are grouped by microphone
+                        CodeWordArray.append([])
+
+                        #Create memory array with appropriate length for selected order
+                        MemorysIn.append([0]*LpcOrder)
+                        MemorysOut.append([0]*LpcOrder)
+
+                    #Create codeword for current mic/datablock
+                    CurrentTestDataMic = CurrentTestData[mic]
+                    CodeWord, MemorysIn[mic], coef = LpcAlgorithm.In(CurrentTestDataMic.copy(), MemorysIn[mic])
+
+                    #Save Codeword in array
+                    CodeWordArray[mic].append(CodeWord)
+
+            #Array to store Decoding time
+            TimeArray = []
+
+            for i in range(datablocks):
+                #Start time
+                start_time = time.time()            
+                for mic in range(end_mic + 1 - start_mic):
+                        
+            
+                    #Grab all codewords for a specific microphone
+                    CodeWordsMic = CodeWordArray[mic]
+
+                    
+     
+
+                    #Select a codeword
+                    CurrentCodeWord = CodeWordsMic[i]
+                    
+                    #Decode the codeword fo every datablock
+                    DecodedData, MemorysOut[mic] = LpcAlgorithm.Out(CurrentCodeWord, MemorysOut[mic])
+                #Stop time
+                stop_time = time.time()
+
+                #Calculate totalt time
+                total_time = stop_time - start_time
+                
+                #Store total time in array
+                TimeArray.append(total_time)
+
+            #Calculate average time
+            avg_time = sum(TimeArray) / len(TimeArray)
+
+            print("Average time (in seconds) to recreate a full datablock using LPC order ", LpcOrder, "with Rice codes is: ",avg_time," s")
+
         elif self.TestNr == 15:
-            print('Test 15. Average speed to recreate values from codewords using LPC with Golomb codes.')
+            #Select what mics are going to be compressed
+            start_mic = input('Select what microhpone to start from: ')
+            #Check if the start_mic value choosen can be converted to int
+            try:
+                int(start_mic)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                start_mic = int(start_mic)
+            else:
+                raise ValueError(f"The microphone value selected needs to be an integer.")
+            
+
+            end_mic = input('Select what microhpone to end at (if only one mic is desired choose the same value as start microphone): ')
+            #Check if the end_mic value choosen can be converted to int
+            try:
+                int(end_mic)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                end_mic = int(end_mic)
+            else:
+                raise ValueError(f"The microphone value selected needs to be an integer.")
+            
+            
+
+            
+            #Store the data from the desired microphones and datablocks in TestData
+            TestData = self.DataSelect(OriginalData, datablocks, start_mic, end_mic)
+
+
+
+            LpcOrder = input('Select LPC order (1-32): ')
+            #Check if the LpcOrder value choosen can be converted to int
+            try:
+                int(LpcOrder)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                LpcOrder = int(LpcOrder)
+                if LpcOrder < 1:
+                    raise ValueError(f"The LPC order selected needs to be an atleast 1.")
+                elif LpcOrder > 32:
+                    raise ValueError(f"The LPC order can not be larger than 32.")
+
+            else:
+                raise ValueError(f"The LPC order selected needs to be an integer.")
+            
+            LpcAlgorithm = LPC(LpcOrder)
+
+            #Create MemoryArray
+            MemorysIn = []
+            MemorysOut = []
+
+            #Array to store all CodeWords
+            CodeWordArray = []
+
+            #Array to store coefficents
+            Coefficents = []
+
+            #Array to store m-values
+            m_array = []
+
+            #Encode all input values
+            for CurrentBlock in range(len(TestData)):
+                #Use LPC to create the code words
+                CurrentTestData = TestData[CurrentBlock]
+                for mic in range(end_mic + 1 - start_mic):
+                    if CurrentBlock == 0:
+                        #Make sure all CodeWords and m_values are grouped by microphone
+                        CodeWordArray.append([])
+                        m_array.append([])
+
+
+                        #Create memory array with appropriate length for selected order
+                        MemorysIn.append([0]*LpcOrder)
+                        MemorysOut.append([0]*LpcOrder)
+
+                        Coefficents.append([])
+                            
+
+                    #Create codeword for current mic/datablock
+                    CurrentTestDataMic = CurrentTestData[mic]
+                    coef, residuals, MemorysIn[mic], predictions = LpcAlgorithm.In(CurrentTestDataMic.copy(), MemorysIn[mic])
+                    
+                    Coefficents[mic].append(coef)
+
+
+                    #Calculate the ideal m value, by first calculating the ideal k value and taking 2^k
+                    #Calculates the ideal k_vaule for the data
+                    abs_res = np.absolute(residuals)
+                    abs_res_avg = np.mean(abs_res)
+                    #if abs_res_avg is less than 4.7 it would give a k value less than 1.
+                    #k needs tobe a int > 1. All abs_res_avg values bellow 6.64 will be set to 1 to avoid this issue
+                    if abs_res_avg > 6.64:
+                    #from testing it appears that the actual ideal k-value is larger by +1 than theory suggest,
+                    #atleast for larger k-value. The exact limit is unknown but it have been true for all test except for when the lowest k, k =1 is best.
+                    #Therefore th formula have been modified to increment k by 1 if abs_res_avg is larger than 6.64.
+                        k = int(round(math.log(math.log(2,10) * abs_res_avg,2))) +1
+                    else:
+                        k = 1
+
+                    #Calculate m value from k value by taking 2^k
+                    m = pow(2,k)
+                    #Store the m-value
+                    m_array[mic].append(m)
+
+                    #Golomb codes the residuals from LPC and saves the code word
+                    CodeWord = ""
+                    for i in range(len(residuals)):
+                        Golomb_coder = GolombCoding(m, True)
+                        n = int(residuals[i])
+                        kodOrd = Golomb_coder.Encode(n)
+                        CodeWord += kodOrd
+
+                    #Save Codeword in array
+                    CodeWordArray[mic].append(CodeWord)
+
+            #Array to store Decoding time
+            TimeArray = []
+
+
+            for i in range(datablocks):
+                #Start time
+                start_time = time.time()            
+                for mic in range(end_mic + 1 - start_mic):
+                    #Grab all codewords and m-values for a specific microphone
+                    CodeWordsMic = CodeWordArray[mic]
+                    MvaluesMic = m_array[mic]
+                    CurrentCoefficents = Coefficents[mic]
+                    
+                    #loop thorugh all codewords for the selected mic
+                    for i in range(len(CodeWordsMic)):
+                        
+                        #Select a codeword and m-values
+                        CurrentCodeWord = CodeWordsMic[i]
+                        m_values = MvaluesMic[i]
+
+                        #Grab coefficents
+                        coef = CurrentCoefficents[i]
+                        
+                        #Decode the residuals for every datablock
+                        Golomb_coder = GolombCoding(m_values, True)
+                        uncoded_residuals = Golomb_coder.Decode(CurrentCodeWord)
+                        #Recreate values
+                        DecodedData, MemorysOut[mic], predictions = LpcAlgorithm.Out(coef, uncoded_residuals, MemorysOut[mic])
+                        
+                        
+                #Stop time
+                stop_time = time.time()
+
+                #Calculate totalt time
+                total_time = stop_time - start_time
+                
+                #Store total time in array
+                TimeArray.append(total_time)
+
+            #Calculate average time
+            avg_time = sum(TimeArray) / len(TimeArray)
+
+
+            print("Average time (in seconds) to recreate a full datablock using LPC order ", LpcOrder, "with Golomb codes is: ",avg_time," s")
+
 
         #FLAC tests
         elif self.TestNr == 16:
