@@ -3,7 +3,7 @@ import math
 
 class FlacModified:
 
-    def __init__(self, sign = True, mics: int = 64, samples: int = 256, AdjacentOrder: int = 2, ForceEncoder = "None"):
+    def __init__(self, sign = True, mics: int = 64, samples: int = 256, AdjacentOrder: int = 1, ForceEncoder = "None"):
         self.ShortenCofficents = [[0],[1],[2, -1],[3, -3, 1],[4,-6,4,-1]]
         self.mics = mics
         self.samples = samples
