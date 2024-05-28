@@ -1163,7 +1163,6 @@ class TestFunctions:
 
         #LPC tests
         elif self.TestNr == 10:
-            print('Test 10. Compare original input with recreated values when using LPC with Rice codes to see if all values have been recreated correctly.')
             #Select what mics are going to be plotted
             start_mic = input('Select what microhpone to plot: ')
             #Check if the start_mic value choosen can be converted to int
@@ -2044,20 +2043,8 @@ class TestFunctions:
 
 
 
-            ShortenOrder = input('Select Shorten order (0-3): ')
-            #Check if the ShortenOrder value choosen can be converted to int
-            try:
-                int(ShortenOrder)
-            #If the value can not be converted to int set the FlagTry to false
-            except ValueError:
-                FlagTry = False
-
-            if FlagTry:
-                ShortenOrder = int(ShortenOrder)
-            else:
-                raise ValueError(f"The Shorten order selected needs to be an integer.")
             
-            ShortenAlgorithm = ShortenMeta(ShortenOrder)
+            FlacAlgorithm = MetaFLAC()
 
 
             #Create MemoryArray
@@ -2070,20 +2057,16 @@ class TestFunctions:
 
             
             for CurrentBlock in range(len(TestData)):
-                #Use shorten to create the code words
+                #Use FLAC to create the code words
                 CurrentTestData = TestData[CurrentBlock]
                 for mic in range(end_mic + 1 - start_mic):
                     if CurrentBlock == 0:
                         #Create memory array with appropriate length for selected order
-                        if ShortenOrder == 0:
-                            Memorys.append([])
-                            
-                        else:
-                            Memorys.append([0]*ShortenOrder)
+                        Memorys.append([0]*32)
 
                     #Create codeword for current mic/datablock
                     CurrentTestDataMic = CurrentTestData[mic]
-                    CodeWord, Memorys[mic] = ShortenAlgorithm.In(CurrentTestDataMic.copy(), Memorys[mic])
+                    CodeWord, Memorys[mic] = FlacAlgorithm.In(CurrentTestDataMic.copy(), Memorys[mic])
 
                     #Create binary uncoded word for current input, original value represented in 24 bits
                     UncodedWord = ""
@@ -2098,10 +2081,116 @@ class TestFunctions:
             #Calculate average CR for all codewords
             avg_cr = sum(cr_array) / len(cr_array)
 
-            print("Average compression rate using Shorte order ",ShortenOrder," is, CR = ",avg_cr)
+            print("Average compression rate using FLAC is, CR = ",avg_cr)
                
         elif self.TestNr == 17:
-            print('Test 17. Average speed to recreate values from codewords using FLAC.')
+            #Select what mics are going to be compressed
+            start_mic = input('Select what microhpone to start from: ')
+            #Check if the start_mic value choosen can be converted to int
+            try:
+                int(start_mic)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                start_mic = int(start_mic)
+            else:
+                raise ValueError(f"The microphone value selected needs to be an integer.")
+            
+
+            end_mic = input('Select what microhpone to end at (if only one mic is desired choose the same value as start microphone): ')
+            #Check if the end_mic value choosen can be converted to int
+            try:
+                int(end_mic)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                end_mic = int(end_mic)
+            else:
+                raise ValueError(f"The microphone value selected needs to be an integer.")
+            
+            
+
+            
+            #Store the data from the desired microphones and datablocks in TestData
+            TestData = self.DataSelect(OriginalData, datablocks, start_mic, end_mic)
+
+
+
+            
+            FlacAlgorithm = MetaFLAC()
+
+
+            #Create MemoryArray
+            MemorysIn = []
+            MemorysOut = []
+
+            
+
+            #Array to store all CodeWords
+            CodeWordArray = []
+
+
+
+            
+            
+            for CurrentBlock in range(len(TestData)):
+                #Use FLAC to create the code words
+                CurrentTestData = TestData[CurrentBlock]
+                for mic in range(end_mic + 1 - start_mic):
+                    if CurrentBlock == 0:
+                        #Make sure all CodeWords are grouped by microphone
+                        CodeWordArray.append([])
+
+                        #Create memory array with appropriate length for selected order
+                        MemorysIn.append([0]*32)
+                        MemorysOut.append([0]*32)
+                            
+
+                    #Create codeword for current mic/datablock
+                    CurrentTestDataMic = CurrentTestData[mic]
+                    CodeWord, MemorysIn[mic] = FlacAlgorithm.In(CurrentTestDataMic.copy(), MemorysIn[mic])
+
+                    #Save Codeword in array
+                    CodeWordArray[mic].append(CodeWord)
+
+            #Array to store Decoding time
+            TimeArray = []
+
+            for i in range(datablocks):
+                #Start time
+                start_time = time.time()            
+                for mic in range(end_mic + 1 - start_mic):
+                        
+            
+                    #Grab all codewords for a specific microphone
+                    CodeWordsMic = CodeWordArray[mic]
+
+                    
+     
+
+                    #Select a codeword
+                    CurrentCodeWord = CodeWordsMic[i]
+                    
+                    #Decode the codeword fo every datablock
+                    DecodedData, MemorysOut[mic], coding_choice = FlacAlgorithm.Out(CurrentCodeWord, MemorysOut[mic])
+                #Stop time
+                stop_time = time.time()
+
+                #Calculate totalt time
+                total_time = stop_time - start_time
+                
+                #Store total time in array
+                TimeArray.append(total_time)
+
+            #Calculate average time
+            avg_time = sum(TimeArray) / len(TimeArray)
+
+            print("Average time (in seconds) to recreate a full datablock using FLAC is: ",avg_time," s")
+
 
         #Adjacent tests
         elif self.TestNr == 19:
