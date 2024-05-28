@@ -2330,7 +2330,7 @@ class TestFunctions:
 
 
             #Create MemoryArray
-            Memorys = []
+            MemorysIn = []
             MemorysOut = []
             for j in range(end_mic + 1 - start_mic):
                     MemorysIn.append([0]*4)
@@ -2346,49 +2346,29 @@ class TestFunctions:
             CodeWordArray = []
 
 
-
-            
             
             for CurrentBlock in range(len(TestData)):
-                #Use FLAC to create the code words
+                #Use FLAC Modified to create the code words
                 CurrentTestData = TestData[CurrentBlock]
-                for mic in range(end_mic + 1 - start_mic):
-                    if CurrentBlock == 0:
-                        #Make sure all CodeWords are grouped by microphone
-                        CodeWordArray.append([])
+                CodeWords, MemorysIn = FlacAlgorithm.In(CurrentTestData.copy(), MemorysIn)
+                CodeWordArray.append(CodeWords)
 
-                        #Create memory array with appropriate length for selected order
-                        MemorysIn.append([0]*32)
-                        MemorysOut.append([0]*32)
-                            
 
-                    #Create codeword for current mic/datablock
-                    CurrentTestDataMic = CurrentTestData[mic]
-                    CodeWord, MemorysIn[mic] = FlacAlgorithm.In(CurrentTestDataMic.copy(), MemorysIn[mic])
-
-                    #Save Codeword in array
-                    CodeWordArray[mic].append(CodeWord)
 
             #Array to store Decoding time
             TimeArray = []
 
             for i in range(datablocks):
                 #Start time
-                start_time = time.time()            
-                for mic in range(end_mic + 1 - start_mic):
-                        
-            
-                    #Grab all codewords for a specific microphone
-                    CodeWordsMic = CodeWordArray[mic]
-
+                start_time = time.time()
+                CodeWords = CodeWordArray[i]
+                            
+                
                     
-     
+                
+                #Decode the codeword fo every datablock
+                DecodedData, MemorysOut = FlacAlgorithm.Out(CodeWords, MemorysOut)
 
-                    #Select a codeword
-                    CurrentCodeWord = CodeWordsMic[i]
-                    
-                    #Decode the codeword fo every datablock
-                    DecodedData, MemorysOut[mic], coding_choice = FlacAlgorithm.Out(CurrentCodeWord, MemorysOut[mic])
                 #Stop time
                 stop_time = time.time()
 
