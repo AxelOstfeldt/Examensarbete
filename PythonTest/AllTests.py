@@ -100,14 +100,12 @@ class TestFunctions:
 
         #DoubleCompression test
         elif self.TestNr == 26:
-            print('Test 26. Compare original input with recreated values when using DoubleCompression to see if all values have been recreated correctly.')
+            print('Test 26. Test compression rate using DoubleCompression.')
         elif self.TestNr == 27:
-            print('Test 27. Test compression rate using DoubleCompression.')
-        elif self.TestNr == 28:
-            print('Test 28. Average speed to recreate values from codewords using DoubleCompression.')
+            print('Test 27. Average speed to recreate values from codewords using DoubleCompression.')
 
         else:
-            raise ValueError(f"Test {self.TestNr} does not exist, please select a test between 1 and 30")
+            raise ValueError(f"Test {self.TestNr} does not exist, please select a test between 1 and 27")
         
         pass
 
@@ -2385,14 +2383,115 @@ class TestFunctions:
 
         #DoubleCompression test
         elif self.TestNr == 26:
-            print('Test 26. Compare original input with recreated values when using DoubleCompression to see if all values have been recreated correctly.')
+            #Select what mics are going to be compressed
+            start_mic = input('Select what microhpone to start from: ')
+            #Check if the start_mic value choosen can be converted to int
+            try:
+                int(start_mic)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                start_mic = int(start_mic)
+            else:
+                raise ValueError(f"The microphone value selected needs to be an integer.")
+            
+
+            end_mic = input('Select what microhpone to end at: ')
+            #Check if the end_mic value choosen can be converted to int
+            try:
+                int(end_mic)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                end_mic = int(end_mic)
+            else:
+                raise ValueError(f"The microphone value selected needs to be an integer.")
+            
+
+            
+            #Store the data from the desired microphones and datablocks in TestData
+            TestData = self.DataSelect(OriginalData, datablocks, start_mic, end_mic)
+
+
+            Order = input('Select order (0-4): ')
+            #Check if the Order value choosen can be converted to int
+            try:
+                int(Order)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                Order = int(Order)
+                if Order < 0 or Order > 4:
+                    raise ValueError(f"The order selected needs to be between 0 and 4.")
+
+            else:
+                raise ValueError(f"The order selected needs to be an integer.")
+            
+            microhpones = end_mic - start_mic
+            
+            #Create memory array with appropriate length for selected order
+            MemoryIn = []
+            for j in range(microhpones):
+
+                MemoryIn.append([0]*4)
+                
+            
+
+            AdjacentMemory = [0] * 4
+
+
+            
+
+            DoubleCompressionAlgorithm = DoubleCompression(ShortenOrder=Order, mics=microhpones)
+
+             #Array to store all compression rates
+            cr_array = []
+
+            
+            for CurrentBlock in range(len(TestData)):
+                #Use FLAC Modified to create the code words
+                CurrentTestData = TestData[CurrentBlock]
+                #Grabs codewords for all mics in the current datablock
+                CodeWords, MemoryIn, AdjacentMemory, currentAllSorted = DoubleCompressionAlgorithm.In(CurrentTestData.copy(), MemoryIn, AdjacentMemory)
+                for mic in range(end_mic - start_mic):
+                    
+                    #Grab codeword for current mic
+                    CodeWord = CodeWords[mic]    
+
+                    #Create codeword for current mic/datablock
+                    CurrentTestDataMic = CurrentTestData[mic]
+                    
+
+                    #Create binary uncoded word for current input, original value represented in 24 bits
+                    UncodedWord = ""
+                    for sample in CurrentTestDataMic:
+                        UncodedWord += np.binary_repr(sample, 24)
+
+                    #Calculate CR for current codeword
+                    cr = len(CodeWord) / len(UncodedWord)
+                    #Save Cr in array
+                    cr_array.append(cr)
+
+            #Calculate average CR for all codewords
+            avg_cr = sum(cr_array) / len(cr_array)
+
+            print("Average compression rate using DoubleCompression is, CR = ",avg_cr)
+            
+
         elif self.TestNr == 27:
-            print('Test 27. Test compression rate using DoubleCompression.')
-        elif self.TestNr == 28:
-            print('Test 28. Average speed to recreate values from codewords using DoubleCompression.')
+            print('Test 27. Average speed to recreate values from codewords using DoubleCompression.')
+            
+        
+            
 
         else:
-            raise ValueError(f"Test {self.TestNr} does not exist, please select a test between 1 and 28")
+            raise ValueError(f"Test {self.TestNr} does not exist, please select a test between 1 and 27")
         
         pass
 
