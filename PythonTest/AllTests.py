@@ -2379,7 +2379,7 @@ class TestFunctions:
             #Calculate average time
             avg_time = sum(TimeArray) / len(TimeArray)
 
-            print("Average time (in seconds) to recreate a full datablock using FLAC is: ",avg_time," s")
+            print("Average time (in seconds) to recreate a full datablock using FLAC Modified is: ",avg_time," s")
 
         #DoubleCompression test
         elif self.TestNr == 26:
@@ -2485,7 +2485,115 @@ class TestFunctions:
             
 
         elif self.TestNr == 27:
-            print('Test 27. Average speed to recreate values from codewords using DoubleCompression.')
+            #Select what mics are going to be compressed
+            start_mic = input('Select what microhpone to start from: ')
+            #Check if the start_mic value choosen can be converted to int
+            try:
+                int(start_mic)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                start_mic = int(start_mic)
+            else:
+                raise ValueError(f"The microphone value selected needs to be an integer.")
+            
+
+            end_mic = input('Select what microhpone to end at: ')
+            #Check if the end_mic value choosen can be converted to int
+            try:
+                int(end_mic)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                end_mic = int(end_mic)
+            else:
+                raise ValueError(f"The microphone value selected needs to be an integer.")
+            
+
+            
+            #Store the data from the desired microphones and datablocks in TestData
+            TestData = self.DataSelect(OriginalData, datablocks, start_mic, end_mic)
+
+
+            Order = input('Select order (0-4): ')
+            #Check if the Order value choosen can be converted to int
+            try:
+                int(Order)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                Order = int(Order)
+                if Order < 0 or Order > 4:
+                    raise ValueError(f"The order selected needs to be between 0 and 4.")
+
+            else:
+                raise ValueError(f"The order selected needs to be an integer.")
+            
+            microhpones = end_mic - start_mic
+            
+            #Create memory array with appropriate length for selected order
+            MemoryIn = []
+            MemoryOut= []
+            for j in range(microhpones):
+
+                MemoryIn.append([0]*4)
+                MemoryOut.append([0]*4)
+                
+            
+
+            AdjacentMemoryIn = [0] * 4
+            AdjacentMemoryOut = [0] * 4
+
+
+            
+
+            DoubleCompressionAlgorithm = DoubleCompression(ShortenOrder=Order, mics=microhpones)
+
+            #Array to store all CodeWords
+            CodeWordArray = []
+
+
+            
+            for CurrentBlock in range(len(TestData)):
+                #Use FLAC Modified to create the code words
+                CurrentTestData = TestData[CurrentBlock]
+                CodeWords, MemoryIn, AdjacentMemoryIn, AllSortedResiduals = DoubleCompressionAlgorithm.In(CurrentTestData.copy(), MemoryIn, AdjacentMemoryIn)
+                CodeWordArray.append(CodeWords)
+
+
+
+            #Array to store Decoding time
+            TimeArray = []
+
+            for i in range(datablocks):
+                #Start time
+                start_time = time.time()
+                CodeWords = CodeWordArray[i]
+                            
+                
+                    
+                
+                #Decode the codeword fo every datablock
+                Decodedvalues, MemoryOut, AdjacentMemoryOut = DoubleCompressionAlgorithm.Out(CodeWords, MemoryOut, AdjacentMemoryOut)
+                stop_time = time.time()
+
+                #Calculate totalt time
+                total_time = stop_time - start_time
+                
+                #Store total time in array
+                TimeArray.append(total_time)
+
+            #Calculate average time
+            avg_time = sum(TimeArray) / len(TimeArray)
+
+            print("Average time (in seconds) to recreate a full datablock using DoubleCompression is: ",avg_time," s")
+
             
         
             
