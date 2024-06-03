@@ -1907,7 +1907,7 @@ for itter in range(len(test_data)):
 
             #Golomb code the resiudals
             
-            CodeWord = ""#
+            CodeWord = ""
             for i in range(len(CurrentResiduals)):
                 Golomb_coder = GolombCoding(m, sign)
                 n = int(CurrentResiduals[i])
