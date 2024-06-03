@@ -21,7 +21,7 @@ while DoTests:
     if StartTest.lower() == 'info':
         print("Test info")
         #Loop trough all test numbers and call TestInfo function that prints test info for a tests but returns nothing
-        for TestNumber in range(1, 29):
+        for TestNumber in range(1, 28):
             print("")
             CurrentTest = TestFunctions(TestNumber)
             CurrentTest.TestInfo()

@@ -1797,6 +1797,7 @@ class TestFunctions:
 
             print("Average time (in seconds) to recreate a full datablock using LPC order ", LpcOrder, "with Rice codes is: ",avg_time," s")
 
+
         elif self.TestNr == 15:
             #Select what mics are going to be compressed
             start_mic = input('Select what microhpone to start from: ')
@@ -2045,7 +2046,8 @@ class TestFunctions:
             avg_cr = sum(cr_array) / len(cr_array)
 
             print("Average compression rate using FLAC is, CR = ",avg_cr)
-               
+
+
         elif self.TestNr == 17:
             #Select what mics are going to be compressed
             start_mic = input('Select what microhpone to start from: ')
@@ -2989,6 +2991,7 @@ class TestFunctions:
             avg_cr = sum(cr_array) / len(cr_array)
 
             print("Average compression rate using FLAC Modified is, CR = ",avg_cr)
+
             
         elif self.TestNr == 25:
             #Select what mics are going to be compressed
