@@ -2284,7 +2284,6 @@ class TestFunctions:
 
 
         elif self.TestNr == 19:
-            print('Test 19. Compare original input with recreated values when using Adjacent with Golomb codes to see if all values have been recreated correctly.')
             #Select what mics are going to be plotted
             start_mic = input('Select what microhpone to use: ')
             #Check if the start_mic value choosen can be converted to int
@@ -2700,8 +2699,7 @@ class TestFunctions:
 
 
         elif self.TestNr == 22:
-            print('Test 22. Average speed to recreate values from codewords using Adjacent with Rice codes.')
-             #Select what mics are going to be plotted
+            #Select what mics are going to be plotted
             start_mic = input('Select what microhpone to use: ')
             #Check if the start_mic value choosen can be converted to int
             try:
@@ -2778,9 +2776,137 @@ class TestFunctions:
             
 
             print("Average time (in seconds) for Adjacent to reacreate a datablock of values while using Rice codes: ", avg_time,"s")
-        
+
+
         elif self.TestNr == 23:
-            print('Test 23. Average speed to recreate values from codewords using Adjacent with Golomb codes.')
+            #Select what mics are going to be plotted
+            start_mic = input('Select what microhpone to use: ')
+            #Check if the start_mic value choosen can be converted to int
+            try:
+                int(start_mic)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                start_mic = int(start_mic)
+            else:
+                raise ValueError(f"The microphone value selected needs to be an integer.")
+            
+            end_mic = input('Select what microhpone to end at (if only one mic is desired choose the same value as start microphone): ')
+            #Check if the end_mic value choosen can be converted to int
+            try:
+                int(end_mic)
+            #If the value can not be converted to int set the FlagTry to false
+            except ValueError:
+                FlagTry = False
+
+            if FlagTry:
+                end_mic = int(end_mic)
+            else:
+                raise ValueError(f"The microphone value selected needs to be an integer.")
+            
+            
+
+            
+            #Store the data from the desired microphones and datablocks in TestData
+            TestData = self.DataSelect(OriginalData, datablocks, start_mic, end_mic)
+
+            AdjacentAlgorithm = Adjacent(1)
+            MemoryIn = [0]
+            MemoryOut = [0]
+            AllInputs = []
+            AllCodeWords = []
+            AllMvalues = []
+    
+
+            for block in range(len(TestData)):
+                #Grab the testdata for the current block
+                CurrentTestData = TestData[block]
+
+                for sample in range(256):
+
+                    if block == 0:
+                        AllCodeWords.append([])
+                        AllMvalues.append([])
+                    
+                    #create an array to save all mic values for current data sample
+                    testInputs = []
+                    for microphone in range(end_mic + 1 - start_mic):
+                        testIn = CurrentTestData[microphone,sample]
+                        testInputs.append(testIn)
+
+                    CurrentResiduals, MemoryIn, CurrentPredictions = AdjacentAlgorithm.In(testInputs, MemoryIn)
+
+                    AllInputs.append(testInputs)
+
+                    #Calculates the ideal k_vaule for the residuals
+                    abs_res = np.absolute(CurrentResiduals)
+                    abs_res_avg = np.mean(abs_res)
+                    #if abs_res_avg is less than 4.7 it would give a k value less than 1.
+                    #k needs tobe a int > 1. All abs_res_avg values bellow 6.64 will be set to 1 to avoid this issue
+                    if abs_res_avg > 6.64:
+
+                        k = int(round(math.log(math.log(2,10) * abs_res_avg,2))) + 1
+                    else:
+                        k = 1
+
+                    #calculating the m value by taking 2 to the power of k
+                        
+                    m = pow(2,k)
+
+                    #Golomb code the resiudals
+                    
+                    CodeWord = ""
+                    for i in range(len(CurrentResiduals)):
+                        Golomb_coder = GolombCoding(m, True)
+                        n = int(CurrentResiduals[i])
+                        kodOrd = Golomb_coder.Encode(n)
+                        CodeWord += kodOrd
+                    
+                    #Save the ricecoded residuals and k-values to later decode
+                    AllCodeWords[sample].append(CodeWord)
+                    AllMvalues[sample].append(m)
+
+
+
+            
+            
+
+            
+
+            #Recreate inputs
+            TimeArray = []
+            #Loop thorugh all data blocks
+            for i in range(datablocks):
+                start_time = time.time()
+                #loop thorugh all samples
+                for sample in range(256):
+
+                    #Grab data from the current sample
+                    CodeWordsDataSample = AllCodeWords[sample]
+                    MvaluesSample = AllMvalues[sample]
+
+
+                    #Grab data from the current datablock
+                    CodeWord = CodeWordsDataSample[i]
+                    mValue = MvaluesSample[i]
+
+
+                    Golomb_decoder = GolombCoding(mValue, True)
+                    residuals = Golomb_decoder.Decode(CodeWord)
+
+                    #Recreate the original inputs
+                    CurrentRecreatedInputs, MemoryOut, predictions = AdjacentAlgorithm.Out(residuals, MemoryOut)
+                
+                end_time = time.time()
+                total_time = end_time - start_time
+                TimeArray.append(total_time)
+
+            avg_time = sum(TimeArray) / len(TimeArray)
+
+            print("Average time (in seconds) for Adjacent to reacreate a datablock of values while using Golomb codes: ", avg_time,"s")
+
 
         #FLAC-Modified tests
         elif self.TestNr == 24:
